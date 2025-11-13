@@ -1,0 +1,26 @@
+#!/bin/bash
+# ai-log-start: Create session log file
+# Usage: ai-log-start "task-summary" "detailed-instructions"
+
+TASK_SUMMARY="$1"
+INSTRUCTIONS="$2"
+SESSION_ID=$(date +%H%M)
+
+# Sanitize summary for filename (replace spaces with hyphens, keep only alphanumeric and hyphens, limit to 30 chars)
+FILENAME_SAFE=$(echo "$TASK_SUMMARY" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-30)
+FILENAME="_${SESSION_ID}-${FILENAME_SAFE}.json"
+
+# Create log file with initial data
+cat > "$FILENAME" <<EOF
+{
+  "session_id": "$SESSION_ID",
+  "task_summary": "$TASK_SUMMARY",
+  "instructions": "$INSTRUCTIONS",
+  "started_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "working_directory": "$(pwd)",
+  "status": "in_progress",
+  "progress_logs": []
+}
+EOF
+
+echo "✓ Session started: $FILENAME"

@@ -1,0 +1,26 @@
+#!/bin/bash
+# ai-log-progress: Append progress entry to active session log
+# Usage: ai-log-progress '{"tldr":"Progress update","certainty":75}'
+
+PROGRESS_JSON="$1"
+SESSION_FILE=$(ls _*.json 2>/dev/null | head -1)
+
+# Check if session file exists
+if [ -z "$SESSION_FILE" ]; then
+  echo "⚠️  No active session found (no _*.json file in current directory)"
+  exit 0  # Don't fail - just warn
+fi
+
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+  echo "⚠️  jq not installed, progress not logged (install with: brew install jq)"
+  exit 0
+fi
+
+# Append to progress_logs array with timestamp
+TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+jq --arg ts "$TIMESTAMP" --argjson entry "$PROGRESS_JSON" \
+   '.progress_logs += [($entry + {timestamp: $ts})]' \
+   "$SESSION_FILE" > "${SESSION_FILE}.tmp" && mv "${SESSION_FILE}.tmp" "$SESSION_FILE"
+
+echo "✓ Progress logged to $SESSION_FILE"

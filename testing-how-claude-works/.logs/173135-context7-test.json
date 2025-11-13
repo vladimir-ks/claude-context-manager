@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 6942,
+  "duration_api_ms": 8902,
+  "num_turns": 8,
+  "result": "**React Hooks** are functions that let you \"hook into\" React features. They let functional components use state and lifecycle features (previously only available in classes). Common hooks: `useState` (state), `useEffect` (side effects), `useContext` (context). Must follow rules: call only at top level, never conditionally.",
+  "session_id": "00e909c6-30ce-4c7d-94ae-c2b8820c6b16",
+  "total_cost_usd": 0.0391605,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 24092,
+    "cache_read_input_tokens": 39975,
+    "output_tokens": 275,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 24092
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2743,
+      "outputTokens": 461,
+      "cacheReadInputTokens": 39975,
+      "cacheCreationInputTokens": 24092,
+      "webSearchRequests": 0,
+      "costUSD": 0.0391605,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "1baea3d9-930c-4caa-9132-a59786d09979"
+}

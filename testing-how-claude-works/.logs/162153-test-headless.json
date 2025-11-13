@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 2808,
+  "duration_api_ms": 2780,
+  "num_turns": 2,
+  "result": "I need clarification on your request. You're asking for analysis with specific fields (key_findings, summary, timestamp, agent_id) in JSON format, but I'm missing critical context:\n\n1. **What should I analyze?** (codebase, logs, files, performance data, etc.)\n2. **Which files or systems?** (specific paths or scope)\n3. **Analysis type?** (code review, performance, security, architecture, etc.)\n4. **Agent_id value?** (how should this be identified?)\n\nCould you provide these details so I can deliver the focused analysis you need?",
+  "session_id": "f37a5262-f26a-41f9-94dd-b78327f58b98",
+  "total_cost_usd": 0.005141100000000001,
+  "usage": {
+    "input_tokens": 2,
+    "cache_creation_input_tokens": 2330,
+    "cache_read_input_tokens": 15466,
+    "output_tokens": 136,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 2330
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2,
+      "outputTokens": 136,
+      "cacheReadInputTokens": 15466,
+      "cacheCreationInputTokens": 2330,
+      "webSearchRequests": 0,
+      "costUSD": 0.005141100000000001,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "582929bc-ca53-4d59-942a-5ccf3b931a39"
+}

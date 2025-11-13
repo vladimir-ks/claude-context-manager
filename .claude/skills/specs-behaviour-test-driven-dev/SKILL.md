@@ -1,0 +1,1 @@
+[[! this skill is all about creating most comprehensive specs, feature files and test]]

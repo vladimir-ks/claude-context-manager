@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 5121,
+  "duration_api_ms": 7529,
+  "num_turns": 2,
+  "result": "# Available Tools\n\n## File & Code Operations\n- **Read** - Read files from disk\n- **Write** - Write files to disk\n- **Edit** - Replace text in existing files\n- **Glob** - Find files by pattern matching\n- **Grep** - Search file contents with regex\n- **NotebookEdit** - Edit Jupyter notebook cells\n\n## Execution & Automation\n- **Bash** - Run terminal commands\n- **Task** - Launch specialized agents (general-purpose, Explore, code-reviewer, etc.)\n- **SlashCommand** - Execute custom slash commands (e.g., `/test-parallel`)\n\n## Planning & Tracking\n- **TodoWrite** - Create and manage task lists\n\n## Web & Information\n- **WebFetch** - Fetch and analyze web content\n- **WebSearch** - Search the web for information\n\n## Browser Automation\n- **mcp__playwright__browser_*** - Full browser control (navigate, click, type, screenshot, etc.)\n\n## Planning & Design\n- **ExitPlanMode** - Signal completion of planning phase for code tasks\n\n## Context Management\n- **Skill** - Execute available skills (if any loaded)\n\n---\n\n**Quick Note**: I prioritize specialized tools over bash for file operations (Read/Edit/Write over cat/sed). I also make parallel tool calls when tasks are independent to maximize efficiency.",
+  "session_id": "5c42772e-bbe1-42d9-8d8c-b326527b7189",
+  "total_cost_usd": 0.0314205,
+  "usage": {
+    "input_tokens": 2,
+    "cache_creation_input_tokens": 21018,
+    "cache_read_input_tokens": 0,
+    "output_tokens": 307,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 21018
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2733,
+      "outputTokens": 483,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 21018,
+      "webSearchRequests": 0,
+      "costUSD": 0.0314205,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "c31a7ccd-9ead-43db-a960-46b11a252511"
+}

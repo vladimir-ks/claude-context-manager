@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 8682,
+  "duration_api_ms": 10754,
+  "num_turns": 8,
+  "result": "**Vue 3 Composition API** is an alternative way to write components by organizing code by logical features rather than option types. It uses functions like `ref()`, `reactive()`, `watch()`, and `provide/inject()` for reactivity, lifecycle, and state management—ideal for complex components and code reuse.",
+  "session_id": "210f9362-7f97-4cda-8047-b195794b1d9c",
+  "total_cost_usd": 0.0416527,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 25932,
+    "cache_read_input_tokens": 40397,
+    "output_tokens": 274,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 25932
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2743,
+      "outputTokens": 491,
+      "cacheReadInputTokens": 40397,
+      "cacheCreationInputTokens": 25932,
+      "webSearchRequests": 0,
+      "costUSD": 0.0416527,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "07b5a4ed-fea5-4647-ab68-87da6a0352bc"
+}

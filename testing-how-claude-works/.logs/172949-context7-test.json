@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 7829,
+  "duration_api_ms": 9790,
+  "num_turns": 8,
+  "result": "**React Hooks**: Functions letting you use state and React features in functional components. Core hooks include `useState` (manage state), `useEffect` (run side effects), and `useContext` (access context). Must follow Rules of Hooks: call at top level, never conditionally or in loops.",
+  "session_id": "c0f44f9b-07b2-4ef5-b65f-3d586b478520",
+  "total_cost_usd": 0.0405999,
+  "usage": {
+    "input_tokens": 12,
+    "cache_creation_input_tokens": 25282,
+    "cache_read_input_tokens": 39894,
+    "output_tokens": 268,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 25282
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2743,
+      "outputTokens": 453,
+      "cacheReadInputTokens": 39894,
+      "cacheCreationInputTokens": 25282,
+      "webSearchRequests": 0,
+      "costUSD": 0.0405999,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "4def33e3-58a3-481e-84ed-d7ec3a0e74f2"
+}

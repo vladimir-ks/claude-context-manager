@@ -1,0 +1,38 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "duration_ms": 2611,
+  "duration_api_ms": 5439,
+  "num_turns": 2,
+  "result": "```json\n{\n  \"status\": \"ready\",\n  \"agent_id\": \"analysis-agent-001\",\n  \"message\": \"Analysis agent initialized. Awaiting task with data or codebase context to analyze.\",\n  \"capabilities\": [\n    \"Code analysis\",\n    \"Architecture review\",\n    \"Performance assessment\",\n    \"Dependency mapping\",\n    \"Pattern detection\"\n  ],\n  \"expected_input\": {\n    \"task\": \"string describing what to analyze\",\n    \"context\": \"optional codebase or data context\",\n    \"focus_areas\": \"optional array of specific areas to examine\"\n  }\n}\n```",
+  "session_id": "9d3422cd-c67f-40d2-9b43-043ae65e885b",
+  "total_cost_usd": 0.02336275,
+  "usage": {
+    "input_tokens": 3,
+    "cache_creation_input_tokens": 15179,
+    "cache_read_input_tokens": 0,
+    "output_tokens": 150,
+    "server_tool_use": {
+      "web_search_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 15179
+    }
+  },
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 2734,
+      "outputTokens": 331,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 15179,
+      "webSearchRequests": 0,
+      "costUSD": 0.02336275,
+      "contextWindow": 200000
+    }
+  },
+  "permission_denials": [],
+  "uuid": "79818103-4117-4275-805f-af506d0625dc"
+}

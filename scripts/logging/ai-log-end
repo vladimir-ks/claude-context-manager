@@ -1,0 +1,54 @@
+#!/bin/bash
+# ai-log-end: Finalize session and move to .log/ directory
+# Usage: ai-log-end '{"status":"completed","tldr":"Task summary","certainty":95,"next_steps":["action1","action2"]}'
+
+END_JSON="$1"
+SESSION_FILE=$(ls _*.json 2>/dev/null | head -1)
+
+# Check if session file exists
+if [ -z "$SESSION_FILE" ]; then
+  echo "⚠️  No active session found (no _*.json file in current directory)"
+  exit 0
+fi
+
+# Check if jq is available
+if ! command -v jq &> /dev/null; then
+  echo "⚠️  jq not installed, session not finalized (install with: brew install jq)"
+  exit 0
+fi
+
+# Extract data from input JSON
+TLDR=$(echo "$END_JSON" | jq -r '.tldr // "no-summary"' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-30)
+CERTAINTY=$(echo "$END_JSON" | jq -r '.certainty // 0')
+STATUS=$(echo "$END_JSON" | jq -r '.status // "unknown"')
+ENDED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Update session file with end data
+jq --arg ended "$ENDED_AT" \
+   --arg status "$STATUS" \
+   --argjson end_data "$END_JSON" \
+   '. + {ended_at: $ended, status: $status} + $end_data' \
+   "$SESSION_FILE" > "${SESSION_FILE}.tmp" && mv "${SESSION_FILE}.tmp" "$SESSION_FILE"
+
+# Prepare destination directory
+mkdir -p .log
+
+# Generate new filename with MMDD_HHMM-{tldr}.json format
+NEW_NAME=".log/$(date +%m%d_%H%M)-${TLDR}.json"
+
+# Move file to .log/ directory
+mv "$SESSION_FILE" "$NEW_NAME"
+
+echo "✓ Session log saved: $NEW_NAME"
+echo ""
+
+# Return message based on certainty level
+if [ "$CERTAINTY" -lt 70 ]; then
+  echo "⚠️  Low certainty ($CERTAINTY%). Review recommended."
+  echo "   Consider running validation or additional testing."
+elif [ "$CERTAINTY" -lt 90 ]; then
+  echo "✓ Certainty: $CERTAINTY%. Task completed."
+  echo "   Validation suggested for production use."
+else
+  echo "✓✓ High certainty: $CERTAINTY%. Task completed successfully."
+fi
