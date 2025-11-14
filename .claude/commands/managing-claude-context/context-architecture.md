@@ -76,6 +76,17 @@ Load references ONLY when needed for current phase. For each phase:
 3. **Load phase procedure reference**: `context-architecture-{phase-name}.md`
 4. **Load supporting references** as needed (listed in procedure reference)
 
+**CRITICAL - Sequential Thinking Principle**:
+
+LLMs are "autocomplete on steroids" - they excel at following logical, sequential patterns. ALL document generation within a single command execution MUST be sequential, not parallel:
+
+- ✅ **Generate documents ONE AT A TIME** - each building upon the previous
+- ✅ **Follow dependency order** - foundation documents before dependent documents
+- ✅ **Mark completed immediately** - complete each document task before starting the next
+- ❌ **NEVER generate multiple documents in parallel** - this breaks coherence and produces contradictions
+
+This principle applies to ALL phases and ALL deliverable generation throughout this command.
+
 ## Workflow Execution
 
 Follow the process defined in loaded references. Update todos as you progress through each phase.
@@ -91,23 +102,36 @@ Follow the process defined in loaded references. Update todos as you progress th
 
 1. Load `context-architecture-deliverables-phase2.md` and add TodoWrite tasks
 2. Load `context-architecture-design.md` and follow procedures
-3. Generate core deliverables at `{ARCHITECTURE_ROOT}/context-architecture/`
-4. Generate extended deliverables if needed (see deliverables reference)
-5. Mark todos as completed
+3. **Generate core deliverables SEQUENTIALLY** at `{ARCHITECTURE_ROOT}/context-architecture/`
+   - **CRITICAL**: Generate documents ONE AT A TIME in this order:
+     a. `system_architecture.md` (foundation - all other docs build on this)
+     b. `context_distribution_map.md` (builds on system architecture)
+     c. `agent_interaction_flow.md` (builds on distribution map)
+     d. `business_process_map.md` (builds on interaction flow)
+   - **NEVER generate documents in parallel** - LLMs excel at sequential generation where each document builds upon previous ones
+   - Mark each document task as completed immediately after generating it
+4. Generate extended deliverables if needed (see deliverables reference) - ALSO SEQUENTIALLY
+5. Mark all todos as completed
 
 ### Phase 3: Detailed Specifications (if needed)
 
 1. Load `context-architecture-deliverables-phase3.md` and add TodoWrite tasks
 2. Load `context-architecture-specifications.md` and follow procedures
-3. Generate specification documents at `{ARCHITECTURE_ROOT}/context-architecture/`
-4. Mark todos as completed
+3. **Generate specification documents SEQUENTIALLY** at `{ARCHITECTURE_ROOT}/context-architecture/`
+   - **CRITICAL**: Generate ONE specification at a time
+   - Follow logical dependency order (foundation specs before dependent specs)
+   - Mark each specification task as completed immediately after generating it
+4. Mark all todos as completed
 
 ### Phase 4: Validation & Quality Assurance (if needed)
 
 1. Load `context-architecture-deliverables-phase4.md` and add TodoWrite tasks
 2. Load `context-architecture-validation.md` and follow procedures
-3. Generate validation documents at `{ARCHITECTURE_ROOT}/context-architecture/`
-4. Mark todos as completed
+3. **Generate validation documents SEQUENTIALLY** at `{ARCHITECTURE_ROOT}/context-architecture/`
+   - **CRITICAL**: Generate ONE validation document at a time
+   - Follow logical order: validation report → performance analysis → risk assessment → etc.
+   - Mark each validation document task as completed immediately after generating it
+4. Mark all todos as completed
 
 ## Output Organization
 

@@ -2,7 +2,7 @@
 
 ## Core Philosophy
 
-Context minimization is the highest priority principle in Claude Code management. The goal is to keep always-loaded elements under 100 tokens total while ensuring the system remains fully functional and efficient.
+Context minimization is the highest priority principle in Claude Code management. The goal is to keep always-loaded elements as lean as possible while ensuring the system remains fully functional and efficient. Every token in always-loaded context must justify its permanent presence.
 
 **Why Minimize Context?**
 
@@ -12,25 +12,28 @@ Context minimization is the highest priority principle in Claude Code management
 - **Scalability:** Handle larger repositories without context bloat
 - **Reliability:** Avoid context limit errors and degraded responses
 
-## Always-Loaded Elements (<100 tokens total)
+## Always-Loaded Elements (Minimize Aggressively)
+
+**Guiding Principle**: Only include information that EVERY agent, regardless of task, absolutely needs to function correctly. Everything else belongs in a more specific context layer (subdirectory CLAUDE.md, skill reference, or manual).
 
 ### 1. Global CLAUDE.md (Universal Instructions)
 
-Contains concise instructions that are universally true and needed everywhere across all projects. May exceed 200 tokens if the instructions are universally required.
+Contains concise instructions that are universally true and needed everywhere across all projects.
 
 ```
 # Global Claude Rules
-- Minimize context: <100 tokens total always-loaded elements
+- Minimize context: Always-loaded elements must be essential only
 - Parallel execution: waves preferred, subagents for scale
 - Summaries only: no raw data dumps, use file:lines references
 - Delegate research: use agents for heavy context work
 - Structured reporting: Report Contract v2 mandatory for all tasks
 - Integration: All agents/commands read managing-claude-context SKILL.md first
+- Manual-first: Check description for manual path before using commands/agents
 ```
 
 ### 2. Repository CLAUDE.md (Essential Project Context)
 
-Contains comprehensive project information that EVERY agent working on the repository should know. Typically 400-500 tokens for complete project understanding.
+Contains comprehensive project information that EVERY agent working on the repository should know, regardless of their specific task. Focus on repo-wide context that can't be delegated to more specific layers.
 
 ```
 # Project Context Rules
@@ -44,41 +47,76 @@ Contains comprehensive project information that EVERY agent working on the repos
 - Integration patterns: [how modules interact, API contracts, data flow]
 ```
 
-### 3. Command Metadata (10-15 tokens)
+### 3. Command Metadata
 
-Self-documenting names that clearly indicate functionality.
+Self-documenting names that clearly indicate functionality. Minimize frontmatter using the Manual-First Pattern (see below).
 
+**Examples of good naming**:
 ```
-create-edit-command: Manage slash commands with parallel execution
-create-edit-agent: Manage autonomous agents with delegation
-create-edit-skill: Manage orchestration skills with wave planning
-create-edit-mcp: Manage external integrations safely
-create-edit-claude-md: Manage context files with minimization
-context-architecture: Optimize overall context and parallel setup
-```
-
-### 4. Agent Metadata (10-15 tokens)
-
-Role-based names with clear responsibilities and integration patterns.
-
-```
-research-agent: Study patterns and return structured summaries
-analysis-agent: Process findings and provide actionable insights
-validation-agent: Check compliance and quality standards
-synthesis-agent: Merge results and generate recommendations
-reviewer-agent: Validate implementations and provide feedback
-testing-agent: Execute comprehensive test suites and coverage
+create-edit-command: Clear function from name
+create-edit-agent: Clear function from name
+create-edit-skill: Clear function from name
+create-edit-mcp: Clear function from name
+create-edit-claude-md: Clear function from name
+context-architecture: Clear function from name
 ```
 
-### Token Budget Breakdown
+### 4. Agent Metadata
 
-- **Global CLAUDE.md:** Universal rules (may exceed 40 tokens if universally needed)
-- **Repository CLAUDE.md:** Essential project context (400-500 tokens typical for comprehensive project knowledge)
-- **Command/Agent/Skill metadata:** 10-15 tokens total for names and triggers
+Role-based names with clear responsibilities. Minimize frontmatter using the Manual-First Pattern (see below).
 
-[{! Suggestion: The token counts here feel arbitrary and potentially too low for a complex project's CLAUDE.md. Let's rephrase this to be about principles rather than hard numbers. The principle is "as lean as possible while providing essential, repo-wide context." A complex project might justifiably need more tokens here. The goal is to avoid redundancy, not to hit a magic number. }]
-[{! Suggestion: Rephrase this section to focus on principles. For example: "The goal for always-loaded context is not to hit an arbitrary number, but to be as lean as possible. Every token should justify its permanent presence. For `Repository CLAUDE.md`, the guiding principle is: 'Does EVERY agent, regardless of its task, absolutely need this information to function correctly?' If not, it belongs in a more specific context layer (like a subdirectory CLAUDE.md or a skill reference)." This shifts the focus from counting to justification. }]
-[[! ideally we should aim so that the name of the command/skill/agent and their directory would be sufficient to correctly identify it and the skill that contains the manual to use it. Then descriptions and hint for arguements should not be used to avoid filling in the context window. To use any agents or /command we should instruct via global claude.md to first use the skill with manual for those agents or commands]]
+**Examples of good naming**:
+```
+research-agent: Clear role from name
+analysis-agent: Clear role from name
+validation-agent: Clear role from name
+synthesis-agent: Clear role from name
+reviewer-agent: Clear role from name
+testing-agent: Clear role from name
+```
+
+### 5. The Manual-First Pattern
+
+**Philosophy**: Minimize frontmatter by pointing to manuals when they exist.
+
+**Pattern Rules**:
+
+**For Commands/Agents WITH Manuals**:
+- `description`: Just the path to manual (shortest possible)
+- `argument-hint`: OMIT (manual contains argument details)
+- Example:
+```yaml
+---
+description: "managing-claude-context/manuals/context-architecture.md"
+---
+```
+
+**For Commands/Agents WITHOUT Manuals**:
+- `description`: Minimal description (1 sentence, essential info only)
+- `argument-hint`: Minimal hint (only if arguments needed)
+- Keep these artifacts to minimum
+- Example:
+```yaml
+---
+description: "Runs project tests and reports results"
+argument-hint: "test-suite-name (optional)"
+---
+```
+
+**Global CLAUDE.md Rule**:
+```
+# Manual-First Convention
+Before using any command or agent:
+1. Check description - if it's a file path, read that manual FIRST
+2. If no manual path, use the minimal description provided
+3. Always follow manual instructions for proper usage
+```
+
+**Benefits**:
+- Commands with manuals: Significant token savings (just path in description)
+- Commands without manuals: Still minimal (only essential info)
+- Scales as artifact count grows
+- Enforces reading manuals before usage
 
 ## Progressive Disclosure Strategy
 
@@ -249,9 +287,8 @@ This is the pattern that should be clearly preserved and used.  ]]
 
 - Count actual tokens in global CLAUDE.md
 - Count actual tokens in repository CLAUDE.md
-- Count command names (1-2 tokens each)
-- Count agent names (1-2 tokens each)
-- Sum must be <100 tokens
+- Count command/agent metadata tokens
+- Minimize aggressively - every token must justify its presence
 
 **Progressive elements:**
 
@@ -264,18 +301,19 @@ This is the pattern that should be clearly preserved and used.  ]]
 
 **Track these metrics:**
 
-- **Always-loaded size:** Current token count (target: <100)
+- **Always-loaded size:** Current token count (minimize aggressively)
 - **Peak context usage:** Maximum during operation
 - **Context efficiency:** Output quality per token consumed
 - **Delegation ratio:** Percentage of work delegated vs direct processing
 - **Summary compression:** Ratio of original data to summary size
 
-### Alert Thresholds
+### Monitoring Principles
 
-- **Warning:** Always-loaded context >80 tokens
-- **Error:** Always-loaded context >100 tokens
-- **Critical:** Peak context >90% of system limit
-- **Emergency:** Any context leakage (raw data in reports)
+- **Watch for growth:** Always-loaded context should stay minimal
+- **Identify bloat:** Regular audits of what's in always-loaded context
+- **Validate necessity:** Can this be moved to a more specific layer?
+- **Track peak usage:** Ensure operations stay within limits
+- **Prevent leakage:** No raw data in reports, only summaries
 
 ## Advanced Minimization Techniques
 
@@ -331,36 +369,61 @@ This is the pattern that should be clearly preserved and used.  ]]
 ✅ COMPRESSED: "Add parallel processing (save: 60% time)"
 ```
 
-### 3. Structured Data Formats
+### 3. Hybrid Data Structures Pattern
 
-**Use XML-like structures for complex data:**
+**Principle**: Use the right format for the context.
 
+**JSON for Structure** (recommended for reports):
+- Use when data needs to be parsed programmatically
+- Aligns with `report-contracts.md` specification
+- Best for final reports, structured findings, API responses
+
+**Example**:
+```json
+{
+  "findings": [
+    {"file": "src/main.js", "lines": "45-67", "relevance": "Authentication configuration"},
+    {"file": "tests/auth.test.js", "lines": "23-45", "relevance": "Test coverage"}
+  ]
+}
 ```
+
+**XML-like Tags for Narrative** (useful in long markdown):
+- Use within markdown documents for semantic structure
+- Useful in long briefings, prompts, or documentation
+- Provides clear section boundaries in text-heavy contexts
+
+**Example**:
+```markdown
 <findings>
   <file name="src/main.js">
     <lines>45-67</lines>
     <relevance>Authentication configuration</relevance>
   </file>
-  <file name="tests/auth.test.js">
-    <lines>23-45</lines>
-    <relevance>Test coverage</relevance>
-  </file>
 </findings>
 ```
 
-**Categorized lists:**
+**Hybrid Pattern** (JSON + XML in strings):
+- JSON object with XML-like structures embedded in long string values
+- Combines parsability with rich semantic markup
+- Useful for complex nested data that needs both structure and narrative
 
+**Example**:
+```json
+{
+  "context_map": "<finding file='src/auth.js' lines='45-67'>Auth config</finding><finding file='tests/auth.test.js' lines='23-45'>Test coverage</finding>",
+  "issues": {
+    "security": ["Authentication", "authorization", "encryption"],
+    "performance": ["Database queries", "file I/O", "caching"]
+  }
+}
 ```
-<issues>
-  <security count="3">Authentication, authorization, encryption</security>
-  <performance count="5">Database queries, file I/O, caching</performance>
-  <maintainability count="7">Code duplication, documentation, naming</maintainability>
-</issues>
-```
 
-[{! Suggestion: The use of XML-like tags is a good idea for structure, but JSON is generally more idiomatic and less verbose for language models. Let's suggest changing this to recommend a structured JSON format, which aligns perfectly with the `report-contracts.md` specification. The principle of structured data is correct, but the specific format should be consistent with the rest of the ecosystem. }]
-
-[[! We can use both XML and JSON interchangeably. For big prompts that are in markdowns formats xml might be better. Or just simple markdown.  ]]
+**When to use which**:
+- **Reports to orchestrators**: JSON (matches report-contracts.md)
+- **Markdown briefings/prompts**: XML-like tags for semantic sections
+- **Complex nested data in reports**: Hybrid (JSON + XML-like markup in strings)
+- **Simple lists**: Plain markdown or JSON arrays
 
 ## Context Recovery Strategies
 
@@ -389,8 +452,8 @@ This is the pattern that should be clearly preserved and used.  ]]
 
 ### Pre-Execution Validation
 
-- [ ] Always-loaded context <100 tokens verified
-- [ ] All metadata uses Spartan descriptions
+- [ ] Always-loaded context minimized and justified
+- [ ] All metadata uses minimal descriptions (or manual paths)
 - [ ] Progressive loading strategy defined
 - [ ] Delegation patterns specified
 - [ ] Summary formats validated
@@ -400,8 +463,8 @@ This is the pattern that should be clearly preserved and used.  ]]
 - [ ] Track context usage per operation
 - [ ] Monitor delegation effectiveness
 - [ ] Verify summary quality vs original data
-- [ ] Check for context leakage
-- [ ] Validate token budgets maintained
+- [ ] Check for context leakage (no raw data in reports)
+- [ ] Validate context stays within limits
 
 ### Post-Execution Analysis
 
@@ -410,18 +473,21 @@ This is the pattern that should be clearly preserved and used.  ]]
 - [ ] Assess summary compression effectiveness
 - [ ] Document lessons learned
 - [ ] Update minimization strategies
+- [ ] Audit always-loaded context for bloat
 
 ## Best Practices Summary
 
 1. **Names are documentation:** Use self-explanatory command/agent names
-2. **Descriptions are minimal:** 1-2 words maximum for metadata
-3. **Delegate everything heavy:** Research, analysis, validation → agents
-4. **Return summaries only:** file:lines, structured findings, categorized lists
-5. **Use structured formats:** XML-like tags for complex data
-6. **Load progressively:** References only when needed
-7. **Monitor continuously:** Track token usage and efficiency
-8. **Clean up automatically:** Clear context between phases
-9. **Plan for recovery:** Have strategies for context limit issues
-10. **Validate always:** Check <100 token rule after every change
+2. **Descriptions point to manuals:** Use manual-first pattern when manuals exist
+3. **Minimize metadata:** Only essential info in frontmatter
+4. **Delegate everything heavy:** Research, analysis, validation → agents
+5. **Return summaries only:** file:lines, structured findings, categorized lists
+6. **Use hybrid data formats:** JSON for structure, XML-like for narrative, or combine
+7. **Load progressively:** References only when needed
+8. **Monitor continuously:** Track context usage and efficiency
+9. **Clean up automatically:** Clear context between phases
+10. **Plan for recovery:** Have strategies for context limit issues
+11. **Audit regularly:** Review always-loaded context for unnecessary bloat
+12. **Justify everything:** Every always-loaded token must justify its permanent presence
 
 This comprehensive context minimization framework ensures optimal performance while maintaining full functionality through strategic delegation and structured information flow.

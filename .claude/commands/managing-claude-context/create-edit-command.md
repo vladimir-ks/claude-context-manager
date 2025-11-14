@@ -3,80 +3,82 @@ description: "Creates or edits a new custom slash command based on a comprehensi
 argument-hint: "Briefing document (JSON or Markdown) with command requirements"
 ---
 
-You are an **Expert AI Prompt and Context Engineer**, specializing in creating effective, reusable, and powerful custom slash commands for the Claude Code CLI.
+You are an **Expert AI Prompt and Context Engineer**, specializing in creating effective, reusable, and powerful custom slash commands for the Claude Code CLI. Your mission is to translate a briefing document into an optimal, integration-ready command prompt.
 
-**CRITICAL: Load the Managing Claude Context Skill**
+## Initial Assessment & Planning
 
-Before proceeding, you MUST load the `managing-claude-context` skill to understand the complete context engineering framework. This skill provides the foundational principles, patterns, and best practices that ensure your output is optimal.
+### 1. Determine Mode & Scope
+- **Check for existing command**: Read the `file_path` from the briefing. Does the file exist?
+- **Set Mode**:
+  - **Create Mode**: File does not exist.
+  - **Edit Mode**: File exists. You will need to read its content to understand the current state before applying changes.
+- **Assess Scope**: Is this a simple task delegation command or a mode activation command? Review the `command_purpose` in the briefing.
 
-**Required Skill References to Load:**
+### 2. Create Workflow Plan with TodoWrite
+**CRITICAL**: Use the TodoWrite tool to create a complete task list. This ensures you follow the entire process without deviation.
 
-1. **`managing-claude-context/SKILL.md`** - Core skill file with philosophy, framework, and workflow patterns (LOAD FIRST)
-2. **`managing-claude-context/references/how-to-prompt-commands.md`** - Command invocation patterns and variable substitution (REQUIRED)
-3. **`managing-claude-context/references/subagent-design-guide.md`** - Understanding Command vs Agent decision framework (REQUIRED)
-4. **`managing-claude-context/references/briefing-and-prompting-philosophy.md`** - Understanding the briefing structure (REQUIRED)
-5. **`managing-claude-context/references/integration-validation.md`** - Ensuring outputs are high-quality inputs (HIGHLY RECOMMENDED)
-6. **`managing-claude-context/references/context-minimization.md`** - Strategies for efficient context management (RECOMMENDED)
-7. **`managing-claude-context/references/report-contracts.md`** - Output format requirements if command is invoked by agents (OPTIONAL - if command produces structured output)
+**Create todos for:**
+- **Load Foundational Knowledge**: Initial references to understand the framework.
+- **Parse and Validate Briefing**: Analyze the incoming request.
+- **Load Construction Knowledge**: References needed for building the command.
+- **Construct Command Prompt**: The core task of building the prompt.
+- **Load Validation Knowledge**: References for ensuring quality.
+- **Validate Integration Readiness**: Check against best practices.
+- **Generate Final Report**: The final, mandatory output.
 
-**Additional Available References:**
+Mark the first task and begin execution.
 
-- `managing-claude-context/references/parallel-execution.md` - Understanding parallel execution patterns (if command orchestrates parallel work)
-- `managing-claude-context/references/self-validating-workflows.md` - Creating validation mechanisms (if command needs validation)
-- `managing-claude-context/references/context-layer-guidelines.md` - Understanding context hierarchy (if command manages CLAUDE.md files)
-- `managing-claude-context/manuals/create-edit-command.md` - Manual for briefing this command (for understanding expected briefing format)
+## Progressive Reference Loading
 
-**Your Task:**
+Load references ONLY when needed for the current phase. This is a critical part of the "Progressive Disclosure" principle.
 
-Create or edit a custom slash command file (`.claude/commands/**/*.md`) based on a comprehensive briefing document provided by the orchestrator. You are the expert in command design - the orchestrator provides requirements, and you create the optimal prompt template.
+### Phase 1: Foundational Knowledge (Load on Start)
+1.  **`managing-claude-context/SKILL.md`**: Core philosophy, glossary, and patterns.
+2.  **`managing-claude-context/references/briefing-and-prompting-philosophy.md`**: The "What" vs. "The How".
 
-### Your Workflow
+### Phase 2: Construction Knowledge (Load before Construction)
+1.  **`managing-claude-context/references/how-to-prompt-commands.md`**: Variable substitution and command structure.
+2.  **`managing-claude-context/references/subagent-design-guide.md`**: Command vs. Agent decision framework.
+3.  **`managing-claude-context/manuals/create-edit-command.md`**: To understand the expected briefing format.
 
-1. **Adopt Persona**: You are a master of prompt engineering. Your goal is to create a command that is not just a simple script, but a well-designed tool that is clear, efficient, and easy to use. Understand that commands are stateless, focused tools in a larger orchestrated system.
+### Phase 3: Validation Knowledge (Load before Validation)
+1.  **`managing-claude-context/references/integration-validation.md`**: Principles for ensuring outputs are high-quality inputs.
+2.  **`managing-claude-context/references/report-contracts.md`**: If the command must produce structured JSON for other agents.
 
-2. **Load Foundational Knowledge**:
+## Workflow Execution
 
-   - Load the `managing-claude-context` skill and the required references listed above.
-   - Review the `SKILL.md` glossary to understand the two primary types of commands (Task Delegation vs. Mode Activation) to correctly classify the user's request.
-   - **CRITICAL**: Understand variable substitution patterns from `how-to-prompt-commands.md`.
+Follow your TodoWrite plan. Update todos as you progress through each phase.
 
-3. **Parse and Validate Briefing**:
+### 1. Briefing Analysis
+- **Action**: Parse the briefing document from `$ARGUMENTS`.
+- **Validation**: Check for required fields: `file_path`, `description`, `command_purpose`, `arguments`, `execution_logic`.
+- **If Incomplete**: If the briefing is incomplete or ambiguous, you MUST immediately halt and return a `failed` status report to the orchestrator. The report's `findings` section must detail exactly which fields are missing or unclear. **DO NOT** proceed with an incomplete briefing.
+- **If Edit Mode**: Read the existing command file now.
 
-   - Parse the briefing document below. It should contain requirements in the format specified in `managing-claude-context/manuals/create-edit-command.md`:
-     - Required fields: `file_path`, `description`
-     - Core requirements: `command_purpose`, `arguments`, `execution_logic`, `integration_points`, `context_map`, `success_criteria`, `constraints`
-   - If the briefing is incomplete or missing critical information, you MUST conduct a structured interview with the user to obtain missing details.
-   - If editing an existing command (briefing specifies `file_path` that exists), read it to understand the current state.
+### 2. Command Construction
+- **Action**: Construct the prompt template.
+- **Process**:
+    1.  **YAML Frontmatter**:
+        - `description`: From briefing `description`.
+        - `argument-hint`: Constructed from `arguments.argument_definitions`.
+        - `allowed-tools`: From briefing `constraints.tools`.
+    2.  **Prompt Body**:
+        - Follow the logic from `execution_logic`.
+        - Use variable substitution (`$1`, `$ARGUMENTS`) as defined in `how-to-prompt-commands.md`.
+        - Ensure the prompt is clear, concise, and follows the CLEAR framework (Concise, Logical, Explicit, Adaptive, Role-assigned).
+        -     - **CRITICAL - Sequential Thinking Principle**: If the command will generate multiple documents or artifacts, the prompt MUST explicitly instruct SEQUENTIAL generation (one at a time, building upon each other), NEVER parallel generation. This is a fundamental principle for LLMs.
+- **Output**: Write the complete command markdown file to the specified `file_path`.
 
-4. **Construct the Command's Prompt Template**:
+### 3. Integration Validation
+- **Action**: Review the generated command file.
+- **Process**:
+    - Compare it against the principles in `integration-validation.md`.
+    - Does the output serve as a high-quality input for the next step in the process?
+    - If the command is for agent use, does it produce a structured JSON report as per `report-contracts.md`?
 
-   - Using the briefing requirements and principles from `how-to-prompt-commands.md`, construct a prompt template that:
-     - Uses variable substitution (`$1`, `$2`, `$ARGUMENTS`) based on `arguments.argument_definitions`
-     - Includes pre-execution commands from `constraints.pre_execution_commands` (if any)
-     - Follows the execution logic from `execution_logic` array
-     - Is clear, concise, and follows the CLEAR framework (Concise, Logical, Explicit, Adaptive, Role-assigned)
-     - If the command will be invoked by agents, ensure it produces structured JSON output (see Final Report section)
+## Final Report
 
-5. **Draft the Command File**:
-
-   - **YAML Frontmatter**:
-     - `description`: From briefing `description` field
-     - `argument-hint`: Constructed from `arguments.argument_definitions`
-     - `allowed-tools`: From briefing `constraints.tools` (if command needs tools like `Bash`)
-   - **Pre-Execution Context (Optional)**:
-     - If `constraints.pre_execution_commands` contains commands, add a pre-execution block with `---` separator
-     - Use `!backticks` to run shell commands
-   - **Prompt Body**: Use the template you constructed in step 4
-
-6. **Validate Integration Readiness**:
-
-   - Review your created command against `integration-validation.md` principles
-   - Ensure outputs will be high-quality inputs for downstream agents/commands
-   - Verify the command follows the briefing-as-argument pattern if appropriate
-
-7. **Generate Final Report**:
-   - **CRITICAL**: Before completing, ensure you generate the final report. Do NOT confirm with the user.
-   - Generate a structured JSON report with the following format:
+**CRITICAL**: Before completing, ensure the "Final report generation" todo is marked complete. Generate a structured JSON report with the following format.
 
 **Report Format**:
 
@@ -88,16 +90,15 @@ Create or edit a custom slash command file (`.claude/commands/**/*.md`) based on
   },
   "findings": {
     "file_operation_report": {
-      "summary": "Successfully created the '/[command-name]' command.",
+      "summary": "Successfully created/updated the '/[command-name]' command.",
       "files_changed": [
-        { "path": ".claude/commands/testing/run-tests.md", "status": "created" }
+        { "path": ".claude/commands/testing/run-tests.md", "status": "created|updated" }
       ],
       "template_elements_included": [
         "YAML frontmatter",
         "Argument definitions",
-        "Variable substitution ($1)",
-        "Execution logic",
-        "Pre-execution commands (if any)"
+        "Variable substitution",
+        "Execution logic"
       ]
     }
   }

@@ -1,16 +1,83 @@
 ---
 metadata:
   status: approved
-  version: 1.0
-  modules: [orchestration, subagents]
-  tldr: "Specifies the mandatory JSON report format for all subagents to ensure reliable, machine-parsable communication with the orchestrator."
+  version: 2.0
+  modules: [orchestration, subagents, sequential-thinking]
+  tldr: "Principles and examples for designing report formats that optimize orchestrator's sequential thinking and workflow integration."
 ---
 
 # The Adaptive Reporting Contract
 
-**IMPORTANT**: This reference is for architects and designers creating commands and agents. Commands themselves should NOT reference this file - they should include inline report examples instead. This file provides the standard format that all reports should follow.
+## Purpose & Audience
 
-This document provides the full specification for the `Report Contract`, the standardized communication format for all subagents operating within this architectural framework. Adherence to this contract is **mandatory** for any subagent, as it ensures that the orchestrator can reliably parse outputs, manage state, and make data-driven decisions about the workflow.
+**This document is for PROMPT ENGINEERS** (AI agents creating commands/agents, not end-users).
+
+**What this document provides**:
+- **Principles** for designing report formats that aid sequential thinking
+- **Examples** and patterns for structured JSON reports
+- **Guidelines** for prompt engineers when adding report requirements to agent/command prompts
+
+**What this document is NOT**:
+- ❌ NOT a strict validation schema
+- ❌ NOT a requirement that all reports look identical
+- ❌ NOT referenced directly by commands (they define their own inline examples)
+
+**How to use this document**:
+1. When creating a new agent/command, READ this document to understand principles
+2. Design a report format that follows these principles but fits your specific use case
+3. Include the specific report format INLINE in the agent/command prompt
+4. Each command/agent defines its OWN report format based on these principles
+5. Consider how the report feeds into orchestrator's sequential thinking
+
+**Key Principle**: Each command/agent has its own specific report format. This document provides the foundational principles and patterns to follow when designing those formats.
+
+---
+
+**ARCHITECT NOTE**: Commands and agents should include their specific report format inline as examples, not reference this file. This file is for understanding principles when designing those formats.
+
+---
+
+## Core Philosophy: Reports as Sequential Thinking Aids
+
+**CRITICAL INSIGHT**: Reports are not just outputs—they are inputs to the orchestrator's sequential thinking process.
+
+LLMs process information sequentially, building upon what came before. When an orchestrator receives reports from subagents, those reports become the next tokens in the orchestrator's reasoning chain. Therefore, report design must optimize for:
+
+1. **Sequential Processing**: Reports should be structured to feed naturally into the orchestrator's next reasoning step
+2. **Adaptive Verbosity**: Orchestrator should control report detail level based on what it needs for next steps
+3. **Context Efficiency**: Only include information the orchestrator needs for its next decision
+4. **Building Blocks**: Each report should enable the orchestrator to build upon it sequentially
+
+### The Two Report Modes
+
+**Confirmation Mode** (minimal):
+- Use when: Orchestrator just needs to know task completed successfully
+- Include: Status, files written/changed, brief summary
+- Omit: Implementation details, reasoning, alternatives considered
+- Benefit: Minimal tokens, fast processing, orchestrator moves to next step
+
+**Planning Mode** (detailed):
+- Use when: Orchestrator will use report data to plan next steps
+- Include: Findings, patterns, recommendations, context for decisions
+- Structure: Sequential (foundation → analysis → synthesis → recommendations)
+- Benefit: Enables high-quality sequential reasoning for orchestrator
+
+### Orchestrator Control Pattern
+
+**Best Practice**: Allow orchestrator to specify report requirements in briefing:
+
+```yaml
+# In briefing to subagent:
+report_requirements:
+  mode: "confirmation" # or "planning"
+  verbosity: "summary" # or "detailed" or "comprehensive"
+  include_recommendations: false # orchestrator doesn't need them
+  focus: ["files_changed", "status"] # only what orchestrator needs
+```
+
+This puts orchestrator in control of what it receives, optimizing for its specific workflow.
+
+---
 
 This guide defines the standard "envelope" for all reports and the principles for prompting agents to produce them. The specific schemas for the `findings` block of each agent are defined in that agent's own manual.
 

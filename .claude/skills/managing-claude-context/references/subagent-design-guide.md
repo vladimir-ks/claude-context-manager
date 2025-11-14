@@ -260,6 +260,28 @@ Your final output MUST be a single, valid JSON object that adheres to the Report
 - Your output must be valid JSON that can be parsed programmatically
 - The orchestrator will use this report as input for downstream agents/commands - ensure it is complete and high-quality
 
+**🔗 Reports Feed Sequential Thinking**:
+
+> **ARCHITECT INSIGHT**: Reports are not just outputs—they are inputs to the orchestrator's next reasoning tokens. Design reports to optimize for sequential processing.
+
+When designing a report format:
+1. **Consider orchestrator's next step**: What will it do with this data? Plan? Execute? Synthesize?
+2. **Structure sequentially**: Foundation → Analysis → Synthesis → Recommendations
+3. **Enable orchestrator control**: Accept `report_requirements` in briefing to control verbosity/focus
+4. **Two modes**:
+   - **Confirmation Mode**: Minimal (status + files changed) when orchestrator just needs confirmation
+   - **Planning Mode**: Detailed findings when orchestrator will use data for next planning steps
+5. **Context efficiency**: Only include what orchestrator needs for its specific workflow
+
+**Example of orchestrator control in briefing**:
+```yaml
+report_requirements:
+  mode: "confirmation"  # orchestrator just needs to know it's done
+  focus: ["status", "files_changed"]  # only these fields needed
+```
+
+This makes reports optimal inputs for the orchestrator's sequential reasoning process.
+
 ````
 
 ### 3.5. Additional Required Elements

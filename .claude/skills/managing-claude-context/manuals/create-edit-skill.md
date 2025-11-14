@@ -55,6 +55,32 @@ To invoke this command, you must provide a comprehensive briefing that describes
   - `purpose`: What the script does
   - `content`: The script code
 - **`dependencies`** (array of strings): Other skills this skill depends on or references.
+- **`proposed_structure`** (object, recommended): Proposed file organization to facilitate progressive loading. When provided, the agent should suggest how to organize the skill's files and references for optimal progressive disclosure. Object should contain:
+  - `file_organization`: Suggested directory structure and file names
+  - `loading_sequence`: Recommended order for loading references (foundational → specialized)
+  - `rationale`: Why this structure facilitates progressive disclosure
+
+**Example**:
+```json
+"proposed_structure": {
+  "file_organization": {
+    "SKILL.md": "Core principles and high-level patterns only",
+    "references/": {
+      "01_foundations.md": "Core concepts every agent needs first",
+      "02_patterns.md": "Common patterns (load when doing standard work)",
+      "03_advanced.md": "Advanced techniques (load only when needed)",
+      "04_examples.md": "Detailed examples (load for reference)"
+    }
+  },
+  "loading_sequence": [
+    "Always: SKILL.md for philosophy",
+    "Foundational: 01_foundations.md when using skill",
+    "Situational: 02_patterns.md or 03_advanced.md based on task complexity",
+    "Reference: 04_examples.md only when needed"
+  ],
+  "rationale": "Numbered files indicate loading order. Foundation loaded first, advanced only when complexity requires it. Examples separated for reference-only usage."
+}
+```
 
 ### 3.4. Example Briefing
 
@@ -139,6 +165,14 @@ As the orchestrator, you must provide a complete briefing that includes all the 
 4. Structure the skill for progressive disclosure (lightweight main file, deep knowledge in references)
 
 **You do NOT need to write the skill content yourself.** Provide requirements and structure; the command will create the content.
+
+**Skill Structure Suggestion**: You are encouraged to propose a specific file organization in your briefing using the `proposed_structure` field. This helps the command create a skill optimized for progressive disclosure. Consider:
+- What knowledge is foundational vs. advanced?
+- What's loaded always vs. situationally?
+- How to use naming/numbering to indicate loading order?
+- How to separate principles, procedures, examples, and references?
+
+Proposing structure upfront ensures the skill is organized for efficient, progressive loading by agents.
 
 ## 5. Expected Output
 

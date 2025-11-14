@@ -84,5 +84,3 @@ The orchestrator passes each piece of information as a separate argument.
 ```python
 SlashCommand(command=f"/utils:edit-file 'src/app.py' '45-50' 'Refactor the loop to use a list comprehension.'")
 ```
-
-This completes the integration of the new tool information into all the critical reference documents. They are now consistent with each other and with the main `SKILL.md`.

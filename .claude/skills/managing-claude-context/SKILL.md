@@ -47,11 +47,14 @@ Your primary mission is to act as an expert Context Engineer and Solutions Archi
    - Sub-Agent 3 (synthesis) → returns third
    - Main agent processes reports sequentially, building understanding progressively
 
-4. **Sequential Report Structure**: Reports from subagents should be optimized to feed data sequentially, with each section building upon the previous.
+4. **Sequential Report Structure & Orchestrator Integration**: Reports from subagents should be optimized to feed data sequentially, with each section building upon the previous. **Critical**: Reports are not just outputs—they are inputs to the orchestrator's next reasoning tokens.
 
    - Start with foundational findings
    - Build to detailed analysis
    - End with synthesis and recommendations
+   - Structure reports to aid orchestrator's sequential processing (see `report-contracts.md`)
+   - Allow orchestrator to control report format/verbosity based on what it needs for next steps
+   - Two modes: **Confirmation** (minimal, just status) vs **Planning** (detailed, for decision-making)
 
 5. **Parallel Context Gathering**: Use parallel execution ONLY for delegating independent research and context gathering to subagents. These subagents work in isolated contexts, gather information, and return high-signal summaries that feed into the main dialogue sequentially.
 
@@ -190,6 +193,15 @@ The choice of execution mechanism is a critical architectural decision. Your goa
 
 **Mode Activation Commands**: Special commands can be used to switch the main agent's mode or persona. Examples for this skill include operation mode commands like `/full-build-mode`, `/modify-mode`, `/audit-mode`, and `/architect-mode` that guide the agent into specific workflows for building, modifying, auditing, or architecting AI artifacts. Similar approach can be used for instruction the agent on using other skills that you create - this a a valid approach to better control user inputs.
 
+### 3.5. The "Recipe" Pattern: Command-Driven Knowledge Injection
+
+- **Definition:** This pattern treats commands not just as tasks, but as "recipe cards" for sub-agents.
+- **Purpose:** For complex, multi-faceted skills like `managing-claude-context`, a single skill can be used in many different ways. The recipe pattern allows an orchestrator to give a sub-agent a precise, explicit list of knowledge "ingredients" (i.e., `references/*.md` files) required for one specific execution path.
+- **Reconciling Principles:**
+    - **Progressive Disclosure:** This pattern is an *advanced form* of progressive disclosure. Instead of the agent discovering knowledge, the orchestrator (which has higher-level context) discloses the exact required knowledge for the task, ensuring maximum relevance and efficiency.
+    - **Zero Redundancy:** This principle applies to the *content* of the artifacts, not the *references* to them. A command listing multiple references is not redundant; it is creating a specific, curated context for a task. The `references/` themselves must remain non-redundant.
+- **Example:** The `/create-edit-agent` command is a perfect example. It provides the sub-agent with a specific list of guides from the `managing-claude-context` skill's references, ensuring it follows the exact process for agent creation without needing to know the skill's entire contents.
+
 # 4. The Agile Orchestration Framework
 
 This framework codifies proven multi-agent workflow patterns to ensure reliable and efficient execution of complex tasks. The orchestrator should select the appropriate pattern based on the dependencies and nature of the work.
@@ -242,8 +254,12 @@ Not all agents need to be "self-aware" of the grand architecture.
 - **Required**: Agents and commands that perform meta-work (e.g., the commands in `managing-claude-context` that create other artifacts) MUST be instructed to understand the principles of this skill.
 - **Optional/Discouraged**: For narrowly focused specialists (e.g., a 'linter' agent), adding high-level architectural context can be a distraction. Their prompts should focus solely on their specific task.
 
-**Agent Manuals**:
-Every subagent and complex command MUST have a corresponding manual file in the `orchestrating-subagents/manuals/` directory. This manual is critical as it defines the precise inputs (the briefing) required by the specialist to do its job effectively, ensuring high-quality outputs and preventing collisions.
+**Agent & Command Manuals**:
+Every specialist subagent and complex command MUST have a corresponding manual. The location of the manual depends on its purpose, creating a clear separation of concerns:
+- **Execution Manuals** reside in `orchestrating-subagents/manuals/`. They teach an orchestrator *how to use* a team of specialists to execute a backlog (e.g., how to brief an `implementer` agent).
+- **Creation Manuals** reside in this skill's `manuals/` directory. They teach an orchestrator *how to build* the context artifacts themselves (e.g., how to use the `/create-edit-agent` command).
+
+This manual-driven approach is critical as it defines the precise inputs (the briefing) required by a specialist, ensuring high-quality outputs and preventing collisions.
 
 For a complete guide, see `references/subagent-design-guide.md`.
 
@@ -329,16 +345,32 @@ The detailed instructions for how to use each of the commands listed above are l
 
 ### 5.4. Architectural References
 
-The following documents contain the core principles and philosophies that underpin this entire context engineering framework.
+The following documents contain the core principles and philosophies that underpin this entire context engineering framework. An agent should load these on-demand to inform its work.
 
-- **`references/context-layer-guidelines.md`**
-- **`references/subagent-design-guide.md`**
-- **`references/report-contracts.md`**
-- **`references/self-validating-workflows.md`**
-- **`references/context-minimization.md`**
-- **`references/briefing-and-prompting-philosophy.md`**: The foundational guide explaining the core architectural separation between **Briefings (The "What")** and **Prompts (The "How")**. It will define the components of a comprehensive briefing packet and the anatomy of a high-fidelity agent prompt.
-
+- **`references/briefing-and-prompting-philosophy.md`**: The foundational guide explaining the core architectural separation between **Briefings (The "What")** and **Prompts (The "How")**.
+- **`references/context-layer-guidelines.md`**: Source of truth for what content belongs in which context layer (`CLAUDE.md` vs `SKILL.md` vs `agent.md`).
+- **`references/context-minimization.md`**: Strategies for efficient context management and progressive disclosure.
 - **`references/how-to-prompt-commands.md`**: Provides the specific structure and examples for creating briefing documents when invoking specialist commands.
+- **`references/report-contracts.md`**: Defines the standardized JSON output format for subagents.
+- **`references/self-validating-workflows.md`**: The core principle that validation mechanisms must be created before implementation.
+- **`references/subagent-design-guide.md`**: The primary architectural guide for designing agents.
+- **`references/integration-validation.md`**: Principles for ensuring that artifacts (agents, commands, skills) integrate correctly with each other.
+- **`references/parallel-execution.md`** - Guide to understanding and implementing parallel execution patterns for orchestrators.
+- **`references/mcp-server-context.md`**: Architectures for advanced tool isolation and context efficiency with MCP.
+
+#### 5.4.1. Context Architecture Series
+
+This series of documents provides a deep dive into the `context-architecture` command's workflow.
+
+- **`references/context-architecture-process.md`**: The overarching process for the `context-architecture` command.
+- **`references/context-architecture-investigation.md`**: Procedures for the Investigation & Analysis phase.
+- **`references/context-architecture-design.md`**: Procedures for the Architecture Design phase.
+- **`references/context-architecture-specifications.md`**: Procedures for the Detailed Specifications phase.
+- **`references/context-architecture-validation.md`**: Procedures for the Validation & QA phase.
+- **`references/context-architecture-deliverables-phase1.md`**: List of deliverables for the investigation phase.
+- **`references/context-architecture-deliverables-phase2.md`**: List of deliverables for the design phase.
+- **`references/context-architecture-deliverables-phase3.md`**: List of deliverables for the specifications phase.
+- **`references/context-architecture-deliverables-phase4.md`**: List of deliverables for the validation phase.
 
 ### 5.5. Scalability: Engineered for Maximum Speed
 
@@ -375,7 +407,7 @@ For comprehensive guidelines on what to include in each layer, see `references/c
 - **`SKILL.md` (Framework + Router)**: The main skill file provides the high-level framework, philosophy, and workflow patterns. It acts as a router, pointing to detailed guides in its `references/` directory. This keeps the initial context load lean.
 - **Skill `references/*.md` (Detailed Guides)**: These provide the deep, procedural knowledge (e.g., `how-to-prompt-commands.md`, `report-contracts.md`). They are loaded on-demand via progressive disclosure.
 - **Subagent (`.claude/agents/*.md`)**: Contains minimal YAML frontmatter for discovery and a detailed system prompt that serves as the agent's complete operating charter.
-- **Orchestration Manuals (`orchestrating-subagents/manuals/*.md`)**: Reside in the `orchestrating-subagents` skill. These manuals teach the orchestrator **how to delegate** to a specific agent, while the agent's system prompt teaches it **how to execute**. This separation is critical to avoid context duplication.
+- **Orchestration Manuals (`orchestrating-subagents/manuals/*.md`)**: Reside in the `orchestrating-subagents` skill. These manuals teach the orchestrator **how to delegate** to a specific agent for task execution, while the agent's system prompt teaches it **how to execute**. This separation is critical to avoid context duplication. Manuals for *creating* artifacts, however, reside within this skill.
 
 ### 6.3. Manual-Driven Progressive Disclosure
 

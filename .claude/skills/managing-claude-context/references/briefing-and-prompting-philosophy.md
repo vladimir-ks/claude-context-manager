@@ -105,4 +105,6 @@ A high-fidelity prompt, as defined in `subagent-design-guide.md`, MUST contain f
 
 ### 3.4. Phase 3: Reporting
 
-- The agent's instructions for preparing its final report, detailing its work and outcomes as per the `report-contracts.md` specification.
+- The agent's instructions for preparing its final report, detailing its work and outcomes as per the `report-contracts.md` principles.
+- **Critical Insight**: Reports are not just outputs—they are inputs to the orchestrator's sequential thinking. Design reports to optimize for the orchestrator's next reasoning step (confirmation vs planning mode).
+- See `report-contracts.md` and `subagent-design-guide.md` for detailed guidance on designing reports that aid sequential processing.

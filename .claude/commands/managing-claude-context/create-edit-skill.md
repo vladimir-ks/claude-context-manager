@@ -45,7 +45,7 @@ Create or edit a skill, which includes its containing directory, the main `SKILL
    - Parse the briefing document below. It should contain requirements in the format specified in `managing-claude-context/manuals/create-edit-skill.md`:
      - Required fields: `skill_name`, `name`, `description`
      - Core requirements: `skill_purpose`, `core_principles`, `workflow_patterns`, `reference_topics`, `use_cases`, `context_map`, `success_criteria`
-   - If the briefing is incomplete or missing critical information, you MUST conduct a structured interview with the user to obtain missing details.
+   - If the briefing is incomplete or ambiguous, you MUST immediately halt and return a `failed` status report to the orchestrator. The report's `findings` section must detail exactly which fields are missing or unclear. **DO NOT** proceed with an incomplete briefing.
    - If editing an existing skill (briefing specifies `skill_name` that exists), read the current structure to understand the state.
 
 4. **Construct the Skill Structure**:

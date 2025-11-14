@@ -13,28 +13,19 @@ Parallel execution is the primary mechanism for achieving speed and efficiency i
   - Providing instructions that build sequentially
   - Any work that requires sequential thinking
 
-**Why Sequential Everything?**
+**Sequential vs Parallel: When to Use Which**
 
-**LLMs process information sequentially** - they are essentially sophisticated autocomplete systems. To maximize quality:
+> **📖 FOUNDATION**: For the complete philosophy of sequential thinking and why LLMs excel at sequential patterns, see **SKILL.md → Section "The Sequential Thinking Principle" (lines 25-65)**. That section is the single source of truth for the core philosophy.
 
-1. **Sequential Document Generation**: Each document informs the next, building a coherent narrative. Model maintains context and reasoning chain across documents.
-2. **Sequential Instruction Feeding**: Instructions and context should be provided in logical order, building understanding progressively.
-3. **Sequential Subagent Invocation**: When invoking batches of subagents, call them in logical order and have them return results in the same order. This allows the main agent's prompt to be built sequentially.
-4. **Sequential Report Structure**: Reports should feed data sequentially, with each section building upon the previous.
+**Quick Summary for Orchestrators**:
+- **Parallel**: Use ONLY for independent research/context gathering (subagents analyzing different modules, gathering different data)
+- **Sequential**: Use for EVERYTHING that builds upon itself (document generation, instruction feeding, synthesis, reporting)
 
-**Why Parallel Context Gathering?**
-
-- Main context stays clean and focused
+**Why Parallel Context Gathering Works**:
+- Main context stays clean
 - Research happens in isolated contexts
 - Reports provide high-signal summaries
-- Main agent processes reports sequentially, then synthesizes and generates sequentially
-
-**When Parallel is Acceptable:**
-
-Parallel document processing or generation is ONLY acceptable when documents are truly independent and do NOT benefit from being built one upon another:
-
-- ✅ **Independent**: Documentation for completely separate modules with no dependencies
-- ❌ **Dependent**: Architecture documents, specifications that reference each other, or any documents that inform each other
+- Main agent then processes reports sequentially and generates sequentially
 
 ## 2. The Wave Strategy
 

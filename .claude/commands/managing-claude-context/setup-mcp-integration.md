@@ -17,7 +17,8 @@ Before proceeding, you MUST load the `managing-claude-context` skill to understa
 4. **`managing-claude-context/references/report-contracts.md`** - Output format requirements (REQUIRED)
 5. **`managing-claude-context/references/integration-validation.md`** - Ensuring agent and command integrate correctly (REQUIRED)
 6. **`managing-claude-context/references/how-to-prompt-commands.md`** - Command design patterns (REQUIRED)
-7. **`managing-claude-context/references/context-minimization.md`** - Context efficiency strategies (RECOMMENDED)
+7. **`managing-claude-context/references/mcp-server-context.md`** - Architectures for tool isolation (REQUIRED)
+8. **`managing-claude-context/references/context-minimization.md`** - Context efficiency strategies (RECOMMENDED)
 
 **Additional Available References:**
 
@@ -60,7 +61,7 @@ Process a briefing for a new **MCP Specialist Team**. This involves creating thr
 
    - Create the content for the user-facing wrapper command.
    - The YAML frontmatter will contain the `name`, `description`, and `argument-hint` from the briefing.
-   - The prompt body will contain the shell command for **headless invocation**, as described in the `Managing-MCP-Server-Context.md` research. It should look like this, using the values from the briefing:
+   - The prompt body will contain the shell command for **headless invocation**, as described in `managing-claude-context/references/mcp-server-context.md`. It should look like this, using the values from the briefing:
      ```
      claude -p "{{briefing}}" \
        --mcp-config [MCP_CONFIG_PATH] \
