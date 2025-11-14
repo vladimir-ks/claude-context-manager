@@ -1,0 +1,108 @@
+name: Staging Alpha Release
+
+on:
+  push:
+    branches:
+      - staging
+
+# Permissions for OIDC authentication (recommended)
+# If using NPM_TOKEN secret instead, you can remove this block
+permissions:
+  id-token: write  # Required for npm OIDC authentication
+  contents: write  # Required for version bump commits
+  pull-requests: write  # Required if you want to create PRs
+
+jobs:
+  alpha-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for version bumping
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          # OIDC authentication happens automatically if Trusted Publishing is configured
+          # Fallback: If OIDC not configured, use NODE_AUTH_TOKEN secret (see publish step below)
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package
+        run: npm pack --dry-run
+
+      # Future: Add tests when we add them
+      # - name: Run tests
+      #   run: npm test
+
+      - name: Check current version
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Bump to alpha version
+        id: bump-version
+        run: |
+          # If current version already has -alpha, increment it
+          # Otherwise, bump prerelease
+          CURRENT=$(node -p "require('./package.json').version")
+
+          if [[ $CURRENT == *"-alpha"* ]]; then
+            npm version prerelease --preid=alpha --no-git-tag-version
+          else
+            npm version preminor --preid=alpha --no-git-tag-version
+          fi
+
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumped to: $NEW_VERSION"
+
+      - name: Update CHANGELOG
+        run: |
+          VERSION="${{ steps.bump-version.outputs.version }}"
+          DATE=$(date +%Y-%m-%d)
+
+          # Add alpha release note to CHANGELOG
+          sed -i "7i\\
+\\## [$VERSION] - $DATE (Alpha)\\
+\\
+\\### Alpha Release\\
+- Pre-release testing version\\
+- Install with: \`npm install @vladks/claude-context-manager@alpha\`\\
+\\
+---\\
+" CHANGELOG.md
+
+      - name: Commit version bump
+        run: |
+          git add package.json CHANGELOG.md
+          git commit -m "chore: bump version to ${{ steps.bump-version.outputs.version }}"
+          git push origin staging
+
+      - name: Publish to NPM (alpha tag)
+        run: npm publish --tag alpha --access public
+        env:
+          # Using Granular Access Token from GitHub Secrets
+          # For OIDC (recommended), remove this env block and configure Trusted Publishing instead
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "✅ Alpha version published!"
+          echo "📦 Version: ${{ steps.bump-version.outputs.version }}"
+          echo "🚀 Install with: npm install @vladks/claude-context-manager@alpha"
+          echo "🔗 NPM: https://www.npmjs.com/package/@vladks/claude-context-manager"

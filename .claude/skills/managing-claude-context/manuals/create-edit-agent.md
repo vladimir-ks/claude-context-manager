@@ -169,8 +169,12 @@ The command will create or modify the specified agent file with a complete syste
 
 ## 6. Orchestrator's Next Step
 
-After creating a new agent, you should:
+After the command completes, it will have automatically created:
+- The agent file (`.claude/agents/[agent-name].md`)
+- The execution manual (`.claude/skills/orchestrating-subagents/manuals/[agent-name].md`)
 
-1. **Create a Manual**: Add a manual for this agent to the `orchestrating-subagents/manuals/` directory. This manual defines the briefing structure that orchestrators should use when invoking this agent.
+You should then:
+
+1. **Review Manual**: Review the automatically generated execution manual to ensure it accurately captures the briefing format and usage patterns.
 2. **Test Integration**: Verify the agent works correctly with its integration points (commands, skills, other agents).
 3. **Validate Output**: Ensure the agent's reports are high-quality inputs for downstream agents/commands.

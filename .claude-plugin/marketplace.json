@@ -1,0 +1,55 @@
+{
+  "name": "claude-context-manager",
+  "owner": {
+    "name": "Vladimir K.S.",
+    "email": "vlad@vladks.com"
+  },
+  "metadata": {
+    "description": "Context engineering platform for Claude Code - manage skills, commands, and agents",
+    "version": "0.1.0",
+    "homepage": "https://github.com/vladks/claude-context-manager",
+    "license": "MIT",
+    "keywords": [
+      "context-engineering",
+      "skills",
+      "commands",
+      "prompts",
+      "ai-context"
+    ],
+    "pluginRoot": "./"
+  },
+  "plugins": [
+    {
+      "name": "managing-claude-context",
+      "description": "Master skill for AI context engineering - create skills, commands, agents, and manage context architecture",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./.claude/skills/managing-claude-context"
+      ],
+      "commands": [
+        "./.claude/commands/managing-claude-context"
+      ],
+      "metadata": {
+        "tier": "free",
+        "version": "0.1.0",
+        "category": "development",
+        "tags": [
+          "context-engineering",
+          "skills",
+          "prompts",
+          "artifact-development"
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "This plugin includes the free-tier 'managing-claude-context' skill and commands.",
+    "",
+    "For the full CLI experience with installation management and premium features:",
+    "  npm install -g @vladks/claude-context-manager",
+    "",
+    "Premium subscription available for professional-grade artifacts.",
+    "See CONTRIBUTING.md for support and premium tier information."
+  ]
+}

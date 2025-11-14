@@ -1,0 +1,136 @@
+name: Production Release
+
+on:
+  push:
+    branches:
+      - main
+      - master # Support both naming conventions
+    tags:
+      - "v*" # Trigger on version tags (v0.1.0, v1.0.0, etc.)
+
+# Permissions for OIDC authentication (recommended)
+# If using NPM_TOKEN secret instead, you can remove this block
+permissions:
+  id-token: write # Required for npm OIDC authentication
+  contents: read # Required for checkout
+
+jobs:
+  production-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+          # OIDC authentication happens automatically if Trusted Publishing is configured
+          # Fallback: If OIDC not configured, use NODE_AUTH_TOKEN secret (see publish step below)
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package
+        run: npm pack --dry-run
+
+      # Future: Add tests when we add them
+      # - name: Run tests (required to pass)
+      #   run: npm test
+
+      - name: Get package version
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Validate version (if triggered by tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          PACKAGE_VERSION="${{ steps.package-version.outputs.version }}"
+
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "❌ ERROR: Tag version ($TAG_VERSION) does not match package.json ($PACKAGE_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ Version validation passed"
+
+      - name: Check if version already published
+        id: check-published
+        run: |
+          VERSION="${{ steps.package-version.outputs.version }}"
+          if npm view "@vladks/claude-context-manager@$VERSION" version 2>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️  Version $VERSION already published to NPM"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ Version $VERSION not yet published"
+          fi
+
+      - name: Publish to NPM (production)
+        if: steps.check-published.outputs.exists == 'false'
+        run: npm publish --access public
+        env:
+          # Using Granular Access Token from GitHub Secrets
+          # For OIDC (recommended), remove this env block and configure Trusted Publishing instead
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') && steps.check-published.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Claude Context Manager v${{ steps.package-version.outputs.version }}"
+          body: |
+            # Claude Context Manager v${{ steps.package-version.outputs.version }}
+
+            ## Installation
+
+            ```bash
+            npm install -g @vladks/claude-context-manager
+            ```
+
+            ## What's Changed
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full details.
+
+            ## Links
+
+            - **NPM Package**: https://www.npmjs.com/package/@vladks/claude-context-manager
+            - **Documentation**: https://github.com/${{ github.repository }}
+            - **Issues**: https://github.com/${{ github.repository }}/issues
+
+            ---
+
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.package-version.outputs.version }}...HEAD
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check-published.outputs.exists }}" == "true" ]; then
+            echo "ℹ️  Version already published, skipping NPM publish"
+          else
+            echo "✅ Production release published!"
+            echo "📦 Version: ${{ steps.package-version.outputs.version }}"
+            echo "🚀 Install with: npm install -g @vladks/claude-context-manager"
+            echo "🔗 NPM: https://www.npmjs.com/package/@vladks/claude-context-manager"
+
+            if [ "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]; then
+              echo "📝 GitHub Release created"
+            fi
+          fi

@@ -1,356 +1,350 @@
-# Claude Code Artifact Development Repository
+# Claude Context Manager
 
-**Purpose:** Development environment for creating and maintaining Claude Code artifacts using the `managing-claude-context` skill
+**Context engineering platform for Claude Code - manage skills, commands, and agents with ease**
+
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/vladks/claude-context-manager/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![NPM](https://img.shields.io/badge/npm-%40vladks%2Fclaude--context--manager-red.svg)](https://www.npmjs.com/package/@vladks/claude-context-manager)
+
+---
+
+## What is Claude Context Manager?
+
+A comprehensive platform for discovering, installing, and managing Claude Code artifacts (skills, commands, agents) with a freemium model:
+
+- **Free Tier**: Core essentials including the powerful `managing-claude-context` skill
+- **Premium Tier** ($9/month): Professional-grade skills, commands, and priority support
+- **Team Tier** ($29/month): Everything in Premium + team collaboration features
 
 **Author:** Vladimir K.S.
-**Repository Type:** Artifact development workspace + skill library
 
 ---
 
-## What This Repository Is
+## Features
 
-This repository is a **dedicated development environment** for Claude Code CLI artifacts with three key functions:
+### ✨ Core Capabilities
 
-1. **Artifact Development** - Create skills, commands, and agents using best practices
-2. **Testing Ground** - Validate artifacts manually before deployment
-3. **Skill Library** - Version-controlled collection of working artifacts
+- **Easy Installation** - Install artifacts globally or per-project via CLI
+- **Artifact Management** - Update, remove, and track installed artifacts
+- **Premium Access** - Unlock professional packages with a subscription
+- **Context Engineering** - Master skill for creating your own artifacts
+- **Cross-Platform** - Works on macOS, Linux, and Windows
 
-**Core Principle:** Documentation and specifications first, then use the `managing-claude-context` skill to create artifacts systematically.
+### 🎯 Included Free Tier
+
+- **`managing-claude-context` skill** - Master skill for AI context engineering
+  - Create custom skills, commands, and agents
+  - Progressive disclosure architecture
+  - Zero-redundancy enforcement
+  - Complete documentation and references (~5,500 lines)
+
+- **14+ commands** - Context management and workflow tools
+- **AI Logging System** - Track AI task execution
+- **Complete documentation** - Specifications, guides, examples
+
+### 💎 Premium Tier (Coming Q1 2025)
+
+- Advanced PDF processing with OCR
+- Enterprise automation workflows
+- Data analysis tools
+- AI code review
+- Priority support and updates
 
 ---
 
-## Primary Development Tool
+## Installation
 
-### The `managing-claude-context` Skill
+### Method 1: NPM Package (Recommended)
 
-**Location:** `.claude/skills/managing-claude-context/`
+```bash
+# Install globally
+npm install -g @vladks/claude-context-manager
 
-This is the **cornerstone skill** of this repository. It provides:
-- Framework for creating skills, commands, and agents
-- Context engineering principles and patterns
-- Progressive disclosure architecture
-- Orchestration and workflow management
-- Zero-redundancy enforcement
+# Verify installation
+ccm --version
 
-**All artifacts in this repository are created using this skill.**
+# Get started
+ccm --help
+```
 
-**Quick Start with the Skill:**
+### Method 2: Claude Code Plugin
+
+```bash
+# In Claude Code CLI
+/plugin install managing-claude-context@vladks-marketplace
+```
+
+### Method 3: Manual Installation
+
+```bash
+# Clone repository
+git clone https://github.com/vladks/claude-context-manager.git
+
+# Copy artifacts to Claude Code directory
+cp -r .claude/skills/managing-claude-context ~/.claude/skills/
+```
+
+---
+
+## Quick Start
+
+### 1. Install Core Essentials
+
+```bash
+# Install globally (available in all projects)
+ccm install --package core-essentials --global
+
+# Or install to specific project
+cd /path/to/your/project
+ccm install --package core-essentials --project
+```
+
+### 2. List Available Artifacts
+
+```bash
+# See what's available
+ccm list
+
+# View only premium tier (requires license)
+ccm list --tier premium
+```
+
+### 3. Check Installation Status
+
+```bash
+# View global installations
+ccm status --global
+
+# View project-specific installations
+ccm status --project
+```
+
+### 4. Activate Premium (Optional)
+
+```bash
+# Activate premium license
+ccm activate YOUR_LICENSE_KEY
+
+# Now access premium artifacts
+ccm install --skill advanced-pdf --global
+```
+
+---
+
+## Usage Examples
+
+### Managing Artifacts
+
+```bash
+# Install specific skill
+ccm install --skill managing-claude-context --global
+
+# Install solution package
+ccm install --package core-essentials --global
+
+# Update all installed artifacts
+ccm update --global
+
+# Remove artifact
+ccm remove --skill managing-claude-context --global
+
+# Search for artifacts
+ccm search "pdf"
+```
+
+### Project Initialization
+
+```bash
+# Initialize Claude Code setup in current project
+cd /path/to/project
+ccm init
+
+# Installs recommended packages and creates .claude/ directory
+```
+
+### Using the `managing-claude-context` Skill
+
+Once installed, use the skill in Claude Code:
+
 ```
 1. Load skill: Use Skill tool with "managing-claude-context"
-2. Choose command: /managing-claude-context:create-edit-skill (or -command, -agent)
-3. Provide briefing: See manuals/ for briefing format
+2. Choose command: /managing-claude-context:create-edit-skill
+3. Provide briefing: See skill manuals for format
 4. Review output: Validate generated artifact
-5. Test and commit: Manual validation, then version control
+5. Test and use: Manual validation, then deploy
 ```
 
-**Documentation:**
-- `QUICK_START.md` - User-facing guide with examples
-- `SKILL.md` - Core philosophy and framework (484 lines)
-- `manuals/` - 7 command briefing guides
-- `references/` - 21 deep knowledge files (~5,025 lines)
-- `00_DOCS/` - Architecture documentation and validation reports
+**Learn More:**
+- [Skill Quick Start](https://github.com/vladks/claude-context-manager/blob/master/.claude/skills/managing-claude-context/QUICK_START.md)
+- [Complete Documentation](https://github.com/vladks/claude-context-manager/tree/master/.claude/skills/managing-claude-context)
+
+---
+
+## Premium Subscription
+
+### Pricing
+
+| Tier | Price | Features |
+|------|-------|----------|
+| **Free** | $0 | Core essentials, community support |
+| **Premium** | $9/month | Professional artifacts, priority support |
+| **Team** | $29/month | Premium + team features (5 users) |
+| **Enterprise** | Custom | Custom packages, SLA, dedicated support |
+
+### Premium Benefits
+
+- Access to professional-grade skills and commands
+- Priority support channel
+- Regular updates with new packages
+- Advanced features (OCR, automation, analytics)
+- Curated, tested, enterprise-ready artifacts
+
+**Subscribe:** Coming Q1 2025
+**Early Access:** Contact vlad@vladks.com
 
 ---
 
 ## Repository Structure
 
 ```
-claude-skills-builder-vladks/
-├── .claude/
+claude-context-manager/
+├── .claude/                          # Free tier artifacts (bundled)
 │   ├── skills/
-│   │   ├── managing-claude-context/   # Primary development tool
-│   │   ├── docx/                      # Document manipulation
-│   │   ├── mcp-builder/               # MCP server development
-│   │   ├── orchestrating-subagents/   # Multi-agent workflows
-│   │   ├── pdf/                       # PDF manipulation
-│   │   ├── pptx/                      # Presentation manipulation
-│   │   ├── repo-organizer/            # Repository organization
-│   │   ├── webapp-testing/            # Web application testing
-│   │   ├── xlsx/                      # Spreadsheet manipulation
-│   │   └── [3 more skills]            # All created with primary skill
-│   ├── commands/
-│   │   ├── managing-claude-context/   # 7 context management commands
-│   │   └── operation_modes/           # 7 operation mode commands
-│   └── agents/                        # (empty - agents to be created)
+│   │   └── managing-claude-context/  # Core essential skill
+│   └── commands/
+│       └── managing-claude-context/  # 14+ commands
 │
-├── 00_DOCS/                           # Specifications and documentation
-│   ├── architecture/                  # ADR, C4 diagrams
-│   ├── guides/                        # Development guides
-│   ├── research/                      # Background research
-│   └── archive/                       # Outdated materials
+├── bin/                              # CLI entry point
+│   └── claude-context-manager.js     # Main CLI router
 │
-├── scripts/                           # Utilities and logging
-│   └── logging/                       # AI logging system
+├── src/                              # CLI implementation (v2.1.0)
+│   ├── commands/                     # Command handlers
+│   ├── lib/                          # Core business logic
+│   └── utils/                        # Shared utilities
 │
-├── _cc-skills-global/                 # → ~/.claude/skills/
-├── _cc-commands-global/               # → ~/.claude/commands/
-├── _cc-agents-global/                 # → ~/.claude/agents/
-├── _cc-user-settings-global/          # → ~/.claude/
+├── scripts/                          # Setup and logging
+│   ├── postinstall.js                # Home directory setup
+│   └── logging/                      # AI logging tools
 │
-├── CLAUDE.md                          # Repository context (read this!)
-├── README.md                          # This file
-├── ARTIFACT_CATALOG.md                # Complete artifact index
-├── CONTRIBUTING.md                    # Contribution guidelines
-├── CHANGELOG.md                       # Version history
-└── LICENSE                            # MIT License
-```
-
----
-
-## Development Workflow
-
-### Core Principle: Documentation First
-
-**Always follow Specification-Driven Development (SDD):**
-
-1. **Research & Planning** - Understand requirements, review patterns
-2. **Specifications First** - Write clear, code-free specifications
-3. **Use the Skill** - Invoke `managing-claude-context` to create artifacts
-4. **Validate Manually** - Test functionality and integration
-5. **Version Control** - Commit with clear messages, update documentation
-
-### Creating a New Skill
-
-```bash
-# Step 1: Create specification
-# Write spec in 00_DOCS/ or 01_SPECS/ describing the skill
-
-# Step 2: Load the primary skill
-# Use Skill tool: "managing-claude-context"
-
-# Step 3: Invoke creation command
-/managing-claude-context:create-edit-skill
-
-# Step 4: Provide comprehensive briefing
-# See .claude/skills/managing-claude-context/manuals/create-edit-skill.md
-
-# Step 5: Review generated artifact
-# Check .claude/skills/[new-skill-name]/
-
-# Step 6: Test and validate
-# Load new skill, test functionality
-
-# Step 7: Version control
-git add .claude/skills/[new-skill-name]/
-git commit -m "Add: [new-skill-name] skill"
-```
-
-### Creating Commands and Agents
-
-Same workflow, use appropriate commands:
-- `/managing-claude-context:create-edit-command` - For slash commands
-- `/managing-claude-context:create-edit-agent` - For autonomous agents
-
-**See:** `CLAUDE.md` for complete workflow documentation
-
----
-
-## Available Artifacts
-
-**Skills:** 12 total (1 primary + 11 supporting)
-
-**Primary:**
-- `managing-claude-context` - Framework for artifact development
-
-**Supporting Skills:**
-- `docx` - Word document manipulation
-- `mcp-builder` - MCP server development guide
-- `orchestrating-subagents` - Multi-agent workflow execution
-- `pdf` - PDF manipulation toolkit
-- `pptx` - Presentation creation/editing
-- `repo-organizer` - Repository organization expert
-- `webapp-testing` - Playwright-based web testing
-- `xlsx` - Spreadsheet manipulation
-- Plus 3 more specialized skills
-
-**Commands:** 14+ slash commands for various operations
-
-**Agents:** Empty directory (to be populated)
-
-**See ARTIFACT_CATALOG.md for complete list with descriptions and installation instructions**
-
----
-
-## Testing and Validation
-
-### Manual Validation Approach
-
-This repository uses **manual testing** - no automated CI/CD at this time.
-
-**Validation Process:**
-1. Review generated artifact structure
-2. Test artifact functionality locally
-3. Check integration with existing artifacts
-4. Verify documentation completeness
-5. Validate frontmatter and references
-
-**Future:** Validation checklist in `managing-claude-context/00_DOCS/`
-
----
-
-## Global Symlinks
-
-Quick access to global Claude Code configuration:
-
-| Symlink | Points To | Purpose |
-|---------|-----------|---------|
-| `_cc-skills-global/` | `~/.claude/skills/` | Deploy skills globally |
-| `_cc-commands-global/` | `~/.claude/commands/` | Global slash commands |
-| `_cc-agents-global/` | `~/.claude/agents/` | Global agent configs |
-| `_cc-user-settings-global/` | `~/.claude/` | Full Claude Code settings |
-
-**Why underscore prefix?** Keeps symlinks at top of directory listing for easy access.
-
----
-
-## Deploying Artifacts
-
-### Global Deployment
-
-```bash
-# Copy to global Claude Code directory
-cp -r .claude/skills/my-skill/ ~/.claude/skills/
-
-# Or via symlink
-cp -r .claude/skills/my-skill/ _cc-skills-global/
-```
-
-### Repo-Specific Deployment
-
-```bash
-# Copy to target repository
-cp -r .claude/skills/my-skill/ /path/to/target-repo/.claude/skills/
+├── packages/                         # Solution packages
+│   └── core-essentials.json          # Free tier package
+│
+├── 00_DOCS/                          # Specifications & guides
+│   ├── specs/                        # Architecture specs
+│   ├── strategy/                     # Distribution strategy
+│   └── guides/                       # Development guides
+│
+└── Home Directory: ~/.claude-context-manager/
+    ├── config.json                   # Configuration & license
+    ├── registry.json                 # Installation tracking
+    ├── cache/                        # Downloaded packages
+    ├── library/                      # Artifact metadata
+    └── backups/                      # Backup storage
 ```
 
 ---
 
 ## Documentation
 
-### Reading Order
+### User Documentation
+- [Installation Guide](./00_DOCS/guides/installation.md) *(coming soon)*
+- [Quick Start Guide](./00_DOCS/guides/quick-start.md) *(coming soon)*
+- [`managing-claude-context` Skill Guide](./.claude/skills/managing-claude-context/QUICK_START.md)
+- [Artifact Catalog](./ARTIFACT_CATALOG.md)
 
-1. **README.md** (this file) - Repository overview
-2. **CLAUDE.md** - Repository context and workflow
-3. **ARTIFACT_CATALOG.md** - Available artifacts
-4. **.claude/skills/managing-claude-context/QUICK_START.md** - Primary skill guide
-5. **.claude/skills/managing-claude-context/SKILL.md** - Core philosophy
-6. **00_DOCS/** - Architecture and specifications
-
-### Key Documentation
-
-**Repository Level:**
-- `CLAUDE.md` - How AI agents should work in this repo
-- `README.md` - This file
-- `ARTIFACT_CATALOG.md` - Complete artifact index
-- `00_DOCS/` - Architecture, ADRs, research
-
-**managing-claude-context Skill:**
-- `QUICK_START.md` - User-facing quick start
-- `SKILL.md` - Core philosophy (484 lines)
-- `manuals/` - 7 briefing guides for commands
-- `references/` - 21 deep knowledge files
-- `00_DOCS/context-architecture/` - Self-documentation
-- `research/` - Extensive research materials (SACRED)
+### Developer Documentation
+- [Architecture Specification](./00_DOCS/specs/claude-context-manager-architecture.md)
+- [Distribution Strategy](./00_DOCS/strategy/distribution-monetization-strategy.md)
+- [Contributing Guidelines](./CONTRIBUTING.md)
+- [Changelog](./CHANGELOG.md)
 
 ---
 
-## Key Principles
+## Development Status
 
-### Zero-Redundancy
-Each piece of information appears in exactly one place. Use references and cross-links instead of duplication.
+### v0.1.0 (Current)
 
-### Progressive Disclosure
-Load context only when needed. Structure knowledge in layers: core → detailed → specialized.
+**Distribution Foundation:**
+- ✅ NPM package distribution
+- ✅ Claude Code plugin distribution
+- ✅ Home directory setup (`~/.claude-context-manager/`)
+- ✅ Configuration system
+- ✅ Documentation and specifications
 
-### Sequential Thinking
-LLMs excel at sequential patterns. Generate documents one at a time, each building upon the previous.
+**CLI Implementation:**
+- ⏳ Install, update, list, status commands → v2.1.0
+- ⏳ Premium tier integration → v2.1.0
+- ⏳ License activation system → v2.1.0
 
-### Research is SACRED
-Never delete research materials. Preserve decision rationale and exploration notes for future improvements.
+**Current Functionality:**
+- NPM install creates home directory
+- `ccm --help` shows usage
+- `ccm --version` shows version
+- Free-tier artifacts bundled in package
+- Manual installation available
 
-### Documentation Before Code
-Never create code without approved specifications. Specs must be accessible to non-technical stakeholders.
+**For Now:** Use Claude Code plugin or manual installation until v2.1.0 CLI is released.
 
----
+### v2.1.0 (Coming Soon)
 
-## Repository Roadmap
-
-### Current Focus
-- Maintain and improve `managing-claude-context` skill
-- Create new skills using the primary skill
-- Build comprehensive artifact library
-- Document patterns and best practices
-
-### Near-Term Plans
-- Expand artifact catalog to 20+ skills
-- Create validation checklist for manual testing
-- Improve skill discoverability
-- Document common patterns
-
-### Future Enhancements
-- CLI tool for artifact installation (see `scripts/README.md`)
-- Automated frontmatter validation
-- Skill dependency visualization
-- Community contributions support
+- Full CLI command implementation
+- Artifact installation and management
+- Premium tier integration
+- License activation
+- Update with backup/restore
 
 ---
 
-## Contributing
+## Support & Contributing
 
-**See CONTRIBUTING.md for detailed guidelines**
+### Get Help
 
-### Quick Contribution Guide
+- **Documentation**: This README and [docs folder](./00_DOCS/)
+- **Issues**: [GitHub Issues](https://github.com/vladks/claude-context-manager/issues)
+- **Email**: vlad@vladks.com
 
-1. **Follow SDD Principle** - Specifications before code
-2. **Use Primary Skill** - Create artifacts with `managing-claude-context`
-3. **Document Thoroughly** - Every artifact needs complete documentation
-4. **Test Manually** - Validate functionality before committing
-5. **Version Control** - Clear commit messages, update CHANGELOG.md
+### Support This Project
 
-### Quality Standards
+- ⭐ **Star this repository** - Help others discover it
+- 💬 **Share feedback** - Your insights improve the project
+- 🐛 **Report bugs** - Help us improve quality
+- 📝 **Contribute** - See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
-**Required for All Artifacts:**
-- Created using `managing-claude-context` skill
-- Complete documentation (SKILL.md or README)
-- Proper frontmatter with metadata
-- Tested and validated manually
-- No redundancy with existing artifacts
-- Follows progressive disclosure pattern
+### Donations
 
----
+- **Buy Me a Coffee**: [buymeacoffee.com/vladks](https://buymeacoffee.com/vladks)
+- **PayPal**: [paypal.me/rimidalvks](https://paypal.me/rimidalvks)
+- **Patreon**: [patreon.com/vladks](https://www.patreon.com/vladks)
+- **Crypto**: See [CONTRIBUTING.md](./CONTRIBUTING.md) for wallet addresses
 
-## Support
+### Professional Services
 
-**Getting Started:**
-- Read `CLAUDE.md` for repository context
-- Review `managing-claude-context/QUICK_START.md`
-- Check `ARTIFACT_CATALOG.md` for available artifacts
+- **Consulting**: Claude Code integration, context engineering ($150-300/hour)
+- **Training**: Team workshops and custom curriculum ($1,000-5,000)
+- **Custom Development**: Bespoke skills, commands, and packages
+- **Enterprise**: Complete integration with dedicated support
 
-**Creating Artifacts:**
-- Load `managing-claude-context` skill
-- See manuals for briefing format
-- Follow SDD workflow
-
-**Questions:**
-- Check artifact's own documentation
-- Review `00_DOCS/` for architecture context
-- See `managing-claude-context/references/` for deep knowledge
+**Contact:** vlad@vladks.com
 
 ---
 
-## Important Notes
+## License
 
-- **Not Public-Focused**: Repository may be published but primarily for personal development
-- **Manual Testing**: No automated CI/CD - validation conducted manually
-- **All Skills Valid**: Every skill in `.claude/skills/` is a legitimate, version-controlled component
-- **Primary Tool**: `managing-claude-context` skill creates all other artifacts
-- **Documentation First**: Always create specifications before code
+MIT License - see [LICENSE](./LICENSE) for details.
+
+Free tier artifacts are open source. Premium content separately licensed.
 
 ---
 
-**Repository Mission:** Develop high-quality Claude Code artifacts using systematic, documentation-first approach
+## Links
 
-**Key Tool:** `managing-claude-context` skill - Framework for artifact development
+- **GitHub**: [github.com/vladks/claude-context-manager](https://github.com/vladks/claude-context-manager)
+- **NPM**: [@vladks/claude-context-manager](https://www.npmjs.com/package/@vladks/claude-context-manager)
+- **Issues**: [github.com/vladks/claude-context-manager/issues](https://github.com/vladks/claude-context-manager/issues)
+- **Releases**: [github.com/vladks/claude-context-manager/releases](https://github.com/vladks/claude-context-manager/releases)
 
-**Get Started:** Read `CLAUDE.md`, then load the `managing-claude-context` skill
+---
 
-**Author:** Vladimir K.S.
+**Made with ❤️ by Vladimir K.S.**
+
+**Note:** Claude Context Manager is an independent project and is not officially affiliated with Anthropic.

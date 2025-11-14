@@ -8,6 +8,7 @@ metadata:
   tldr: "A comprehensive guide to architecting and creating a holistic, efficient, and scalable context ecosystem for advanced AI agents, covering everything from individual artifact creation to multi-agent orchestration patterns."
   dependencies: [".claude/skills/orchestrating-subagents/SKILL.md"]
   code_refs: [".claude/"]
+  audience: "AI orchestrators and context engineers. This v2.0 skill describes autonomous orchestration patterns. For human users learning the system, see QUICK_START.md (v1.0)."
 ---
 
 # 1. The Philosophy of Contextual Integrity
