@@ -82,7 +82,7 @@ jobs:
 \\
 \\### Alpha Release\\
 - Pre-release testing version\\
-- Install with: \`npm install @vladks/claude-context-manager@alpha\`\\
+- Install with: \`npm install @vladimir-ks/claude-context-manager@alpha\`\\
 \\
 ---\\
 " CHANGELOG.md
@@ -104,5 +104,5 @@ jobs:
         run: |
           echo "✅ Alpha version published!"
           echo "📦 Version: ${{ steps.bump-version.outputs.version }}"
-          echo "🚀 Install with: npm install @vladks/claude-context-manager@alpha"
-          echo "🔗 NPM: https://www.npmjs.com/package/@vladks/claude-context-manager"
+          echo "🚀 Install with: npm install @vladimir-ks/claude-context-manager@alpha"
+          echo "🔗 NPM: https://www.npmjs.com/package/@vladimir-ks/claude-context-manager"

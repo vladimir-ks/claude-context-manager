@@ -72,7 +72,7 @@ jobs:
         id: check-published
         run: |
           VERSION="${{ steps.package-version.outputs.version }}"
-          if npm view "@vladks/claude-context-manager@$VERSION" version 2>/dev/null; then
+          if npm view "@vladimir-ks/claude-context-manager@$VERSION" version 2>/dev/null; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "⚠️  Version $VERSION already published to NPM"
           else
@@ -99,7 +99,7 @@ jobs:
             ## Installation
 
             ```bash
-            npm install -g @vladks/claude-context-manager
+            npm install -g @vladimir-ks/claude-context-manager
             ```
 
             ## What's Changed
@@ -108,7 +108,7 @@ jobs:
 
             ## Links
 
-            - **NPM Package**: https://www.npmjs.com/package/@vladks/claude-context-manager
+            - **NPM Package**: https://www.npmjs.com/package/@vladimir-ks/claude-context-manager
             - **Documentation**: https://github.com/${{ github.repository }}
             - **Issues**: https://github.com/${{ github.repository }}/issues
 
