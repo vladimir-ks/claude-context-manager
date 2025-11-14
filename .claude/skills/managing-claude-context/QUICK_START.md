@@ -302,7 +302,9 @@ Operation modes orchestrate the skill's commands:
 
 ### Testing Your Changes
 
-**Manual Testing**:
+This repository uses **manual validation** - no automated CI/CD at this time.
+
+**Manual Testing Checklist**:
 - Load skill: Verify SKILL.md loads without errors
 - Test commands: Invoke each command with valid briefing
 - Check reports: Verify JSON format matches Report Contract v2
@@ -313,6 +315,40 @@ Operation modes orchestrate the skill's commands:
 - Test command chaining
 - Test with real projects
 - Verify progressive disclosure works
+
+**Detailed Validation Procedures**:
+
+1. **Frontmatter Validation**:
+   - Check all YAML frontmatter is valid (no syntax errors)
+   - Verify required fields present (name, description)
+   - Confirm model specification if non-default
+   - Validate tools list if specified
+
+2. **Cross-Reference Checking**:
+   - Verify all file path references are correct
+   - Check links between documents work
+   - Confirm manual paths in descriptions are accurate
+   - Test progressive loading references exist
+
+3. **Content Validation**:
+   - Verify zero-redundancy (no duplicate information)
+   - Check progressive disclosure pattern followed
+   - Confirm sequential thinking instructions present
+   - Validate manual-first pattern applied
+
+4. **Integration Validation**:
+   - Test artifact with related artifacts
+   - Verify command briefing format works
+   - Check skill loading sequence
+   - Confirm report format matches expectations
+
+5. **Documentation Completeness**:
+   - Every artifact has complete documentation
+   - Manuals exist for all commands
+   - References properly organized
+   - Examples included where appropriate
+
+**For detailed validation checklist, see:** `.claude/skills/managing-claude-context/00_DOCS/validation-checklist.md`
 
 ### Key Principles for Contributors
 

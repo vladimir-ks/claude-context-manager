@@ -16,13 +16,14 @@ This directory contains high-level documentation for the claude-skills-builder r
 
 ## Repository Purpose
 
-**Primary Function:** Central testing ground and library for Claude Code artifacts (skills, commands, agents).
+**Primary Function:** Development environment for Claude Code artifacts using the managing-claude-context skill.
 
 **Key Components:**
-1. **Artifact Library** - Reusable skills, commands, agents for deployment to any repo
-2. **claude-setup-master** - Curator skill that creates and manages artifacts with systematic validation
-3. **Testing Environment** - Develop and test artifacts before global deployment
-4. **Installation System** - (Future) CLI tool for selective artifact installation in other repos
+1. **managing-claude-context Skill** - Primary framework for creating artifacts with systematic validation
+2. **Artifact Development** - Create skills, commands, agents using best practices
+3. **Testing Environment** - Validate artifacts manually before deployment
+4. **Skill Library** - Version-controlled collection of working artifacts
+5. **Installation System** - (Future) CLI tool for selective artifact installation in other repos
 
 ## Documentation Structure
 
@@ -35,29 +36,29 @@ This directory contains high-level documentation for the claude-skills-builder r
 
 ### Architecture
 
-- **[C1_System_Context.md](./C1_System_Context.md)** - C4 System Context Diagram
+- **[architecture/C1_System_Context.md](./architecture/C1_System_Context.md)** - C4 System Context Diagram
   - System in its environment
   - External dependencies
   - User interactions
 
-- **[C2_Container_Diagram.md](./C2_Container_Diagram.md)** - C4 Container Diagram
+- **[architecture/C2_Container_Diagram.md](./architecture/C2_Container_Diagram.md)** - C4 Container Diagram
   - Technology choices
   - Component structure
   - Integration architecture
 
 ### Architecture Decision Records
 
-- **[ADR/001-investigation-first.md](./ADR/001-investigation-first.md)** - Investigation-First Approach
+- **[architecture/ADR/001-investigation-first.md](./architecture/ADR/001-investigation-first.md)** - Investigation-First Approach
   - Why thorough research before generation
   - Alternatives considered
   - Consequences
 
-- **[ADR/002-validation-framework.md](./ADR/002-validation-framework.md)** - System Prompt Validation
+- **[architecture/ADR/002-validation-framework.md](./architecture/ADR/002-validation-framework.md)** - System Prompt Validation
   - Validation against Claude Code internals
   - Contradiction detection and handling
   - Quality assurance approach
 
-- **[ADR/003-unified-skill-vs-separate.md](./ADR/003-unified-skill-vs-separate.md)** - Architecture Decision
+- **[architecture/ADR/003-unified-skill-vs-separate.md](./architecture/ADR/003-unified-skill-vs-separate.md)** - Architecture Decision
   - Single unified skill vs separate skills
   - Rationale and trade-offs
   - Chosen approach
@@ -69,30 +70,34 @@ This directory contains high-level documentation for the claude-skills-builder r
 - **[../README.md](../README.md)** - Repository overview and quick start
 - **[../ARTIFACT_CATALOG.md](../ARTIFACT_CATALOG.md)** - Index of available artifacts
 
-**claude-setup-master Skill:**
-- **[../.claude/skills/claude-setup-master/](../.claude/skills/claude-setup-master/)** - Curator skill
-- **[../.claude/skills/claude-setup-master/01_SPECS/](../.claude/skills/claude-setup-master/01_SPECS/)** - Functional specifications
-- **[../.claude/skills/claude-setup-master/02_FEATURES/](../.claude/skills/claude-setup-master/02_FEATURES/)** - BDD scenarios
+**managing-claude-context Skill:**
+- **[../.claude/skills/managing-claude-context/](../.claude/skills/managing-claude-context/)** - Primary development framework
+- **[../.claude/skills/managing-claude-context/SKILL.md](../.claude/skills/managing-claude-context/SKILL.md)** - Core philosophy
+- **[../.claude/skills/managing-claude-context/QUICK_START.md](../.claude/skills/managing-claude-context/QUICK_START.md)** - User guide
+- **[../.claude/skills/managing-claude-context/references/](../.claude/skills/managing-claude-context/references/)** - 21 deep knowledge files
 
 ## Reading Order
 
-**For Understanding the Library System:**
-1. Start with [../README.md](../README.md) - Repository overview
-2. Read [01_PRD.md](./01_PRD.md) - Product vision for artifact library
-3. Review [C1_System_Context.md](./C1_System_Context.md) - System in ecosystem
-4. Examine [C2_Container_Diagram.md](./C2_Container_Diagram.md) - Architecture
-5. Read ADRs to understand key decisions
+**For Understanding the Repository:**
+1. Start with [../CLAUDE.md](../CLAUDE.md) - Repository context and workflow
+2. Read [../README.md](../README.md) - Repository overview
+3. Review [01_PRD.md](./01_PRD.md) - Product vision
+4. Examine [architecture/C1_System_Context.md](./architecture/C1_System_Context.md) - System context
+5. Review [architecture/C2_Container_Diagram.md](./architecture/C2_Container_Diagram.md) - Architecture
+6. Read architecture/ADR/ to understand key decisions
 
-**For Using claude-setup-master:**
-1. Read [../.claude/skills/claude-setup-master/SKILL.md](../.claude/skills/claude-setup-master/SKILL.md)
-2. Review [../.claude/skills/claude-setup-master/references/](../.claude/skills/claude-setup-master/references/)
-3. Check examples in references/15-17
+**For Using managing-claude-context:**
+1. Read [../.claude/skills/managing-claude-context/QUICK_START.md](../.claude/skills/managing-claude-context/QUICK_START.md)
+2. Review [../.claude/skills/managing-claude-context/SKILL.md](../.claude/skills/managing-claude-context/SKILL.md)
+3. Check [../.claude/skills/managing-claude-context/manuals/](../.claude/skills/managing-claude-context/manuals/) for briefing formats
+4. Browse [../.claude/skills/managing-claude-context/references/](../.claude/skills/managing-claude-context/references/) for deep knowledge
 
 **For Contributing:**
-1. Understand library system (above)
-2. Review [../ARTIFACT_CATALOG.md](../ARTIFACT_CATALOG.md) - See what exists
-3. Use claude-setup-master to create new artifacts
-4. Test in this repo before deploying globally
+1. Read [../CLAUDE.md](../CLAUDE.md) - Repository workflow
+2. Review [../ARTIFACT_CATALOG.md](../ARTIFACT_CATALOG.md) - Available artifacts
+3. Check [../CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
+4. Use managing-claude-context skill to create new artifacts
+5. Test manually before deploying
 
 ## Document Standards
 

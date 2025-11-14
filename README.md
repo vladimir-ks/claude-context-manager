@@ -1,21 +1,54 @@
-# Claude Code Artifact Library
+# Claude Code Artifact Development Repository
 
-**Purpose:** Central testing ground and library for reusable Claude Code artifacts (skills, commands, agents)
+**Purpose:** Development environment for creating and maintaining Claude Code artifacts using the `managing-claude-context` skill
 
 **Author:** Vladimir K.S.
-**Repository Type:** Artifact library + development workspace
+**Repository Type:** Artifact development workspace + skill library
 
 ---
 
 ## What This Repository Is
 
-This is a **central library** for Claude Code artifacts with three key functions:
+This repository is a **dedicated development environment** for Claude Code CLI artifacts with three key functions:
 
-1. **Artifact Library** - Reusable skills, commands, agents for deployment to any repo
-2. **Testing Ground** - Develop and validate artifacts before deployment
-3. **Curator System** - claude-setup-master skill creates artifacts with systematic validation
+1. **Artifact Development** - Create skills, commands, and agents using best practices
+2. **Testing Ground** - Validate artifacts manually before deployment
+3. **Skill Library** - Version-controlled collection of working artifacts
 
-**Core Principle:** Every artifact is investigated, planned, validated before creation.
+**Core Principle:** Documentation and specifications first, then use the `managing-claude-context` skill to create artifacts systematically.
+
+---
+
+## Primary Development Tool
+
+### The `managing-claude-context` Skill
+
+**Location:** `.claude/skills/managing-claude-context/`
+
+This is the **cornerstone skill** of this repository. It provides:
+- Framework for creating skills, commands, and agents
+- Context engineering principles and patterns
+- Progressive disclosure architecture
+- Orchestration and workflow management
+- Zero-redundancy enforcement
+
+**All artifacts in this repository are created using this skill.**
+
+**Quick Start with the Skill:**
+```
+1. Load skill: Use Skill tool with "managing-claude-context"
+2. Choose command: /managing-claude-context:create-edit-skill (or -command, -agent)
+3. Provide briefing: See manuals/ for briefing format
+4. Review output: Validate generated artifact
+5. Test and commit: Manual validation, then version control
+```
+
+**Documentation:**
+- `QUICK_START.md` - User-facing guide with examples
+- `SKILL.md` - Core philosophy and framework (484 lines)
+- `manuals/` - 7 command briefing guides
+- `references/` - 21 deep knowledge files (~5,025 lines)
+- `00_DOCS/` - Architecture documentation and validation reports
 
 ---
 
@@ -23,137 +56,141 @@ This is a **central library** for Claude Code artifacts with three key functions
 
 ```
 claude-skills-builder-vladks/
-├── 00_DOCS/                          # Repository documentation
-│   ├── 01_PRD.md                     # Product vision (library + curator)
-│   ├── C1_System_Context.md          # System context
-│   ├── C2_Container_Diagram.md       # Architecture
-│   ├── ADR/                          # Architecture decisions
-│   └── research/                     # Claude Code system prompt docs
-├── .claude/skills/                   # Skill library
-│   ├── claude-setup-master/          # Curator skill (investigation → validation → generation)
-│   ├── skill-creator/                # Structure generator
-│   └── repo-organizer/               # Repository organizer
-├── _cc-skills-global/                # → ~/.claude/skills/
-├── _cc-commands-global/              # → ~/.claude/commands/
-├── _cc-agents-global/                # → ~/.claude/agents/
-├── _cc-user-settings-global/         # → ~/.claude/
-├── ARTIFACT_CATALOG.md               # Index of all artifacts
-├── README.md                         # This file
-└── scripts/                          # Future: CLI installation tool
+├── .claude/
+│   ├── skills/
+│   │   ├── managing-claude-context/   # Primary development tool
+│   │   ├── docx/                      # Document manipulation
+│   │   ├── mcp-builder/               # MCP server development
+│   │   ├── orchestrating-subagents/   # Multi-agent workflows
+│   │   ├── pdf/                       # PDF manipulation
+│   │   ├── pptx/                      # Presentation manipulation
+│   │   ├── repo-organizer/            # Repository organization
+│   │   ├── webapp-testing/            # Web application testing
+│   │   ├── xlsx/                      # Spreadsheet manipulation
+│   │   └── [3 more skills]            # All created with primary skill
+│   ├── commands/
+│   │   ├── managing-claude-context/   # 7 context management commands
+│   │   └── operation_modes/           # 7 operation mode commands
+│   └── agents/                        # (empty - agents to be created)
+│
+├── 00_DOCS/                           # Specifications and documentation
+│   ├── architecture/                  # ADR, C4 diagrams
+│   ├── guides/                        # Development guides
+│   ├── research/                      # Background research
+│   └── archive/                       # Outdated materials
+│
+├── scripts/                           # Utilities and logging
+│   └── logging/                       # AI logging system
+│
+├── _cc-skills-global/                 # → ~/.claude/skills/
+├── _cc-commands-global/               # → ~/.claude/commands/
+├── _cc-agents-global/                 # → ~/.claude/agents/
+├── _cc-user-settings-global/          # → ~/.claude/
+│
+├── CLAUDE.md                          # Repository context (read this!)
+├── README.md                          # This file
+├── ARTIFACT_CATALOG.md                # Complete artifact index
+├── CONTRIBUTING.md                    # Contribution guidelines
+├── CHANGELOG.md                       # Version history
+└── LICENSE                            # MIT License
 ```
 
 ---
 
-## Quick Start
+## Development Workflow
 
-### Using claude-setup-master
+### Core Principle: Documentation First
 
-**Create new artifacts systematically:**
+**Always follow Specification-Driven Development (SDD):**
 
-```
-1. Invoke claude-setup-master skill
-2. Describe what you want to create
-3. Review investigation report
-4. Approve implementation plan
-5. Confirm validation passes
-6. Receive ready-to-use artifact
-```
+1. **Research & Planning** - Understand requirements, review patterns
+2. **Specifications First** - Write clear, code-free specifications
+3. **Use the Skill** - Invoke `managing-claude-context` to create artifacts
+4. **Validate Manually** - Test functionality and integration
+5. **Version Control** - Commit with clear messages, update documentation
 
-**Example:**
-```
-User: "I want to deploy this project to staging"
-→ Investigation: Project-specific → Recommend command
-→ Planning: Single deploy-staging.md file
-→ Validation: Check tool usage
-→ Generation: Create .claude/commands/deploy-staging.md
-→ Result: /deploy-staging command ready
-```
+### Creating a New Skill
 
-### Deploying Artifacts
-
-**To Global (~/.claude/):**
 ```bash
-# Via symlink (auto-syncs)
-ls -la _cc-skills-global/
+# Step 1: Create specification
+# Write spec in 00_DOCS/ or 01_SPECS/ describing the skill
 
-# Manual copy
-cp -r .claude/skills/skill-name/ ~/.claude/skills/
+# Step 2: Load the primary skill
+# Use Skill tool: "managing-claude-context"
+
+# Step 3: Invoke creation command
+/managing-claude-context:create-edit-skill
+
+# Step 4: Provide comprehensive briefing
+# See .claude/skills/managing-claude-context/manuals/create-edit-skill.md
+
+# Step 5: Review generated artifact
+# Check .claude/skills/[new-skill-name]/
+
+# Step 6: Test and validate
+# Load new skill, test functionality
+
+# Step 7: Version control
+git add .claude/skills/[new-skill-name]/
+git commit -m "Add: [new-skill-name] skill"
 ```
 
-**To Specific Repo:**
-```bash
-# Copy artifact to target repo
-cp -r .claude/skills/skill-name/ /path/to/repo/.claude/skills/
-```
+### Creating Commands and Agents
 
-**See ARTIFACT_CATALOG.md for full list and installation instructions**
+Same workflow, use appropriate commands:
+- `/managing-claude-context:create-edit-command` - For slash commands
+- `/managing-claude-context:create-edit-agent` - For autonomous agents
+
+**See:** `CLAUDE.md` for complete workflow documentation
 
 ---
 
 ## Available Artifacts
 
-### claude-setup-master (v1.0.0)
+**Skills:** 12 total (1 primary + 11 supporting)
 
-**Type:** Meta-skill / Curator
+**Primary:**
+- `managing-claude-context` - Framework for artifact development
 
-**Purpose:**
-Create Claude Code artifacts with mandatory investigation, planning, and validation.
+**Supporting Skills:**
+- `docx` - Word document manipulation
+- `mcp-builder` - MCP server development guide
+- `orchestrating-subagents` - Multi-agent workflow execution
+- `pdf` - PDF manipulation toolkit
+- `pptx` - Presentation creation/editing
+- `repo-organizer` - Repository organization expert
+- `webapp-testing` - Playwright-based web testing
+- `xlsx` - Spreadsheet manipulation
+- Plus 3 more specialized skills
 
-**Key Features:**
-- Investigation-first (research before generating)
-- Validates against Claude Code system prompt
-- Detects contradictions (intentional vs unintentional)
-- Enforces SDD/BDD/TDD methodology
-- Delegates to skill-creator for structure
+**Commands:** 14+ slash commands for various operations
 
-**Location:** `.claude/skills/claude-setup-master/`
+**Agents:** Empty directory (to be populated)
 
-**Documentation:**
-- SKILL.md - Main entry, workflow diagram
-- 00_DOCS/ - Product vision, architecture
-- 01_SPECS/ - Functional specifications
-- 02_FEATURES/ - BDD scenarios
-- references/ - 17 operational guides (investigation, planning, validation, generation)
-
-**Deployment:**
-```bash
-# Global (recommended)
-cp -r .claude/skills/claude-setup-master/ ~/.claude/skills/
-```
+**See ARTIFACT_CATALOG.md for complete list with descriptions and installation instructions**
 
 ---
 
-### skill-creator (v2.0.0)
+## Testing and Validation
 
-**Type:** Structure generator
+### Manual Validation Approach
 
-**Purpose:**
-Generate skill directory structures with proper frontmatter.
+This repository uses **manual testing** - no automated CI/CD at this time.
 
-**Used By:** claude-setup-master (delegation)
+**Validation Process:**
+1. Review generated artifact structure
+2. Test artifact functionality locally
+3. Check integration with existing artifacts
+4. Verify documentation completeness
+5. Validate frontmatter and references
 
-**Location:** `.claude/skills/skill-creator/`
-
----
-
-### repo-organizer (v1.0.0)
-
-**Type:** Repository structure manager
-
-**Purpose:**
-Organize repositories using SDD/BDD/TDD and C4 architecture.
-
-**Location:** `.claude/skills/repo-organizer/`
-
----
-
-**See ARTIFACT_CATALOG.md for complete list with installation instructions**
+**Future:** Validation checklist in `managing-claude-context/00_DOCS/`
 
 ---
 
 ## Global Symlinks
 
-All global Claude Code configuration accessible via `_cc-*-global` symlinks:
+Quick access to global Claude Code configuration:
 
 | Symlink | Points To | Purpose |
 |---------|-----------|---------|
@@ -162,182 +199,158 @@ All global Claude Code configuration accessible via `_cc-*-global` symlinks:
 | `_cc-agents-global/` | `~/.claude/agents/` | Global agent configs |
 | `_cc-user-settings-global/` | `~/.claude/` | Full Claude Code settings |
 
-**Why underscore prefix?** Keeps symlinks at top of directory listing.
+**Why underscore prefix?** Keeps symlinks at top of directory listing for easy access.
 
 ---
 
-## Workflows
+## Deploying Artifacts
 
-### Creating New Artifacts
+### Global Deployment
 
-**Recommended: Use claude-setup-master**
-
-```
-1. Invoke claude-setup-master skill
-2. Describe need (command/skill/agent)
-3. Review investigation → planning → validation
-4. Receive artifact in .claude/skills/ or .claude/commands/
-5. Test locally
-6. Deploy globally or to specific repos
-```
-
-**Manual (not recommended):**
-- Direct use of skill-creator (structure only, no validation)
-- Risk of contradictions with Claude Code system prompt
-
-### Testing Artifacts
-
-**In This Repo:**
 ```bash
-# Test skill locally
-# Skill auto-loaded from .claude/skills/
-
-# Test command locally
-/command-name
-```
-
-### Deploying Artifacts
-
-**Global Deployment:**
-```bash
-# Via symlink (_cc-skills-global already linked)
-cp -r .claude/skills/my-skill/ _cc-skills-global/
-
-# Or direct
+# Copy to global Claude Code directory
 cp -r .claude/skills/my-skill/ ~/.claude/skills/
+
+# Or via symlink
+cp -r .claude/skills/my-skill/ _cc-skills-global/
 ```
 
-**Repo-Specific:**
+### Repo-Specific Deployment
+
 ```bash
-# Copy to target repo
-cp -r .claude/skills/my-skill/ /path/to/target/.claude/skills/
+# Copy to target repository
+cp -r .claude/skills/my-skill/ /path/to/target-repo/.claude/skills/
 ```
 
 ---
 
 ## Documentation
 
-### Repository Level
-- **README.md** (this file) - Quick start and overview
-- **ARTIFACT_CATALOG.md** - Complete artifact index
-- **00_DOCS/** - Product vision, architecture, ADRs
-- **00_DOCS/research/** - Claude Code system prompt documentation
-
-### claude-setup-master Skill
-- **SKILL.md** - Main entry with workflow diagram
-- **00_DOCS/** - Skill-specific documentation
-- **01_SPECS/** - Functional specifications
-- **02_FEATURES/** - BDD scenarios
-- **references/** - 17 operational guides
-
 ### Reading Order
-1. This README - Understand library concept
-2. ARTIFACT_CATALOG.md - See what's available
-3. 00_DOCS/01_PRD.md - Product vision
-4. .claude/skills/claude-setup-master/SKILL.md - Using the curator
+
+1. **README.md** (this file) - Repository overview
+2. **CLAUDE.md** - Repository context and workflow
+3. **ARTIFACT_CATALOG.md** - Available artifacts
+4. **.claude/skills/managing-claude-context/QUICK_START.md** - Primary skill guide
+5. **.claude/skills/managing-claude-context/SKILL.md** - Core philosophy
+6. **00_DOCS/** - Architecture and specifications
+
+### Key Documentation
+
+**Repository Level:**
+- `CLAUDE.md` - How AI agents should work in this repo
+- `README.md` - This file
+- `ARTIFACT_CATALOG.md` - Complete artifact index
+- `00_DOCS/` - Architecture, ADRs, research
+
+**managing-claude-context Skill:**
+- `QUICK_START.md` - User-facing quick start
+- `SKILL.md` - Core philosophy (484 lines)
+- `manuals/` - 7 briefing guides for commands
+- `references/` - 21 deep knowledge files
+- `00_DOCS/context-architecture/` - Self-documentation
+- `research/` - Extensive research materials (SACRED)
 
 ---
 
-## Best Practices
+## Key Principles
 
-**Creating Artifacts:**
-- Always use claude-setup-master (ensures validation)
-- Never skip investigation phase
-- Test locally before global deployment
-- Document in ARTIFACT_CATALOG.md
+### Zero-Redundancy
+Each piece of information appears in exactly one place. Use references and cross-links instead of duplication.
 
-**Deploying Artifacts:**
-- Test first in this repo
-- Deploy to global for wide use
-- Deploy to specific repos for specialized use
-- Use symlinks for active development
+### Progressive Disclosure
+Load context only when needed. Structure knowledge in layers: core → detailed → specialized.
 
-**Maintaining Library:**
-- Keep ARTIFACT_CATALOG.md updated
-- Version artifacts semantically
-- Remove deprecated artifacts
-- Document breaking changes
+### Sequential Thinking
+LLMs excel at sequential patterns. Generate documents one at a time, each building upon the previous.
+
+### Research is SACRED
+Never delete research materials. Preserve decision rationale and exploration notes for future improvements.
+
+### Documentation Before Code
+Never create code without approved specifications. Specs must be accessible to non-technical stakeholders.
 
 ---
 
-## Future Features
+## Repository Roadmap
 
-### CLI Installation Tool
+### Current Focus
+- Maintain and improve `managing-claude-context` skill
+- Create new skills using the primary skill
+- Build comprehensive artifact library
+- Document patterns and best practices
 
-**Vision:** Automated artifact installation from this library
+### Near-Term Plans
+- Expand artifact catalog to 20+ skills
+- Create validation checklist for manual testing
+- Improve skill discoverability
+- Document common patterns
 
-**Planned:**
-```bash
-# Run in any repo
-claude-install
-
-# Interactive selection:
-? Select artifacts to install:
-  [x] claude-setup-master
-  [x] skill-creator
-  [ ] repo-organizer
-
-? Installation method:
-  (*) Copy (static)
-  ( ) Symlink (sync changes)
-
-Installing...
-✓ claude-setup-master installed
-✓ skill-creator installed
-```
-
-**See:** `scripts/README.md` for placeholder
+### Future Enhancements
+- CLI tool for artifact installation (see `scripts/README.md`)
+- Automated frontmatter validation
+- Skill dependency visualization
+- Community contributions support
 
 ---
 
 ## Contributing
 
-### Adding New Artifacts
+**See CONTRIBUTING.md for detailed guidelines**
 
-1. **Use claude-setup-master** to create artifact
-2. **Test thoroughly** in this repo
-3. **Add to ARTIFACT_CATALOG.md** with:
-   - Name, version, purpose
-   - Dependencies
-   - Installation instructions
-   - Usage notes
-4. **Deploy to global** if widely useful
+### Quick Contribution Guide
+
+1. **Follow SDD Principle** - Specifications before code
+2. **Use Primary Skill** - Create artifacts with `managing-claude-context`
+3. **Document Thoroughly** - Every artifact needs complete documentation
+4. **Test Manually** - Validate functionality before committing
+5. **Version Control** - Clear commit messages, update CHANGELOG.md
 
 ### Quality Standards
 
-**Required:**
-- Created via claude-setup-master (or validated against same standards)
-- Investigation report exists
-- Validation passed (no unintentional contradictions)
-- Tool usage follows Claude Code patterns
-- Complete documentation
-- Tested and working
+**Required for All Artifacts:**
+- Created using `managing-claude-context` skill
+- Complete documentation (SKILL.md or README)
+- Proper frontmatter with metadata
+- Tested and validated manually
+- No redundancy with existing artifacts
+- Follows progressive disclosure pattern
 
 ---
 
 ## Support
 
+**Getting Started:**
+- Read `CLAUDE.md` for repository context
+- Review `managing-claude-context/QUICK_START.md`
+- Check `ARTIFACT_CATALOG.md` for available artifacts
+
+**Creating Artifacts:**
+- Load `managing-claude-context` skill
+- See manuals for briefing format
+- Follow SDD workflow
+
 **Questions:**
-- Check ARTIFACT_CATALOG.md for artifact list
-- Review artifact's own documentation
-- See 00_DOCS/ for architecture context
-
-**Issues:**
-- Use claude-setup-master to create/update artifacts
-- Report repository issues in issue tracker
-
-**Contributing:**
-- Follow SDD/BDD/TDD methodology
-- Use claude-setup-master for creation
-- Test before deploying
-- Document thoroughly
+- Check artifact's own documentation
+- Review `00_DOCS/` for architecture context
+- See `managing-claude-context/references/` for deep knowledge
 
 ---
 
-**Repository Purpose:** Central library for validated, reusable Claude Code artifacts
+## Important Notes
 
-**Key Tool:** claude-setup-master (curator skill with investigation → planning → validation → generation)
+- **Not Public-Focused**: Repository may be published but primarily for personal development
+- **Manual Testing**: No automated CI/CD - validation conducted manually
+- **All Skills Valid**: Every skill in `.claude/skills/` is a legitimate, version-controlled component
+- **Primary Tool**: `managing-claude-context` skill creates all other artifacts
+- **Documentation First**: Always create specifications before code
 
-**Get Started:** Review ARTIFACT_CATALOG.md, then use claude-setup-master to create your first artifact
+---
+
+**Repository Mission:** Develop high-quality Claude Code artifacts using systematic, documentation-first approach
+
+**Key Tool:** `managing-claude-context` skill - Framework for artifact development
+
+**Get Started:** Read `CLAUDE.md`, then load the `managing-claude-context` skill
 
 **Author:** Vladimir K.S.
