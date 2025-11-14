@@ -1,0 +1,77 @@
+{
+  "name": "@vladks/claude-context-manager",
+  "version": "0.1.0",
+  "description": "Context engineering platform for Claude Code - manage skills, commands, and agents with premium subscription tier",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "anthropic",
+    "ai-context",
+    "context-engineering",
+    "prompt-engineering",
+    "skills",
+    "prompts",
+    "cli",
+    "artifact-manager"
+  ],
+  "author": {
+    "name": "Vladimir K.S.",
+    "email": "vlad@vladks.com",
+    "url": "https://github.com/vladks"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladks/claude-context-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vladks/claude-context-manager/issues"
+  },
+  "homepage": "https://github.com/vladks/claude-context-manager#readme",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://buymeacoffee.com/vladks"
+    },
+    {
+      "type": "individual",
+      "url": "https://paypal.me/rimidalvks"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/vladks"
+    }
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "bin": {
+    "claude-context-manager": "./bin/claude-context-manager.js",
+    "ccm": "./bin/claude-context-manager.js",
+    "ai-log-start": "./scripts/logging/ai-log-start",
+    "ai-log-progress": "./scripts/logging/ai-log-progress",
+    "ai-log-end": "./scripts/logging/ai-log-end"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    ".claude/skills/managing-claude-context/",
+    ".claude/commands/managing-claude-context/",
+    "packages/",
+    "scripts/",
+    "README.md",
+    "CLAUDE.md",
+    "ARTIFACT_CATALOG.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "test": "echo \"Tests coming soon\"",
+    "prepublishOnly": "chmod +x bin/* scripts/logging/*"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "preferGlobal": true
+}

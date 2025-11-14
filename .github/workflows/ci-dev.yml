@@ -1,0 +1,61 @@
+name: Development Validation
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package
+        run: npm pack --dry-run
+
+      - name: Check package contents
+        run: |
+          echo "Checking for excluded symlinks..."
+          if npm pack --dry-run 2>&1 | grep -i "_cc-"; then
+            echo "❌ ERROR: Symlinks found in package!"
+            exit 1
+          else
+            echo "✅ No symlinks found (good!)"
+          fi
+
+      - name: Verify key files exist
+        run: |
+          echo "Verifying key files in package..."
+          npm pack --dry-run 2>&1 | grep "bin/claude-context-manager.js"
+          npm pack --dry-run 2>&1 | grep "scripts/postinstall.js"
+          npm pack --dry-run 2>&1 | grep "package.json"
+          npm pack --dry-run 2>&1 | grep "README.md"
+          echo "✅ All key files present"
+
+      # Future: Add linting when we add ESLint
+      # - name: Run linter
+      #   run: npm run lint
+
+      # Future: Add tests when we add them
+      # - name: Run tests
+      #   run: npm test
+
+      - name: Summary
+        run: |
+          echo "✅ Development validation passed!"
+          echo "📦 Package is valid and ready for next stage"

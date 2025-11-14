@@ -85,18 +85,33 @@ Create or edit a specialist subagent file (`.claude/agents/*.md`) based on a com
 
    - **YAML Frontmatter**:
      - `name`: From briefing `name` field
-     - `description`: From briefing `description` field. **If a manual exists for this agent**, append manual path: `"[description]. Manual: [path-to-manual]"` (follows manual-first pattern from `context-minimization.md`)
+     - `description`: From briefing `description` field. **ALWAYS** append manual path: `"[description]. Manual: orchestrating-subagents/manuals/[agent-name].md"` (follows manual-first pattern from `context-minimization.md`)
      - `tools`: From briefing `constraints.tools` (or infer from workflow)
      - `model`: From briefing `constraints.model` (default to `sonnet` if not specified)
    - **System Prompt**: Use the prompt you constructed in step 4
 
-6. **Validate Integration Readiness**:
+6. **Create Execution Manual**:
+
+   - **CRITICAL**: Create an execution manual for this agent at `.claude/skills/orchestrating-subagents/manuals/[agent-name].md`
+   - The manual is a briefing guide for orchestrators who will use this agent
+   - **Manual Structure**:
+     - **YAML Frontmatter**: Include metadata (status: draft, version: 1.0, modules, tldr)
+     - **Section 1: Agent Overview**: Name, purpose, when to use this agent
+     - **Section 2: Briefing Format**: Document the expected briefing structure based on the agent's `inputs` from the briefing
+     - **Section 3: Input Requirements**: Detail all required fields, formats, and validation rules
+     - **Section 4: Output Format**: Describe the report structure the agent will return
+     - **Section 5: Usage Examples**: Provide 1-2 example briefings showing common use cases
+     - **Section 6: Integration Notes**: Dependencies, skills used, orchestration considerations
+   - Use the briefing document as your source for all manual content
+   - Keep the manual concise but comprehensive - it teaches orchestrators how to brief this agent
+
+7. **Validate Integration Readiness**:
 
    - Review your created agent against `integration-validation.md` principles
    - Ensure outputs will be high-quality inputs for downstream agents/commands
    - Verify input/output contracts are clearly defined
 
-7. **Generate Final Report**:
+8. **Generate Final Report**:
    - **CRITICAL**: Before completing, ensure you generate the final report. Do NOT confirm with the user.
    - Generate a structured JSON report with the following format:
 
@@ -110,9 +125,10 @@ Create or edit a specialist subagent file (`.claude/agents/*.md`) based on a com
   },
   "findings": {
     "file_operation_report": {
-      "summary": "Successfully created the '[agent-name]' agent with orchestration-ready prompt.",
+      "summary": "Successfully created the '[agent-name]' agent with orchestration-ready prompt and execution manual.",
       "files_changed": [
-        { "path": ".claude/agents/[agent-name].md", "status": "created" }
+        { "path": ".claude/agents/[agent-name].md", "status": "created" },
+        { "path": ".claude/skills/orchestrating-subagents/manuals/[agent-name].md", "status": "created" }
       ],
       "prompt_elements_included": [
         "Persona and expertise",
@@ -123,6 +139,17 @@ Create or edit a specialist subagent file (`.claude/agents/*.md`) based on a com
         "Skill integration",
         "Orchestration-awareness"
       ],
+      "manual_created": {
+        "path": ".claude/skills/orchestrating-subagents/manuals/[agent-name].md",
+        "sections": [
+          "Agent Overview",
+          "Briefing Format",
+          "Input Requirements",
+          "Output Format",
+          "Usage Examples",
+          "Integration Notes"
+        ]
+      },
       "agent_details": {
         "name": "[agent-name]",
         "description": "[brief description]",
@@ -134,7 +161,7 @@ Create or edit a specialist subagent file (`.claude/agents/*.md`) based on a com
 }
 ```
 
-**Note**: Replace placeholders with actual values. Include all relevant details about the created/edited agent.
+**Note**: Replace placeholders with actual values. Include all relevant details about the created/edited agent and manual.
 
 ---
 

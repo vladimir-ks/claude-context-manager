@@ -1,0 +1,52 @@
+# Git Attributes for Claude Context Manager
+# Excludes development artifacts from distribution (git archive, GitHub releases)
+
+# Development symlinks - exclude from distribution (broken on user machines)
+_cc-skills-global export-ignore
+_cc-commands-global export-ignore
+_cc-agents-global export-ignore
+_cc-user-settings-global export-ignore
+
+# Git metadata - exclude from distribution
+.gitattributes export-ignore
+.gitignore export-ignore
+.gitmodules export-ignore
+.cursorignore export-ignore
+
+# Development artifacts - exclude from distribution
+.trash/ export-ignore
+.logs/ export-ignore
+.cursor/ export-ignore
+.vscode/ export-ignore
+.idea/ export-ignore
+
+# Documentation archives - exclude from distribution
+00_DOCS/archive/ export-ignore
+00_DOCS/validation-reports/ export-ignore
+GEMINI.md export-ignore
+GEMINI-analysis.md export-ignore
+
+# OS files - exclude from distribution
+.DS_Store export-ignore
+Thumbs.db export-ignore
+
+# Line ending normalization (cross-platform compatibility)
+* text=auto
+
+# Text files - use LF line endings
+*.md text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.txt text eol=lf
+
+# Binary files - no conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

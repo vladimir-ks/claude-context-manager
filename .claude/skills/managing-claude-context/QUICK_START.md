@@ -4,6 +4,7 @@ metadata:
   version: 1.0
   modules: [context-engineering, documentation]
   tldr: "Quick start guide for users new to the managing-claude-context skill"
+  audience: "Human users learning the system. This v1.0 guide provides user-friendly, step-by-step workflows. For AI orchestrators, see SKILL.md (v2.0) which describes autonomous orchestration patterns."
 ---
 
 # Quick Start: Managing Claude Context
