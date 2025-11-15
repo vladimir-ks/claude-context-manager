@@ -266,17 +266,8 @@ function installClaudeAdditions() {
     .map(file => `@~/.claude/ccm-claude-md-prefix/${file}`)
     .join('\n');
 
-  // Build CCM header with dynamic file references
-  const ccmHeader = `# Claude Context Manager - Auto-Installed Guidelines
-# These references were automatically added by CCM installation.
-# You can modify or remove them at any time.
-# Last updated: ${new Date().toISOString()}
-
-${fileReferences}
-
-# ═══════════════════════════════════════════════════════════════
-# Your custom settings below:
-# ═══════════════════════════════════════════════════════════════
+  // Build CCM header with dynamic file references (just the links)
+  const ccmHeader = `${fileReferences}
 
 `;
 
