@@ -167,6 +167,27 @@ function createLibraryMetadata() {
   );
 }
 
+function installBootstrapCommand() {
+  const globalCommands = path.join(os.homedir(), '.claude', 'commands');
+  const bootstrapSource = path.join(__dirname, '..', '.claude', 'commands', 'ccm-bootstrap.md');
+  const bootstrapDest = path.join(globalCommands, 'ccm-bootstrap.md');
+
+  // Create global commands directory if doesn't exist
+  if (!fs.existsSync(globalCommands)) {
+    fs.mkdirSync(globalCommands, { recursive: true, mode: 0o755 });
+  }
+
+  // Copy bootstrap command globally
+  if (fs.existsSync(bootstrapSource)) {
+    fs.copyFileSync(bootstrapSource, bootstrapDest);
+    fs.chmodSync(bootstrapDest, 0o644);  // Readable by all
+    log('✓ Installed /ccm-bootstrap command globally', 'green');
+    log(`  ${bootstrapDest}`, 'cyan');
+  } else {
+    log('⚠ Bootstrap command not found in package', 'yellow');
+  }
+}
+
 function showWelcomeMessage() {
   console.log('');
   log('═════════════════════════════════════════════════════════════', 'cyan');
@@ -243,6 +264,9 @@ try {
   // Create library metadata
   createLibraryMetadata();
   log('✓ Initialized artifact library', 'green');
+
+  // Install bootstrap command globally
+  installBootstrapCommand();
 
   // Show welcome message only on fresh install
   if (isNewInstall) {
