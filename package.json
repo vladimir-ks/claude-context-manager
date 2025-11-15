@@ -68,7 +68,7 @@
   ],
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "echo \"Tests coming soon\"",
+    "test": "node tests/run-all.js",
     "prepublishOnly": "chmod +x bin/* scripts/logging/*"
   },
   "dependencies": {},
