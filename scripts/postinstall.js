@@ -167,10 +167,53 @@ function createLibraryMetadata() {
   );
 }
 
+function installGlobalCommands() {
+  const globalCommands = path.join(os.homedir(), '.claude', 'commands');
+  const sourceCommands = path.join(__dirname, '..', '.claude', 'commands');
+
+  // Create global commands directory if doesn't exist
+  if (!fs.existsSync(globalCommands)) {
+    fs.mkdirSync(globalCommands, { recursive: true, mode: 0o755 });
+  }
+
+  // Check if source commands directory exists
+  if (!fs.existsSync(sourceCommands)) {
+    log('⚠ No commands found in package', 'yellow');
+    return;
+  }
+
+  // Copy all commands from package to global directory
+  const commands = fs.readdirSync(sourceCommands).filter(f => f.endsWith('.md'));
+
+  if (commands.length === 0) {
+    log('⚠ No command files found in package', 'yellow');
+    return;
+  }
+
+  let installedCount = 0;
+  commands.forEach(commandFile => {
+    const source = path.join(sourceCommands, commandFile);
+    const dest = path.join(globalCommands, commandFile);
+
+    try {
+      fs.copyFileSync(source, dest);
+      fs.chmodSync(dest, 0o644);  // Readable by all
+      installedCount++;
+    } catch (error) {
+      log(`⚠ Failed to install ${commandFile}: ${error.message}`, 'yellow');
+    }
+  });
+
+  if (installedCount > 0) {
+    log(`✓ Installed ${installedCount} command(s) globally`, 'green');
+    log(`  ${globalCommands}/`, 'cyan');
+  }
+}
+
 function showWelcomeMessage() {
   console.log('');
   log('═════════════════════════════════════════════════════════════', 'cyan');
-  log('  Claude Context Manager v0.1.0', 'bright');
+  log('  Claude Context Manager v0.2.1', 'bright');
   log('  Context Engineering Platform for Claude Code', 'blue');
   log('═════════════════════════════════════════════════════════════', 'cyan');
   console.log('');
@@ -243,6 +286,9 @@ try {
   // Create library metadata
   createLibraryMetadata();
   log('✓ Initialized artifact library', 'green');
+
+  // Install all commands globally
+  installGlobalCommands();
 
   // Show welcome message only on fresh install
   if (isNewInstall) {

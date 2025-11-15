@@ -5,6 +5,115 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.1] - 2025-01-15
+
+### Bootstrap Command & Auto-Install Enhancement
+
+**Purpose:** Add auto-installing bootstrap command that teaches Claude Code how to use CCM CLI, and enhance postinstall to install all commands globally.
+
+### Added
+
+**Commands (.claude/commands/):**
+- `ccm-bootstrap.md` - Comprehensive CCM CLI guide (~18KB, 750 lines)
+  - Quick reference for all 8 commands
+  - 6 common workflows (first-time setup, project init, update, etc.)
+  - Architecture explanation (home directory, global vs project)
+  - Free vs Premium tier comparison
+  - Troubleshooting guide with health checks
+  - Integration patterns for Claude Code AI
+  - Auto-updates with package updates
+
+- `ccm-test.md` - Test command for release workflow validation
+  - Confirms v0.2.1 publication successful
+  - Verifies auto-update mechanism working
+  - Tests postinstall script execution
+
+### Changed
+
+**scripts/postinstall.js:**
+- Renamed `installBootstrapCommand()` → `installGlobalCommands()`
+- Now installs ALL `.md` files from `.claude/commands/` to `~/.claude/commands/`
+- Enhanced to support multiple commands (not just bootstrap)
+- Logs count of installed commands
+- Creates `~/.claude/commands/` directory if doesn't exist
+
+**package.json:**
+- Version: 0.2.0 → 0.2.1
+- Updated `files` array: `.claude/commands/managing-claude-context/` → `.claude/commands/`
+  - Now includes all commands in `.claude/commands/` (bootstrap + test + future)
+
+**bin/claude-context-manager.js:**
+- Version: 0.2.0 → 0.2.1
+
+**.claude/commands/ccm-bootstrap.md:**
+- Updated version references to 0.2.1
+- Added v0.2.1 to version history section
+
+### Features
+
+**Bootstrap Command (`/ccm-bootstrap`):**
+- **Auto-installs globally** during `npm install -g @vladimir-ks/claude-context-manager`
+- **Auto-updates** when CCM package is updated
+- **Available in ANY project** (global command in `~/.claude/commands/`)
+- **Comprehensive AI instructions:**
+  - All 8 CLI commands with syntax and examples
+  - Step-by-step workflows for common tasks
+  - Architecture deep-dive (directories, files, structure)
+  - Troubleshooting section with diagnostics
+  - Claude Code integration patterns
+
+**Enhanced Postinstall:**
+- Automatically installs all commands from package to global directory
+- Supports adding new commands without modifying postinstall script
+- Future-proof: any `.md` file in `.claude/commands/` auto-installs
+
+### Usage
+
+**For Users:**
+```bash
+# Install or update CCM
+npm install -g @vladimir-ks/claude-context-manager
+
+# Bootstrap command is now available globally
+# In any Claude Code project, invoke: /ccm-bootstrap
+# Claude receives complete CCM CLI instructions
+```
+
+**For AI (Claude Code):**
+```
+When user asks about Claude Code artifact management:
+1. Load bootstrap: /ccm-bootstrap
+2. Use CCM commands: ccm list, ccm install, etc.
+3. Load managing-claude-context skill for artifact creation
+```
+
+### Testing
+
+**Test Command (`/ccm-test`):**
+- Verifies release workflow end-to-end
+- Confirms NPM publication
+- Validates auto-update mechanism
+- Tests postinstall execution
+
+**Local Testing:**
+```bash
+npm link
+ls ~/.claude/commands/  # Should show ccm-bootstrap.md, ccm-test.md
+cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
+```
+
+### Files Changed
+
+- Created: `.claude/commands/ccm-bootstrap.md` (+750 lines)
+- Created: `.claude/commands/ccm-test.md` (+60 lines)
+- Modified: `scripts/postinstall.js` (+40 lines, refactored function)
+- Modified: `package.json` (version bump, files array update)
+- Modified: `bin/claude-context-manager.js` (version bump)
+
+**Total:** 2 files created, 3 files modified (+850 lines)
+
+---
+
 ## [0.2.0] - 2025-01-15
 
 ### Full CLI Implementation

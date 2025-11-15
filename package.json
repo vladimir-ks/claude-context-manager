@@ -1,6 +1,6 @@
 {
   "name": "@vladimir-ks/claude-context-manager",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Context engineering platform for Claude Code - manage skills, commands, and agents with premium subscription tier",
   "keywords": [
     "claude-code",
@@ -56,7 +56,7 @@
     "bin/",
     "src/",
     ".claude/skills/managing-claude-context/",
-    ".claude/commands/managing-claude-context/",
+    ".claude/commands/",
     "packages/",
     "scripts/",
     "README.md",
