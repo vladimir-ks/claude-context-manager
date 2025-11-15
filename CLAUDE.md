@@ -1,5 +1,17 @@
 # Repository Context: Claude Code Artifact Development
 
+## ⚠️ CRITICAL: Git Branch Rules
+
+**Before ANY development: Check branch. If not `dev`, switch to `dev`.**
+
+- `dev` - All development work
+- `staging` - Alpha testing only
+- `master` - Production releases only (PR from staging)
+
+**Never develop on `master`. Always use `dev`.**
+
+---
+
 ## Repository Purpose
 
 This repository is dedicated to **developing, testing, and maintaining artifacts for Claude Code CLI**. It serves as a development environment for building high-quality skills, commands, agents, and other Claude Code components.

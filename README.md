@@ -2,7 +2,7 @@
 
 **Context engineering platform for Claude Code - manage skills, commands, and agents with ease**
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/vladks/claude-context-manager/releases)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/vladks/claude-context-manager/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![NPM](https://img.shields.io/badge/npm-%40vladks%2Fclaude--context--manager-red.svg)](https://www.npmjs.com/package/@vladks/claude-context-manager)
 
