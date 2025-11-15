@@ -1,46 +1,14 @@
 # Repository Context: Claude Code Artifact Development
 
-## ⚠️ CRITICAL: Git Branching Rules
+## ⚠️ CRITICAL: Git Branch Rules
 
-**ALWAYS CHECK CURRENT BRANCH BEFORE ANY DEVELOPMENT WORK**
+**Before ANY development: Check branch. If not `dev`, switch to `dev`.**
 
-### Branch Strategy
+- `dev` - All development work
+- `staging` - Alpha testing only
+- `master` - Production releases only (PR from staging)
 
-- **`dev`** - Active development (ALL work happens here)
-- **`staging`** - Pre-production testing (alpha releases)
-- **`master`** - Production only (stable releases)
-
-### Mandatory Rules
-
-1. **NEVER develop on `master` branch**
-2. **ALWAYS work on `dev` branch** for:
-   - Adding features
-   - Creating/modifying artifacts
-   - Updating documentation
-   - Bug fixes
-   - Any code changes
-
-3. **Before starting ANY task:**
-   ```bash
-   git branch  # Verify current branch
-   # If not on dev:
-   git checkout dev  # Switch to dev
-   # If dev doesn't exist:
-   git checkout -b dev
-   ```
-
-4. **Release workflow:**
-   ```
-   dev → staging (alpha testing) → master (production)
-   ```
-
-5. **Master branch is for:**
-   - Merging from staging only
-   - Creating releases
-   - CI/CD deployments
-   - NO direct development
-
-**If you find yourself on `master` and about to make changes: STOP and switch to `dev` first.**
+**Never develop on `master`. Always use `dev`.**
 
 ---
 
