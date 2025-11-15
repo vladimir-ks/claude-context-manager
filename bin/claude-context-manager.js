@@ -13,7 +13,17 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const VERSION = '0.1.0';
+// Command modules
+const installCmd = require('../src/commands/install');
+const listCmd = require('../src/commands/list');
+const statusCmd = require('../src/commands/status');
+const initCmd = require('../src/commands/init');
+const searchCmd = require('../src/commands/search');
+const updateCmd = require('../src/commands/update');
+const removeCmd = require('../src/commands/remove');
+const activateCmd = require('../src/commands/activate');
+
+const VERSION = '0.2.0';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
@@ -121,27 +131,13 @@ function checkHomeDirectory() {
   return true;
 }
 
+// Legacy function - kept for potential future use
 function notImplemented(cmd) {
-  log(`\n✗ Command "${cmd}" is coming soon!`, 'yellow');
+  log(`\n✗ Command "${cmd}" is not yet implemented`, 'yellow');
   console.log('');
-  console.log('Claude Context Manager v0.1.0 includes distribution setup.');
-  console.log('Full CLI implementation (install, update, etc.) will be in v2.1.0.');
+  console.log('This command is planned for a future release.');
   console.log('');
-  log('Current status:', 'bright');
-  console.log('  ✓ NPM package distribution');
-  console.log('  ✓ Claude Code plugin distribution');
-  console.log('  ✓ Home directory setup (~/.claude-context-manager/)');
-  console.log('  ✓ Configuration system');
-  console.log('  ⏳ CLI commands (install, update, list, etc.)');
-  console.log('  ⏳ Premium tier integration');
-  console.log('');
-  log('For now, you can:', 'bright');
-  console.log('  1. Manually copy artifacts from:');
-  log(`     ${path.join(__dirname, '..', '.claude', 'skills', 'managing-claude-context')}`, 'cyan');
-  console.log('     to: ~/.claude/skills/managing-claude-context/');
-  console.log('');
-  console.log('  2. Use Claude Code plugin installation:');
-  log('     /plugin install managing-claude-context@vladks', 'cyan');
+  log('Run "ccm help" to see available commands.', 'bright');
   console.log('');
   log('Watch for updates:', 'bright');
   log('  https://github.com/vladks/claude-context-manager/releases', 'blue');
@@ -167,22 +163,45 @@ try {
     process.exit(1);
   }
 
-  // Route commands (stub implementations for v2.0.0)
+  // Route commands
+  const commandArgs = args.slice(1); // Remove command name, pass rest as args
+
   switch (command) {
     case 'list':
     case 'ls':
+      listCmd.list(commandArgs);
+      break;
+
     case 'install':
     case 'i':
+      installCmd.install(commandArgs);
+      break;
+
     case 'update':
     case 'up':
+      updateCmd.update(commandArgs);
+      break;
+
     case 'status':
     case 'st':
+      statusCmd.status(commandArgs);
+      break;
+
     case 'activate':
+      activateCmd.activate(commandArgs);
+      break;
+
     case 'init':
+      initCmd.init(commandArgs);
+      break;
+
     case 'remove':
     case 'rm':
+      removeCmd.remove(commandArgs);
+      break;
+
     case 'search':
-      notImplemented(command);
+      searchCmd.search(commandArgs);
       break;
 
     default:

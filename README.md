@@ -260,6 +260,235 @@ claude-context-manager/
 
 ---
 
+## For Developers
+
+### Development Setup
+
+**Prerequisites:**
+- Node.js v18+ and npm v9+
+- Git
+
+**Local Development:**
+
+```bash
+# Clone repository
+git clone https://github.com/vladks/claude-context-manager.git
+cd claude-context-manager
+
+# Install dependencies
+npm install
+
+# Link for local testing (creates global 'ccm' command)
+npm link
+
+# Verify local version is used
+which ccm
+# Should show path to your local repository
+
+# Test CLI
+ccm --version
+ccm --help
+```
+
+### Implementation Guide
+
+**Complete developer documentation:**
+- [**AI Agent CLI Guide**](./00_DOCS/guides/ai-agent-cli-guide.md) ⭐ **Start Here**
+  - Full command specifications with input/output formats
+  - Implementation examples for all utilities and commands
+  - Testing strategies and debugging approaches
+  - Error handling patterns
+  - 1,000+ lines of detailed specs
+
+**Quick context loading:**
+```bash
+# In Claude Code, load development context
+/load-code-cli
+```
+
+This command provides:
+- Implementation status matrix (what's done vs. stubbed)
+- Complete directory structure with status indicators
+- Testing workflow and debugging tips
+- Current development priorities
+- Estimated effort by phase
+
+### Project Structure
+
+**Current State (v0.1.0):**
+- ✅ Distribution infrastructure complete
+- ✅ NPM package published
+- ✅ Home directory auto-setup
+- ❌ CLI commands stubbed (awaiting implementation)
+
+**Source Code Organization:**
+```
+src/
+├── utils/          # Core utilities (logger, config, file-ops)
+├── lib/            # Business logic (registry, catalog, package-manager, license)
+└── commands/       # CLI command handlers (install, list, update, etc.)
+```
+
+**What Needs Implementation (v0.2.0):**
+- `src/utils/` - 3 files (logger, config, file-ops)
+- `src/lib/` - 5 files (registry, catalog, package-manager, license, api-client)
+- `src/commands/` - 8 files (list, install, update, status, activate, init, remove, search)
+- `packages/core-essentials.json` - Package definition
+
+### Testing Commands
+
+**Test individual modules:**
+```bash
+# Test logger
+node -e "const l = require('./src/utils/logger'); l.success('Test')"
+
+# Test config
+node -e "const c = require('./src/utils/config'); console.log(c.readConfig())"
+```
+
+**Test commands end-to-end:**
+```bash
+# After implementing list.js
+ccm list
+
+# After implementing install.js
+ccm install --package core-essentials --global
+
+# Verify installation
+ls ~/.claude/skills/managing-claude-context/
+cat ~/.claude-context-manager/registry.json | jq
+```
+
+**Manual testing workflow:**
+1. Make changes to `src/` files
+2. Test locally with `npm link` (changes reflect immediately)
+3. Run command: `ccm <command> [options]`
+4. Verify output matches specifications
+5. Check registry/config files updated correctly
+
+### Git Workflow
+
+**Branches:**
+- `dev` - Active development (all work here)
+- `staging` - Pre-production testing (alpha releases)
+- `master` - Production (stable releases)
+
+**Workflow:**
+```bash
+# 1. Work in dev branch
+git checkout dev
+
+# 2. Make changes and commit
+git add src/utils/logger.js
+git commit -m "Add: src/utils/logger.js - colored output utility"
+
+# 3. Push to dev (CI validates only)
+git push origin dev
+
+# 4. When ready for alpha testing
+git checkout staging
+git merge dev
+git push origin staging
+# CI auto-publishes @alpha version to NPM
+
+# 5. When ready for production
+git checkout master
+git merge staging
+git push origin master
+# CI auto-publishes production version to NPM
+```
+
+### CI/CD Pipeline
+
+**Automated workflows:**
+- Push to `dev` → Validation only (package check, lint)
+- Push to `staging` → Publish alpha to NPM (`@alpha` tag)
+- Push to `master` → Publish production to NPM
+
+**Testing before release:**
+```bash
+# Dry run (no publish)
+npm pack --dry-run
+
+# Check package contents
+npm pack
+tar -tzf vladimir-ks-claude-context-manager-*.tgz
+
+# Local install test
+npm install -g ./vladimir-ks-claude-context-manager-*.tgz
+```
+
+### Implementation Priorities
+
+**Phase 0: Documentation** (✅ Complete)
+- AI Agent CLI Guide
+- /load-code-cli command
+- README developer section
+
+**Phase 1: Core Utilities** (Next - 4-6 hours)
+1. `src/utils/logger.js` - Colored output
+2. `src/utils/config.js` - Config/registry read/write
+3. `src/utils/file-ops.js` - File operations, checksums, backups
+
+**Phase 2: Library Modules** (6-9 hours)
+4. `src/lib/registry.js` - Installation tracking
+5. `src/lib/catalog.js` - Artifact metadata
+6. `src/lib/package-manager.js` - Install/uninstall logic
+7. `src/lib/license.js` + `api-client.js` - Stubs
+
+**Phase 3: Commands** (13-19 hours)
+- **High Priority:** `install.js`, `init.js`
+- **Medium:** `list.js`, `status.js`, `search.js`
+- **Lower:** `update.js`, `remove.js`, `activate.js`
+
+**Total Estimated Effort:** 15-25 hours with AI assistance
+
+### Debugging
+
+**Enable debug mode:**
+```bash
+DEBUG=true ccm install --skill pdf --global
+```
+
+**Check environment:**
+```bash
+# Verify Node version
+node --version
+
+# Check package installed
+npm list -g @vladks/claude-context-manager
+
+# Check home directory
+ls -la ~/.claude-context-manager/
+cat ~/.claude-context-manager/config.json | jq
+
+# Trace command execution
+which ccm
+```
+
+**Common issues:**
+- "Command not found" → Run `npm link` again
+- "Module not found" → Check file exists and path correct
+- "Home directory not found" → Run `node scripts/postinstall.js`
+- "Permission denied" → Check file permissions on target directory
+
+### Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+- Code style guidelines
+- Commit message format
+- Pull request process
+- Testing requirements
+
+**Quick contribution workflow:**
+1. Fork the repository
+2. Create feature branch from `dev`
+3. Implement changes following specs
+4. Test locally with `npm link`
+5. Submit pull request to `dev` branch
+
+---
+
 ## Development Status
 
 ### v0.1.0 (Current)

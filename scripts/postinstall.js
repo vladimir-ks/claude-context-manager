@@ -107,7 +107,8 @@ function createLibraryMetadata() {
         tier: 'free',
         category: 'development',
         size_bytes: null,
-        dependencies: []
+        dependencies: [],
+        source_path: '.claude/skills/managing-claude-context/'
       }
     ]
   };
@@ -119,9 +120,11 @@ function createLibraryMetadata() {
         version: '0.1.0',
         description: 'Managing-claude-context skill + essential commands',
         tier: 'free',
+        category: 'development',
         artifacts: [
           { type: 'skill', name: 'managing-claude-context' }
-        ]
+        ],
+        definition_path: 'packages/core-essentials.json'
       }
     ]
   };
