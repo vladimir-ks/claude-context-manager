@@ -1,7 +1,7 @@
 ---
 name: ccm-bootstrap
 description: Comprehensive guide for using Claude Context Manager CLI
-version: 0.2.0
+version: 0.2.1
 author: Vladimir K.S.
 ---
 
@@ -9,7 +9,7 @@ author: Vladimir K.S.
 
 **Purpose:** This command teaches Claude Code how to use the CCM CLI to manage artifacts (skills, commands, agents).
 
-**Version:** 0.2.0
+**Version:** 0.2.1
 **Last Updated:** Auto-updates with CCM package
 **Package:** `@vladimir-ks/claude-context-manager`
 
@@ -688,6 +688,11 @@ cat ~/.claude/commands/ccm-bootstrap.md
 
 ## Version History
 
+- **v0.2.1** (2025-01-15)
+  - Enhanced auto-install: All commands in .claude/commands/ now install globally
+  - Added ccm-test command for release workflow validation
+  - Improved postinstall script (installs all .md commands)
+
 - **v0.2.0** (2025-01-15)
   - Initial bootstrap command
   - Auto-installs with CCM package
@@ -732,7 +737,7 @@ After update:
 - You get the latest instructions automatically
 - No manual updates needed
 
-**Current version:** 0.2.0
+**Current version:** 0.2.1
 **Last updated:** Auto-generated from CCM package
 
 ---
