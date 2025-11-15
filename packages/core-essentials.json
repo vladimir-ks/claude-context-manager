@@ -1,0 +1,21 @@
+{
+  "name": "core-essentials",
+  "version": "0.1.0",
+  "description": "Managing-claude-context skill + essential commands - the foundation for AI context engineering",
+  "tier": "free",
+  "category": "development",
+  "author": "Vladimir K.S.",
+  "artifacts": [
+    {
+      "type": "skill",
+      "name": "managing-claude-context",
+      "source_path": ".claude/skills/managing-claude-context/",
+      "copy_mode": "directory",
+      "description": "Master skill for AI context engineering"
+    }
+  ],
+  "dependencies": [],
+  "size_bytes": null,
+  "readme": "This package includes the managing-claude-context skill, which provides:\n\n- Framework for creating skills, commands, and agents\n- Progressive disclosure architecture\n- Zero-redundancy enforcement\n- Context engineering principles\n- Orchestration and workflow management\n\nAfter installation, you can use the skill in Claude Code:\n\n1. Load skill: Use the Skill tool with 'managing-claude-context'\n2. Choose command: /managing-claude-context:create-edit-skill\n3. Provide briefing: See skill manuals for format\n4. Review output: Validate generated artifact\n5. Test and use: Manual validation, then deploy\n\nDocumentation:\n- Quick Start: .claude/skills/managing-claude-context/QUICK_START.md\n- Core Philosophy: .claude/skills/managing-claude-context/SKILL.md\n- Command Manuals: .claude/skills/managing-claude-context/manuals/\n- References: .claude/skills/managing-claude-context/references/",
+  "installation_notes": "This package will install to:\n  - Global: ~/.claude/skills/managing-claude-context/\n  - Project: <project>/.claude/skills/managing-claude-context/\n\nThe skill includes 14+ commands for context management."
+}
