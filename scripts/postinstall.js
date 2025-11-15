@@ -210,6 +210,110 @@ function installGlobalCommands() {
   }
 }
 
+function installClaudeAdditions() {
+  const claudeDir = path.join(os.homedir(), '.claude');
+  const ccmAdditionsDir = path.join(claudeDir, 'ccm-claude-md-prefix');
+  const sourceAdditionsDir = path.join(__dirname, '..', 'ccm-claude-md-prefix');
+  const claudeMdFile = path.join(claudeDir, 'CLAUDE.md');
+
+  // Create .claude directory if doesn't exist
+  if (!fs.existsSync(claudeDir)) {
+    fs.mkdirSync(claudeDir, { recursive: true, mode: 0o755 });
+  }
+
+  // Check if source prefix directory exists
+  if (!fs.existsSync(sourceAdditionsDir)) {
+    log('⚠ No CCM prefix files found in package', 'yellow');
+    return;
+  }
+
+  // Create ccm-claude-md-prefix directory
+  if (!fs.existsSync(ccmAdditionsDir)) {
+    fs.mkdirSync(ccmAdditionsDir, { recursive: true, mode: 0o755 });
+  }
+
+  // Copy all .md files from source to destination
+  const prefixFiles = fs.readdirSync(sourceAdditionsDir).filter(f => f.endsWith('.md'));
+
+  if (prefixFiles.length === 0) {
+    log('⚠ No .md files found in ccm-claude-md-prefix/', 'yellow');
+    return;
+  }
+
+  let copiedCount = 0;
+  prefixFiles.forEach(file => {
+    const source = path.join(sourceAdditionsDir, file);
+    const dest = path.join(ccmAdditionsDir, file);
+
+    try {
+      fs.copyFileSync(source, dest);
+      fs.chmodSync(dest, 0o644);
+      copiedCount++;
+    } catch (error) {
+      log(`⚠ Failed to copy ${file}: ${error.message}`, 'yellow');
+    }
+  });
+
+  if (copiedCount === 0) {
+    return;
+  }
+
+  log(`✓ Installed ${copiedCount} CCM prefix file(s)`, 'green');
+  log(`  ${ccmAdditionsDir}/`, 'cyan');
+
+  // Generate @ references for all files dynamically
+  const fileReferences = prefixFiles
+    .map(file => `@~/.claude/ccm-claude-md-prefix/${file}`)
+    .join('\n');
+
+  // Build CCM header with dynamic file references
+  const ccmHeader = `# Claude Context Manager - Auto-Installed Guidelines
+# These references were automatically added by CCM installation.
+# You can modify or remove them at any time.
+# Last updated: ${new Date().toISOString()}
+
+${fileReferences}
+
+# ═══════════════════════════════════════════════════════════════
+# Your custom settings below:
+# ═══════════════════════════════════════════════════════════════
+
+`;
+
+  let existingContent = '';
+  let isNewFile = false;
+
+  // Read existing CLAUDE.md or create new
+  if (fs.existsSync(claudeMdFile)) {
+    existingContent = fs.readFileSync(claudeMdFile, 'utf8');
+
+    // Check if CCM prefix already present
+    if (existingContent.includes('ccm-claude-md-prefix')) {
+      log('ℹ CCM references already in CLAUDE.md', 'cyan');
+      return;
+    }
+
+    // Create backup
+    const backupFile = path.join(claudeDir, `CLAUDE.md.backup-${Date.now()}`);
+    fs.copyFileSync(claudeMdFile, backupFile);
+    log(`✓ Created backup: ${path.basename(backupFile)}`, 'green');
+  } else {
+    isNewFile = true;
+  }
+
+  // Write new CLAUDE.md with prepended references
+  const newContent = ccmHeader + existingContent;
+  fs.writeFileSync(claudeMdFile, newContent, { mode: 0o644 });
+
+  if (isNewFile) {
+    log('✓ Created ~/.claude/CLAUDE.md with CCM references', 'green');
+  } else {
+    log('✓ Prepended CCM references to ~/.claude/CLAUDE.md', 'green');
+  }
+
+  log('  You can modify or remove these references anytime', 'cyan');
+}
+
 function showWelcomeMessage() {
   console.log('');
   log('═════════════════════════════════════════════════════════════', 'cyan');
@@ -289,6 +393,9 @@ try {
 
   // Install all commands globally
   installGlobalCommands();
+
+  // Install Claude additions and prepend to CLAUDE.md
+  installClaudeAdditions();
 
   // Show welcome message only on fresh install
   if (isNewInstall) {

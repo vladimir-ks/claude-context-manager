@@ -57,6 +57,7 @@
     "src/",
     ".claude/skills/managing-claude-context/",
     ".claude/commands/",
+    "ccm-claude-md-prefix/",
     "packages/",
     "scripts/",
     "README.md",
