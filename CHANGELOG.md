@@ -5,6 +5,31 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.3] - 2025-01-16
+
+### Simplified CLAUDE.md Header
+
+**Purpose:** Remove verbose comments from CLAUDE.md auto-prepend, use spartan format.
+
+### Changed
+
+**scripts/postinstall.js:**
+- Simplified CLAUDE.md header to just @ references
+- Removed verbose comments and separators
+- Spartan format: just the file links
+
+**Example:**
+```
+@~/.claude/ccm-claude-md-prefix/c-CRITICAL-RULES.md
+@~/.claude/ccm-claude-md-prefix/c-REPO-ORGANIZATION.md
+@~/.claude/ccm-claude-md-prefix/c-USER-SETTINGS.md
+@~/.claude/ccm-claude-md-prefix/c-WORKFLOW-ORCHESTRATION.md
+```
+
+Files: 1 modified
+
+---
+
 ## [0.2.2] - 2025-01-16
 
 ### CLAUDE.md Auto-Prepend Feature
