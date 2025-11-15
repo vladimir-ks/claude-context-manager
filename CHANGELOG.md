@@ -5,6 +5,51 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.2] - 2025-01-16
+
+### CLAUDE.md Auto-Prepend Feature
+
+**Purpose:** Automatically install CCM guidelines to user's global CLAUDE.md file.
+
+### Added
+
+**ccm-claude-md-prefix/ directory:**
+- `c-CRITICAL-RULES.md` - Critical behavioral rules
+- `c-REPO-ORGANIZATION.md` - Repository organization guidelines
+- `c-USER-SETTINGS.md` - User profile and preferences
+- `c-WORKFLOW-ORCHESTRATION.md` - Workflow orchestration patterns
+
+**scripts/postinstall.js:**
+- `installClaudeAdditions()` function
+- Copies ccm-claude-md-prefix/ to ~/.claude/ccm-claude-md-prefix/
+- Dynamically generates @ references for all .md files
+- Prepends references to ~/.claude/CLAUDE.md
+- Creates backup before modifying CLAUDE.md
+- Skips if already present
+
+### Changed
+
+**CLAUDE.md:**
+- Added concise git branching rules at top
+- Enforces dev branch for all development
+- Prohibits direct development on master
+
+**package.json:**
+- Version: 0.2.1 → 0.2.2
+- Added `ccm-claude-md-prefix/` to files array
+
+**bin/claude-context-manager.js:**
+- Version: 0.2.1 → 0.2.2
+
+**.gitignore:**
+- Added `.claude-additions/` directory
+
+### Files Changed
+
+7 files changed: 4 new, 3 modified
+
+---
+
 ## [0.2.1] - 2025-01-15
 
 ### Bootstrap Command & Auto-Install Enhancement
