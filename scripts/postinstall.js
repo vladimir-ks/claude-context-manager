@@ -273,21 +273,42 @@ function installClaudeAdditions() {
   if (fs.existsSync(claudeMdFile)) {
     existingContent = fs.readFileSync(claudeMdFile, 'utf8');
 
-    // Check if CCM references already present (check for any ccm- file)
+    // Check if new format CCM references already present
     if (existingContent.includes('@./ccm-')) {
-      log('ℹ CCM references already in CLAUDE.md', 'cyan');
+      log('ℹ CCM references already in CLAUDE.md (new format)', 'cyan');
       return;
     }
 
-    // Create backup
+    // Check for old format references and remove them
+    const oldFormatPatterns = [
+      /@~\/\.claude\/ccm-claude-md-prefix\/[^\n]+\n?/g,
+      /@~\/\.claude\/ccm-[^\n]+\n?/g
+    ];
+
+    let hasOldFormat = false;
+    oldFormatPatterns.forEach(pattern => {
+      if (pattern.test(existingContent)) {
+        hasOldFormat = true;
+        existingContent = existingContent.replace(pattern, '');
+      }
+    });
+
+    // Clean up any leftover --- separators at the beginning
+    existingContent = existingContent.replace(/^[\s\n]*---[\s\n]*/g, '');
+
+    // Create backup before any modification
     const backupFile = path.join(claudeDir, `CLAUDE.md.backup-${Date.now()}`);
     fs.copyFileSync(claudeMdFile, backupFile);
     log(`✓ Created backup: ${path.basename(backupFile)}`, 'green');
+
+    if (hasOldFormat) {
+      log('✓ Removed old CCM reference format', 'green');
+    }
   } else {
     isNewFile = true;
   }
 
-  // Write new CLAUDE.md with prepended references
+  // Write new CLAUDE.md with prepended references (preserving user content)
   const newContent = ccmHeader + existingContent;
   fs.writeFileSync(claudeMdFile, newContent, { mode: 0o644 });
 
