@@ -210,189 +210,43 @@ function installGlobalCommands() {
   }
 }
 
-function cleanupOldFiles() {
-  const claudeDir = path.join(os.homedir(), '.claude');
-
-  // Skip if .claude doesn't exist
-  if (!fs.existsSync(claudeDir)) {
-    return;
-  }
-
-  // Define deprecated files from previous versions
-  const deprecatedFiles = [
-    'c-CRITICAL-RULES.md',
-    'c-REPO-ORGANIZATION.md',
-    'c-USER-SETTINGS.md',
-    'c-WORKFLOW-ORCHESTRATION.md'
-  ];
-
-  // Check deprecated subdirectory (from v0.2.2-v0.2.4)
-  const oldSubdir = path.join(claudeDir, 'ccm-claude-md-prefix');
-  const hasOldSubdir = fs.existsSync(oldSubdir);
-
-  // Check if any deprecated files exist in root
-  const existingDeprecated = deprecatedFiles.filter(file =>
-    fs.existsSync(path.join(claudeDir, file))
-  );
-
-  // Nothing to clean
-  if (existingDeprecated.length === 0 && !hasOldSubdir) {
-    return;
-  }
-
-  // Create trash directory with timestamp
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const trashDir = path.join(claudeDir, '.trash', timestamp);
-
+function syncClaudeAdditions() {
   try {
-    fs.mkdirSync(trashDir, { recursive: true, mode: 0o755 });
+    // Load sync engine
+    const syncEngine = require('../src/lib/sync-engine');
+
+    // Perform full sync of CCM files
+    const report = syncEngine.syncCCMFiles('global');
+
+    // Log changes
+    if (report.added.length > 0) {
+      log(`✓ Added ${report.added.length} CCM file(s): ${report.added.join(', ')}`, 'green');
+    }
+    if (report.updated.length > 0) {
+      log(`✓ Updated ${report.updated.length} CCM file(s): ${report.updated.join(', ')}`, 'green');
+    }
+    if (report.removed.length > 0) {
+      log(`✓ Removed ${report.removed.length} CCM file(s) to .trash: ${report.removed.join(', ')}`, 'green');
+    }
+    if (report.unchanged.length > 0 && report.added.length === 0 && report.updated.length === 0) {
+      log(`✓ CCM files up to date (${report.unchanged.length} file(s))`, 'green');
+    }
+
+    // Log errors if any
+    if (report.errors.length > 0) {
+      report.errors.forEach(err => {
+        log(`⚠ ${err.operation} ${err.file}: ${err.error}`, 'yellow');
+      });
+    }
+
+    // Always regenerate CLAUDE.md header
+    syncEngine.regenerateCLAUDEMdHeader('global');
+    log('✓ Regenerated CLAUDE.md header', 'green');
+
   } catch (error) {
-    log(`⚠ Failed to create trash directory: ${error.message}`, 'yellow');
-    return;
+    log(`⚠ Error syncing CCM files: ${error.message}`, 'yellow');
+    console.error(error);
   }
-
-  let movedCount = 0;
-
-  // Move deprecated files from root to trash
-  existingDeprecated.forEach(file => {
-    const source = path.join(claudeDir, file);
-    const dest = path.join(trashDir, file);
-
-    try {
-      fs.renameSync(source, dest);
-      movedCount++;
-    } catch (error) {
-      log(`⚠ Failed to move ${file} to trash: ${error.message}`, 'yellow');
-    }
-  });
-
-  // Move old subdirectory to trash
-  if (hasOldSubdir) {
-    const dest = path.join(trashDir, 'ccm-claude-md-prefix');
-    try {
-      fs.renameSync(oldSubdir, dest);
-      movedCount++;
-      log(`✓ Cleaned up deprecated ccm-claude-md-prefix/ directory`, 'green');
-    } catch (error) {
-      log(`⚠ Failed to move ccm-claude-md-prefix/ to trash: ${error.message}`, 'yellow');
-    }
-  }
-
-  if (movedCount > 0) {
-    log(`✓ Cleaned up ${movedCount} deprecated item(s)`, 'green');
-    log(`  Moved to: ${trashDir}`, 'cyan');
-  }
-}
-
-function installClaudeAdditions() {
-  const claudeDir = path.join(os.homedir(), '.claude');
-  const sourceAdditionsDir = path.join(__dirname, '..', 'ccm-claude-md-prefix');
-  const claudeMdFile = path.join(claudeDir, 'CLAUDE.md');
-
-  // Create .claude directory if doesn't exist
-  if (!fs.existsSync(claudeDir)) {
-    fs.mkdirSync(claudeDir, { recursive: true, mode: 0o755 });
-  }
-
-  // Check if source prefix directory exists
-  if (!fs.existsSync(sourceAdditionsDir)) {
-    log('⚠ No CCM prefix files found in package', 'yellow');
-    return;
-  }
-
-  // Copy all .md files directly to ~/.claude/
-  const prefixFiles = fs.readdirSync(sourceAdditionsDir).filter(f => f.endsWith('.md'));
-
-  if (prefixFiles.length === 0) {
-    log('⚠ No .md files found in ccm-claude-md-prefix/', 'yellow');
-    return;
-  }
-
-  let copiedCount = 0;
-  prefixFiles.forEach(file => {
-    const source = path.join(sourceAdditionsDir, file);
-    const dest = path.join(claudeDir, file);
-
-    try {
-      fs.copyFileSync(source, dest);
-      fs.chmodSync(dest, 0o644);
-      copiedCount++;
-    } catch (error) {
-      log(`⚠ Failed to copy ${file}: ${error.message}`, 'yellow');
-    }
-  });
-
-  if (copiedCount === 0) {
-    return;
-  }
-
-  log(`✓ Installed ${copiedCount} CCM file(s) to ~/.claude/`, 'green');
-
-  // Generate @ references with --- separators
-  const fileReferences = prefixFiles
-    .map(file => `@./${file}`)
-    .join('\n\n---\n\n');
-
-  // Build CCM header with separators and final separator
-  const ccmHeader = `${fileReferences}
-
----
-
-`;
-
-  let existingContent = '';
-  let isNewFile = false;
-
-  // Read existing CLAUDE.md or create new
-  if (fs.existsSync(claudeMdFile)) {
-    existingContent = fs.readFileSync(claudeMdFile, 'utf8');
-
-    // Check if new format CCM references already present
-    if (existingContent.includes('@./ccm-')) {
-      log('ℹ CCM references already in CLAUDE.md (new format)', 'cyan');
-      return;
-    }
-
-    // Check for old format references and remove them
-    const oldFormatPatterns = [
-      /@~\/\.claude\/ccm-claude-md-prefix\/[^\n]+\n?/g,
-      /@~\/\.claude\/ccm-[^\n]+\n?/g
-    ];
-
-    let hasOldFormat = false;
-    oldFormatPatterns.forEach(pattern => {
-      if (pattern.test(existingContent)) {
-        hasOldFormat = true;
-        existingContent = existingContent.replace(pattern, '');
-      }
-    });
-
-    // Clean up any leftover --- separators at the beginning
-    existingContent = existingContent.replace(/^[\s\n]*---[\s\n]*/g, '');
-
-    // Create backup before any modification
-    const backupFile = path.join(claudeDir, `CLAUDE.md.backup-${Date.now()}`);
-    fs.copyFileSync(claudeMdFile, backupFile);
-    log(`✓ Created backup: ${path.basename(backupFile)}`, 'green');
-
-    if (hasOldFormat) {
-      log('✓ Removed old CCM reference format', 'green');
-    }
-  } else {
-    isNewFile = true;
-  }
-
-  // Write new CLAUDE.md with prepended references (preserving user content)
-  const newContent = ccmHeader + existingContent;
-  fs.writeFileSync(claudeMdFile, newContent, { mode: 0o644 });
-
-  if (isNewFile) {
-    log('✓ Created ~/.claude/CLAUDE.md with CCM references', 'green');
-  } else {
-    log('✓ Prepended CCM references to ~/.claude/CLAUDE.md', 'green');
-  }
-
-  log('  You can modify or remove these references anytime', 'cyan');
 }
 
 function showWelcomeMessage() {
@@ -475,11 +329,8 @@ try {
   // Install all commands globally
   installGlobalCommands();
 
-  // Clean up deprecated files from previous versions
-  cleanupOldFiles();
-
-  // Install Claude additions and prepend to CLAUDE.md
-  installClaudeAdditions();
+  // Sync CCM files and regenerate CLAUDE.md header
+  syncClaudeAdditions();
 
   // Show welcome message only on fresh install
   if (isNewInstall) {

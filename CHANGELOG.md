@@ -5,158 +5,64 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
-## [0.2.9] - 2025-01-16
+## [0.3.0] - 2025-01-16
 
-### Enhanced Cleanup - Remove Old Subdirectory
+### Complete CCM File Sync System
 
-**Purpose:** Clean up deprecated `ccm-claude-md-prefix/` subdirectory from v0.2.2-v0.2.4.
-
-### Changed
-
-**scripts/postinstall.js:**
-- Extended cleanup to also remove `~/.claude/ccm-claude-md-prefix/` directory
-- This directory was used in v0.2.2-v0.2.4 before switching to direct installation
-- Entire directory moved to trash (safe recovery possible)
-
-**Cleanup now handles:**
-- Deprecated c-*.md files in ~/.claude/ root
-- Deprecated ccm-claude-md-prefix/ subdirectory
-- All moved to timestamped trash directory
-
-Files: 1 modified (postinstall.js)
-
-## [0.2.8] - 2025-01-16
-
-### Added Safe Cleanup Functionality
-
-**Purpose:** Automatically clean up deprecated files from previous versions without data loss.
+**Purpose:** Implement robust file synchronization for CCM-managed files with full tracking and automatic CLAUDE.md header regeneration.
 
 ### Added
 
-**scripts/postinstall.js:**
-- `cleanupOldFiles()` function automatically runs on install
-- Detects deprecated files (c-*.md from v0.2.6 and earlier)
-- Moves deprecated files to `~/.claude/.trash/{timestamp}/`
-- Safe cleanup - never deletes, always moves to trash
-- Users can recover files from trash if needed
+**New Module: src/lib/sync-engine.js**
+- `syncCCMFiles()` - Complete sync of CCM files (install new, update changed, remove deleted)
+- `regenerateCLAUDEMdHeader()` - Always regenerate CLAUDE.md header to match current files
+- `extractUserContent()` - Smart extraction of user content below CCM header
+- `generateCLAUDEMdHeader()` - Generate header from current file list
+- `calculateChecksum()` - SHA256 checksums for file integrity
 
-**Behavior:**
-- Runs before installing new files
-- Creates timestamped trash directory
-- Moves only known deprecated files
-- Silent if no cleanup needed
-
-Files: 1 modified (postinstall.js)
-
-## [0.2.7] - 2025-01-16
-
-### Package Cleanup (Rebuild)
-
-**Purpose:** NPM cached old files in v0.2.6. Clean rebuild to ensure only ccm-*.md files are included.
-
-Files: Same as 0.2.6, clean rebuild
-
-## [0.2.6] - 2025-01-16
-
-### Package Cleanup
-
-**Purpose:** Remove old deprecated files from NPM package.
-
-### Removed
-
-**ccm-claude-md-prefix/:**
-- Removed deprecated `c-*.md` files (old naming convention)
-- Kept only `ccm-*.md` files (new naming convention)
-
-Files: 4 removed
-
-## [0.2.5] - 2025-01-16
-
-### Improved CLAUDE.md Management
-
-**Purpose:** Better detection and handling of old CCM reference formats, ensure user content is always preserved.
+**Enhanced: src/lib/registry.js**
+- Registry schema upgraded from v0.1.0 to v0.2.0
+- Added `package_version` field to track package version
+- Added `ccm_managed_files` array to track individual CCM files
+- Added `claude_md` metadata object for header tracking
+- `migrateRegistry()` - Automatic migration from old schema
+- `load()` and `save()` - Convenient registry access with auto-migration
 
 ### Changed
 
 **scripts/postinstall.js:**
-- Detects and removes old format references (`@~/.claude/ccm-claude-md-prefix/*`)
-- Detects new format references (`@./ccm-*`) and skips if present
-- Always creates backup before modifying CLAUDE.md
-- Cleans up leftover separators from old formats
-- Preserves all user content below CCM references
+- Replaced `installClaudeAdditions()` with `syncClaudeAdditions()`
+- Now uses sync engine for all CCM file operations
+- Always regenerates CLAUDE.md header (no more early-exit)
+- Detects and handles file additions, updates, removals
+- Creates backups before modifications
+- Moves removed files to `.trash/` (never deletes)
 
-**Behavior:**
-- If old format detected: removes old references, adds new format
-- If new format detected: skips (no changes)
-- If no CCM references: adds new format
-- User content is never deleted or overwritten
+### Behavior
 
-Files: 1 modified (postinstall.js)
+**On every `npm install`:**
+1. Migrates registry if needed (v0.1.0 → v0.2.0)
+2. Syncs CCM files:
+   - Installs new files from package
+   - Updates files with changed content (backup first)
+   - Removes files not in package (moves to .trash)
+3. Always regenerates CLAUDE.md header to match current files
+4. Preserves user content in CLAUDE.md
 
----
+**File Operations:**
+- Install: Package → `~/.claude/` + registry tracking
+- Update: Backup → Overwrite → Update registry checksum
+- Remove: Move to `.trash/{timestamp}/` + Remove from registry
+- CLAUDE.md: Extract user content → Regenerate header → Prepend to user content
 
-## [0.2.4] - 2025-01-16
+**Safety:**
+- Never `rm` - always moves to timestamped trash
+- Always creates backups before modifications
+- User content in CLAUDE.md always preserved
+- Checksums verify file integrity
+- Migration is automatic and backward compatible
 
-### New CLAUDE.md Format with Relative Paths
-
-**Purpose:** Install files directly to ~/.claude/ root with relative path references and separators.
-
-### Changed
-
-**File Structure:**
-- Files now install to `~/.claude/` root (not subdirectory)
-- Renamed: `c-*.md` → `ccm-*.md`
-- Deleted: `c-CRITICAL-RULES.md`
-
-**scripts/postinstall.js:**
-- Copy files directly to `~/.claude/` instead of `~/.claude/ccm-claude-md-prefix/`
-- Use relative paths: `@./ccm-*.md` instead of `@~/.claude/ccm-claude-md-prefix/*.md`
-- Add `---` separators between each reference
-- Check for `@./ccm-` pattern to detect existing installation
-
-**New CLAUDE.md Format:**
-```
-@./ccm-DOCS-ORGANIZATION.md
-
----
-
-@./ccm-USER-SETTINGS.md
-
----
-
-@./ccm-WORKFLOW-ORCHESTRATION.md
-
----
-```
-
-Files: 3 renamed, 1 deleted, 1 modified (postinstall.js)
-
----
-
-## [0.2.3] - 2025-01-16
-
-### Simplified CLAUDE.md Header
-
-**Purpose:** Remove verbose comments from CLAUDE.md auto-prepend, use spartan format.
-
-### Changed
-
-**scripts/postinstall.js:**
-- Simplified CLAUDE.md header to just @ references
-- Removed verbose comments and separators
-- Spartan format: just the file links
-
-**Example:**
-```
-@~/.claude/ccm-claude-md-prefix/c-CRITICAL-RULES.md
-@~/.claude/ccm-claude-md-prefix/c-REPO-ORGANIZATION.md
-@~/.claude/ccm-claude-md-prefix/c-USER-SETTINGS.md
-@~/.claude/ccm-claude-md-prefix/c-WORKFLOW-ORCHESTRATION.md
-```
-
-Files: 1 modified
-
----
+Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 
 ## [0.2.2] - 2025-01-16
 
