@@ -212,7 +212,6 @@ function installGlobalCommands() {
 
 function installClaudeAdditions() {
   const claudeDir = path.join(os.homedir(), '.claude');
-  const ccmAdditionsDir = path.join(claudeDir, 'ccm-claude-md-prefix');
   const sourceAdditionsDir = path.join(__dirname, '..', 'ccm-claude-md-prefix');
   const claudeMdFile = path.join(claudeDir, 'CLAUDE.md');
 
@@ -227,12 +226,7 @@ function installClaudeAdditions() {
     return;
   }
 
-  // Create ccm-claude-md-prefix directory
-  if (!fs.existsSync(ccmAdditionsDir)) {
-    fs.mkdirSync(ccmAdditionsDir, { recursive: true, mode: 0o755 });
-  }
-
-  // Copy all .md files from source to destination
+  // Copy all .md files directly to ~/.claude/
   const prefixFiles = fs.readdirSync(sourceAdditionsDir).filter(f => f.endsWith('.md'));
 
   if (prefixFiles.length === 0) {
@@ -243,7 +237,7 @@ function installClaudeAdditions() {
   let copiedCount = 0;
   prefixFiles.forEach(file => {
     const source = path.join(sourceAdditionsDir, file);
-    const dest = path.join(ccmAdditionsDir, file);
+    const dest = path.join(claudeDir, file);
 
     try {
       fs.copyFileSync(source, dest);
@@ -258,16 +252,17 @@ function installClaudeAdditions() {
     return;
   }
 
-  log(`✓ Installed ${copiedCount} CCM prefix file(s)`, 'green');
-  log(`  ${ccmAdditionsDir}/`, 'cyan');
+  log(`✓ Installed ${copiedCount} CCM file(s) to ~/.claude/`, 'green');
 
-  // Generate @ references for all files dynamically
+  // Generate @ references with --- separators
   const fileReferences = prefixFiles
-    .map(file => `@~/.claude/ccm-claude-md-prefix/${file}`)
-    .join('\n');
+    .map(file => `@./${file}`)
+    .join('\n\n---\n\n');
 
-  // Build CCM header with dynamic file references (just the links)
+  // Build CCM header with separators and final separator
   const ccmHeader = `${fileReferences}
+
+---
 
 `;
 
@@ -278,21 +273,42 @@ function installClaudeAdditions() {
   if (fs.existsSync(claudeMdFile)) {
     existingContent = fs.readFileSync(claudeMdFile, 'utf8');
 
-    // Check if CCM prefix already present
-    if (existingContent.includes('ccm-claude-md-prefix')) {
-      log('ℹ CCM references already in CLAUDE.md', 'cyan');
+    // Check if new format CCM references already present
+    if (existingContent.includes('@./ccm-')) {
+      log('ℹ CCM references already in CLAUDE.md (new format)', 'cyan');
       return;
     }
 
-    // Create backup
+    // Check for old format references and remove them
+    const oldFormatPatterns = [
+      /@~\/\.claude\/ccm-claude-md-prefix\/[^\n]+\n?/g,
+      /@~\/\.claude\/ccm-[^\n]+\n?/g
+    ];
+
+    let hasOldFormat = false;
+    oldFormatPatterns.forEach(pattern => {
+      if (pattern.test(existingContent)) {
+        hasOldFormat = true;
+        existingContent = existingContent.replace(pattern, '');
+      }
+    });
+
+    // Clean up any leftover --- separators at the beginning
+    existingContent = existingContent.replace(/^[\s\n]*---[\s\n]*/g, '');
+
+    // Create backup before any modification
     const backupFile = path.join(claudeDir, `CLAUDE.md.backup-${Date.now()}`);
     fs.copyFileSync(claudeMdFile, backupFile);
     log(`✓ Created backup: ${path.basename(backupFile)}`, 'green');
+
+    if (hasOldFormat) {
+      log('✓ Removed old CCM reference format', 'green');
+    }
   } else {
     isNewFile = true;
   }
 
-  // Write new CLAUDE.md with prepended references
+  // Write new CLAUDE.md with prepended references (preserving user content)
   const newContent = ccmHeader + existingContent;
   fs.writeFileSync(claudeMdFile, newContent, { mode: 0o644 });
 
