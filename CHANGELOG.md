@@ -5,6 +5,20 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.6] - 2025-01-16
+
+### Package Cleanup
+
+**Purpose:** Remove old deprecated files from NPM package.
+
+### Removed
+
+**ccm-claude-md-prefix/:**
+- Removed deprecated `c-*.md` files (old naming convention)
+- Kept only `ccm-*.md` files (new naming convention)
+
+Files: 4 removed
+
 ## [0.2.5] - 2025-01-16
 
 ### Improved CLAUDE.md Management
