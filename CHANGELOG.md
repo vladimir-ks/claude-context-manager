@@ -5,6 +5,44 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.4] - 2025-01-16
+
+### New CLAUDE.md Format with Relative Paths
+
+**Purpose:** Install files directly to ~/.claude/ root with relative path references and separators.
+
+### Changed
+
+**File Structure:**
+- Files now install to `~/.claude/` root (not subdirectory)
+- Renamed: `c-*.md` → `ccm-*.md`
+- Deleted: `c-CRITICAL-RULES.md`
+
+**scripts/postinstall.js:**
+- Copy files directly to `~/.claude/` instead of `~/.claude/ccm-claude-md-prefix/`
+- Use relative paths: `@./ccm-*.md` instead of `@~/.claude/ccm-claude-md-prefix/*.md`
+- Add `---` separators between each reference
+- Check for `@./ccm-` pattern to detect existing installation
+
+**New CLAUDE.md Format:**
+```
+@./ccm-DOCS-ORGANIZATION.md
+
+---
+
+@./ccm-USER-SETTINGS.md
+
+---
+
+@./ccm-WORKFLOW-ORCHESTRATION.md
+
+---
+```
+
+Files: 3 renamed, 1 deleted, 1 modified (postinstall.js)
+
+---
+
 ## [0.2.3] - 2025-01-16
 
 ### Simplified CLAUDE.md Header
