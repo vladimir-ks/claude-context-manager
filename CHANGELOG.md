@@ -5,6 +5,26 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.9] - 2025-01-16
+
+### Enhanced Cleanup - Remove Old Subdirectory
+
+**Purpose:** Clean up deprecated `ccm-claude-md-prefix/` subdirectory from v0.2.2-v0.2.4.
+
+### Changed
+
+**scripts/postinstall.js:**
+- Extended cleanup to also remove `~/.claude/ccm-claude-md-prefix/` directory
+- This directory was used in v0.2.2-v0.2.4 before switching to direct installation
+- Entire directory moved to trash (safe recovery possible)
+
+**Cleanup now handles:**
+- Deprecated c-*.md files in ~/.claude/ root
+- Deprecated ccm-claude-md-prefix/ subdirectory
+- All moved to timestamped trash directory
+
+Files: 1 modified (postinstall.js)
+
 ## [0.2.8] - 2025-01-16
 
 ### Added Safe Cleanup Functionality

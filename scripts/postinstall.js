@@ -226,12 +226,17 @@ function cleanupOldFiles() {
     'c-WORKFLOW-ORCHESTRATION.md'
   ];
 
-  // Check if any deprecated files exist
+  // Check deprecated subdirectory (from v0.2.2-v0.2.4)
+  const oldSubdir = path.join(claudeDir, 'ccm-claude-md-prefix');
+  const hasOldSubdir = fs.existsSync(oldSubdir);
+
+  // Check if any deprecated files exist in root
   const existingDeprecated = deprecatedFiles.filter(file =>
     fs.existsSync(path.join(claudeDir, file))
   );
 
-  if (existingDeprecated.length === 0) {
+  // Nothing to clean
+  if (existingDeprecated.length === 0 && !hasOldSubdir) {
     return;
   }
 
@@ -246,8 +251,9 @@ function cleanupOldFiles() {
     return;
   }
 
-  // Move deprecated files to trash
   let movedCount = 0;
+
+  // Move deprecated files from root to trash
   existingDeprecated.forEach(file => {
     const source = path.join(claudeDir, file);
     const dest = path.join(trashDir, file);
@@ -260,8 +266,20 @@ function cleanupOldFiles() {
     }
   });
 
+  // Move old subdirectory to trash
+  if (hasOldSubdir) {
+    const dest = path.join(trashDir, 'ccm-claude-md-prefix');
+    try {
+      fs.renameSync(oldSubdir, dest);
+      movedCount++;
+      log(`✓ Cleaned up deprecated ccm-claude-md-prefix/ directory`, 'green');
+    } catch (error) {
+      log(`⚠ Failed to move ccm-claude-md-prefix/ to trash: ${error.message}`, 'yellow');
+    }
+  }
+
   if (movedCount > 0) {
-    log(`✓ Cleaned up ${movedCount} deprecated file(s)`, 'green');
+    log(`✓ Cleaned up ${movedCount} deprecated item(s)`, 'green');
     log(`  Moved to: ${trashDir}`, 'cyan');
   }
 }
