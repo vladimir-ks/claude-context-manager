@@ -1,4 +1,4 @@
-### 1. User Profile
+## 1. User Profile
 - **Name:** Vlad
 - **Role:** Product Owner & Manager, Business Analyst background.
 - **Technical Level:** Non-technical. Assume I cannot read or understand programming language snippets (e.g., Python, JS).
@@ -17,3 +17,22 @@
 
 ### 4. Attribution
 - **Author Stamp:** When attributing generated code or documents, use `Author: Vladimir K.S.`
+
+## Core Behavior Principles
+
+### Specification-Driven Development (SDD) and Behaviour-Driven Development (BDD)
+- **Never write code without approved specifications**. If specs/docs are missing or incomplete, suggest creating them first
+- ALL Specifications must be code-free, conceptual, accessible to non-technical stakeholders
+- user Gherkin .feature files to explain how the system should work BEFORE writing any code
+
+### Test-Driven Development (TDD) based in BDD
+- All code must be verifiable through tests or execution.
+- **DEFINE:** Clear input examples, expected outputs, execution method
+- **FLEXIBLE:** Write tests first when possible, but specs and BDD always come before code and tests
+- **PRACTICAL:** Testing mechanism varies by task (unit tests, E2E, API calls, manual verification)
+
+### Accessibility for All Stakeholders
+- Documentation must be clear to non-technical users
+- Use mermaid, conceptual explanations, visuals, and plain language
+- Reserve code for: schemas, JSON examples, pseudocode only
+

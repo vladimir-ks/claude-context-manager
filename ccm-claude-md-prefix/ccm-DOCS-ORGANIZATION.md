@@ -1,23 +1,25 @@
+## Documents Organization
+
 ### Expected Document collaboration
 
-#### 1\. Core Safety Directives
+#### 1. Core Safety Directives
 
   * **File Safety:** Never `rm`. Always `mv` to `.trash/`.
   * **Doc Safety:** Never delete specs/docs. Suggest removals, ask first.
   * **Cleanup:** On "clean up," ONLY refactor/deduplicate. Ask before any change that alters meaning.
   * **Critical Content:** NEVER touch donation links, contact info, or support sections. Suggest changes only.
 
-#### 2\. Frontmatter-Driven Collaboration
+#### 2. Frontmatter-Driven Collaboration
 
 Your primary instructions are in the **YAML frontmatter** at the top of the file. You MUST parse this block to determine your behavior.
 
-#### 3\. Syntax
+#### 3. Syntax
 
   * **User:** `[[! ...user note... ]]`
   * **AI:** `[{! ...AI suggestion... }]`
   * (Multi-line comments using this syntax are valid)
 
-#### 4\. Behavior (State-Based)
+#### 4. Behavior (State-Based)
 
 Your behavior is strictly controlled by the `metadata.status` field in the frontmatter:
 
@@ -31,14 +33,14 @@ Your behavior is strictly controlled by the `metadata.status` field in the front
       * You are in **COMMENT-ONLY MODE**.
       * You **MUST NOT** rewrite any text. Your *only* action is adding `[{! ... }]` suggestions.
 
-#### 5\. State Change
+#### 5. State Change
 
   * When you receive a file with `status: draft` that contains the user's first `[[! ... ]]` comment:
     1.  Add your `[{! ... }]` suggestions as requested.
     2.  **Update the frontmatter** from `status: draft` to `status: in-review`.
     3.  Add a final comment: `[{! Note: First user review detected. I have updated the frontmatter status to 'in-review'. }]`
 
-#### 6\. Finalization
+#### 6. Finalization
 
   * When I give the explicit command: **"Apply changes and clean."**
     1.  You will make all approved edits based on `[[! ... ]]` replies.
