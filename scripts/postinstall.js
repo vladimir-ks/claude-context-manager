@@ -210,6 +210,62 @@ function installGlobalCommands() {
   }
 }
 
+function cleanupOldFiles() {
+  const claudeDir = path.join(os.homedir(), '.claude');
+
+  // Skip if .claude doesn't exist
+  if (!fs.existsSync(claudeDir)) {
+    return;
+  }
+
+  // Define deprecated files from previous versions
+  const deprecatedFiles = [
+    'c-CRITICAL-RULES.md',
+    'c-REPO-ORGANIZATION.md',
+    'c-USER-SETTINGS.md',
+    'c-WORKFLOW-ORCHESTRATION.md'
+  ];
+
+  // Check if any deprecated files exist
+  const existingDeprecated = deprecatedFiles.filter(file =>
+    fs.existsSync(path.join(claudeDir, file))
+  );
+
+  if (existingDeprecated.length === 0) {
+    return;
+  }
+
+  // Create trash directory with timestamp
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const trashDir = path.join(claudeDir, '.trash', timestamp);
+
+  try {
+    fs.mkdirSync(trashDir, { recursive: true, mode: 0o755 });
+  } catch (error) {
+    log(`⚠ Failed to create trash directory: ${error.message}`, 'yellow');
+    return;
+  }
+
+  // Move deprecated files to trash
+  let movedCount = 0;
+  existingDeprecated.forEach(file => {
+    const source = path.join(claudeDir, file);
+    const dest = path.join(trashDir, file);
+
+    try {
+      fs.renameSync(source, dest);
+      movedCount++;
+    } catch (error) {
+      log(`⚠ Failed to move ${file} to trash: ${error.message}`, 'yellow');
+    }
+  });
+
+  if (movedCount > 0) {
+    log(`✓ Cleaned up ${movedCount} deprecated file(s)`, 'green');
+    log(`  Moved to: ${trashDir}`, 'cyan');
+  }
+}
+
 function installClaudeAdditions() {
   const claudeDir = path.join(os.homedir(), '.claude');
   const sourceAdditionsDir = path.join(__dirname, '..', 'ccm-claude-md-prefix');
@@ -400,6 +456,9 @@ try {
 
   // Install all commands globally
   installGlobalCommands();
+
+  // Clean up deprecated files from previous versions
+  cleanupOldFiles();
 
   // Install Claude additions and prepend to CLAUDE.md
   installClaudeAdditions();

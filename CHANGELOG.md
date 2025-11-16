@@ -5,6 +5,29 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.8] - 2025-01-16
+
+### Added Safe Cleanup Functionality
+
+**Purpose:** Automatically clean up deprecated files from previous versions without data loss.
+
+### Added
+
+**scripts/postinstall.js:**
+- `cleanupOldFiles()` function automatically runs on install
+- Detects deprecated files (c-*.md from v0.2.6 and earlier)
+- Moves deprecated files to `~/.claude/.trash/{timestamp}/`
+- Safe cleanup - never deletes, always moves to trash
+- Users can recover files from trash if needed
+
+**Behavior:**
+- Runs before installing new files
+- Creates timestamped trash directory
+- Moves only known deprecated files
+- Silent if no cleanup needed
+
+Files: 1 modified (postinstall.js)
+
 ## [0.2.7] - 2025-01-16
 
 ### Package Cleanup (Rebuild)
