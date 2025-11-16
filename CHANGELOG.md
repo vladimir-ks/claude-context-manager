@@ -5,6 +5,14 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.7] - 2025-01-16
+
+### Package Cleanup (Rebuild)
+
+**Purpose:** NPM cached old files in v0.2.6. Clean rebuild to ensure only ccm-*.md files are included.
+
+Files: Same as 0.2.6, clean rebuild
+
 ## [0.2.6] - 2025-01-16
 
 ### Package Cleanup
