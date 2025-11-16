@@ -23,7 +23,7 @@ const updateCmd = require('../src/commands/update');
 const removeCmd = require('../src/commands/remove');
 const activateCmd = require('../src/commands/activate');
 
-const VERSION = '0.2.4';
+const VERSION = '0.2.5';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 

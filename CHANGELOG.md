@@ -5,6 +5,31 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.2.5] - 2025-01-16
+
+### Improved CLAUDE.md Management
+
+**Purpose:** Better detection and handling of old CCM reference formats, ensure user content is always preserved.
+
+### Changed
+
+**scripts/postinstall.js:**
+- Detects and removes old format references (`@~/.claude/ccm-claude-md-prefix/*`)
+- Detects new format references (`@./ccm-*`) and skips if present
+- Always creates backup before modifying CLAUDE.md
+- Cleans up leftover separators from old formats
+- Preserves all user content below CCM references
+
+**Behavior:**
+- If old format detected: removes old references, adds new format
+- If new format detected: skips (no changes)
+- If no CCM references: adds new format
+- User content is never deleted or overwritten
+
+Files: 1 modified (postinstall.js)
+
+---
+
 ## [0.2.4] - 2025-01-16
 
 ### New CLAUDE.md Format with Relative Paths
