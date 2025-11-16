@@ -8,6 +8,86 @@
  */
 
 const config = require('../utils/config');
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Migrate registry from old schema to new schema
+ * @param {Object} registry - Current registry object
+ * @returns {Object} Migrated registry
+ */
+function migrateRegistry(registry) {
+  let migrated = false;
+
+  // Migrate from v0.1.0 to v0.2.0
+  if (registry.version === '0.1.0') {
+    registry.version = '0.2.0';
+    migrated = true;
+
+    // Add package_version
+    if (!registry.package_version) {
+      try {
+        const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+          const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+          registry.package_version = packageJson.version;
+        } else {
+          registry.package_version = '0.3.0';  // Default
+        }
+      } catch (error) {
+        registry.package_version = '0.3.0';
+      }
+    }
+
+    // Add ccm_managed_files and claude_md to global installation
+    if (registry.installations && registry.installations.global) {
+      if (!registry.installations.global.ccm_managed_files) {
+        registry.installations.global.ccm_managed_files = [];
+      }
+      if (!registry.installations.global.claude_md) {
+        registry.installations.global.claude_md = null;
+      }
+    }
+
+    // Add ccm_managed_files and claude_md to all projects
+    if (registry.installations && registry.installations.projects) {
+      registry.installations.projects.forEach(project => {
+        if (!project.ccm_managed_files) {
+          project.ccm_managed_files = [];
+        }
+        if (!project.claude_md) {
+          project.claude_md = null;
+        }
+      });
+    }
+  }
+
+  return { registry, migrated };
+}
+
+/**
+ * Load registry with automatic migration
+ * @returns {Object} Registry object
+ */
+function load() {
+  const registry = config.readRegistry();
+  const { registry: migratedRegistry, migrated } = migrateRegistry(registry);
+
+  // Save if migrated
+  if (migrated) {
+    config.writeRegistry(migratedRegistry);
+  }
+
+  return migratedRegistry;
+}
+
+/**
+ * Save registry
+ * @param {Object} registry - Registry object to save
+ */
+function save(registry) {
+  config.writeRegistry(registry);
+}
 
 /**
  * Get all installed artifacts for target (global or project)
@@ -272,6 +352,9 @@ function getAllProjects() {
 
 // Export all functions
 module.exports = {
+  load,
+  save,
+  migrateRegistry,
   getInstalledArtifacts,
   getInstalledPackages,
   addArtifact,

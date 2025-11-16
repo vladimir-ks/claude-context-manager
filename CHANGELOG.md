@@ -5,6 +5,65 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.0] - 2025-01-16
+
+### Complete CCM File Sync System
+
+**Purpose:** Implement robust file synchronization for CCM-managed files with full tracking and automatic CLAUDE.md header regeneration.
+
+### Added
+
+**New Module: src/lib/sync-engine.js**
+- `syncCCMFiles()` - Complete sync of CCM files (install new, update changed, remove deleted)
+- `regenerateCLAUDEMdHeader()` - Always regenerate CLAUDE.md header to match current files
+- `extractUserContent()` - Smart extraction of user content below CCM header
+- `generateCLAUDEMdHeader()` - Generate header from current file list
+- `calculateChecksum()` - SHA256 checksums for file integrity
+
+**Enhanced: src/lib/registry.js**
+- Registry schema upgraded from v0.1.0 to v0.2.0
+- Added `package_version` field to track package version
+- Added `ccm_managed_files` array to track individual CCM files
+- Added `claude_md` metadata object for header tracking
+- `migrateRegistry()` - Automatic migration from old schema
+- `load()` and `save()` - Convenient registry access with auto-migration
+
+### Changed
+
+**scripts/postinstall.js:**
+- Replaced `installClaudeAdditions()` with `syncClaudeAdditions()`
+- Now uses sync engine for all CCM file operations
+- Always regenerates CLAUDE.md header (no more early-exit)
+- Detects and handles file additions, updates, removals
+- Creates backups before modifications
+- Moves removed files to `.trash/` (never deletes)
+
+### Behavior
+
+**On every `npm install`:**
+1. Migrates registry if needed (v0.1.0 → v0.2.0)
+2. Syncs CCM files:
+   - Installs new files from package
+   - Updates files with changed content (backup first)
+   - Removes files not in package (moves to .trash)
+3. Always regenerates CLAUDE.md header to match current files
+4. Preserves user content in CLAUDE.md
+
+**File Operations:**
+- Install: Package → `~/.claude/` + registry tracking
+- Update: Backup → Overwrite → Update registry checksum
+- Remove: Move to `.trash/{timestamp}/` + Remove from registry
+- CLAUDE.md: Extract user content → Regenerate header → Prepend to user content
+
+**Safety:**
+- Never `rm` - always moves to timestamped trash
+- Always creates backups before modifications
+- User content in CLAUDE.md always preserved
+- Checksums verify file integrity
+- Migration is automatic and backward compatible
+
+Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
+
 ## [0.2.2] - 2025-01-16
 
 ### CLAUDE.md Auto-Prepend Feature
