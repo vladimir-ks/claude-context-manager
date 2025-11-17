@@ -1,9 +1,10 @@
 ---
 metadata:
   status: DRAFT
-  version: 0.3
-  tldr: "Database-driven orchestration and workflow patterns"
+  version: 0.4
+  tldr: "Database-driven orchestration, 4-stage execution cycle, workflow patterns"
   dependencies: [architecture-principles.md, agent-patterns.md, data-architecture.md]
+  code_refs: [_dev_tools/cc_automation/]
 ---
 
 # Orchestration Patterns
@@ -404,6 +405,316 @@ async def github_webhook(payload: dict):
         return {"status": "task_created"}
 ```
 
+## 4-Stage Execution Cycle (Complex Tasks)
+
+**Source**: Adapted from cc_automation overnight development system.
+
+**Use Case**: Long-running, multi-step tasks requiring adaptive planning and skeptical review.
+
+### Overview
+
+```mermaid
+stateDiagram-v2
+    [*] --> Planning: Task created
+
+    Planning --> Executing: Plan approved
+    Note right of Planning
+        Agent analyzes current state
+        Creates/updates TASK_PLAN.md
+        Breaks work into stages
+    end note
+
+    Executing --> Reviewing: Stage complete
+    Note right of Executing
+        Execute one stage
+        Make incremental progress
+        Commit to git
+    end note
+
+    Reviewing --> Verifying: Review passed
+    Note right of Reviewing
+        Skeptical analysis
+        Check for over-confidence
+        Identify issues
+    end note
+
+    Verifying --> Executing: More stages remain
+    Verifying --> Complete: All stages done
+    Note right of Verifying
+        Verify stage completion
+        Update plan
+        Determine next action
+    end note
+
+    Reviewing --> Planning: Issues found
+    Planning --> Executing: Plan updated
+
+    Complete --> [*]
+```
+
+### Stage Workflow
+
+**1. Assessment & Planning**:
+- Agent reads current project state
+- Creates `TASK_PLAN.md` in worktree
+- Breaks task into numbered stages
+- Each stage is concrete and testable
+
+**2. Stage Execution**:
+- Execute ONE stage at a time
+- Make incremental file edits
+- Run tests relevant to stage
+- Git auto-checkpoint every 5 edits (automation)
+
+**3. Skeptical Review**:
+- Critical analysis of work done
+- Check for logical errors
+- Verify tests passed
+- Update plan if needed
+
+**4. Completion Check**:
+- Verify stage actually complete
+- Decide: continue to next stage OR finalize
+- Update task_plan_progress
+
+### Database Support
+
+**TASK_PLAN tracking**:
+```sql
+CREATE TABLE task_plans (
+    task_id TEXT PRIMARY KEY,
+    plan_file_path TEXT,  -- Path to TASK_PLAN.md in worktree
+    total_stages INTEGER,
+    current_stage INTEGER DEFAULT 0,
+    last_review_result TEXT,  -- 'passed', 'issues_found', 'plan_updated'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (task_id) REFERENCES tasks(id)
+);
+
+-- Stage progress tracking
+CREATE TABLE task_plan_stages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_id TEXT NOT NULL,
+    stage_number INTEGER NOT NULL,
+    stage_description TEXT NOT NULL,
+    status TEXT CHECK(status IN ('pending', 'in_progress', 'completed', 'failed')) DEFAULT 'pending',
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    review_notes TEXT,
+
+    FOREIGN KEY (task_id) REFERENCES tasks(id),
+    UNIQUE(task_id, stage_number)
+);
+```
+
+### State Machine Integration
+
+**Task status** reflects execution stage:
+
+```sql
+-- Task with 4-stage cycle uses extended states
+CREATE TABLE tasks (
+    ...
+    execution_stage TEXT CHECK(execution_stage IN (
+        'planning',
+        'executing',
+        'reviewing',
+        'verifying',
+        'complete'
+    )) DEFAULT 'planning',
+    ...
+);
+
+-- State transitions trigger next actions
+CREATE TRIGGER on_stage_transition
+AFTER UPDATE ON tasks
+FOR EACH ROW
+WHEN OLD.execution_stage != NEW.execution_stage
+BEGIN
+    -- Log transition
+    INSERT INTO task_events (task_id, event_type, event_data)
+    VALUES (NEW.id, 'stage_transition', json_object(
+        'from', OLD.execution_stage,
+        'to', NEW.execution_stage,
+        'current_stage', (SELECT current_stage FROM task_plans WHERE task_id = NEW.id)
+    ));
+
+    -- Schedule next agent invocation
+    INSERT INTO agent_commands (task_id, command, scheduled_at)
+    VALUES (NEW.id, get_next_stage_command(NEW.execution_stage), datetime('now'));
+END;
+```
+
+### Skeptical Review Pattern
+
+**Prevents over-confident progression**:
+
+```python
+# Supervisory agent analyzes completed stage
+def skeptical_review(task_id, stage_number):
+    # Read hook events for this stage
+    events = db.execute("""
+        SELECT * FROM hook_events
+        WHERE task_id = ?
+          AND hook_timestamp > (
+              SELECT started_at FROM task_plan_stages
+              WHERE task_id = ? AND stage_number = ?
+          )
+    """, (task_id, task_id, stage_number)).fetchall()
+
+    # Analyze patterns
+    issues = []
+
+    # Check 1: Were tests run?
+    test_runs = [e for e in events if 'test' in e['event_data'].get('command', '')]
+    if not test_runs:
+        issues.append("No tests executed in this stage")
+
+    # Check 2: Did files change as expected?
+    file_edits = [e for e in events if e['tool_name'] == 'Edit']
+    if len(file_edits) == 0:
+        issues.append("No files modified (stage incomplete?)")
+
+    # Check 3: Were there errors?
+    errors = [e for e in events if e['success'] == False]
+    if errors:
+        issues.append(f"{len(errors)} tool errors occurred")
+
+    # Decision
+    if issues:
+        # Update plan, re-execute stage
+        db.execute("""
+            UPDATE task_plans
+            SET last_review_result = 'issues_found'
+            WHERE task_id = ?
+        """, (task_id,))
+
+        # Transition back to planning
+        db.execute("""
+            UPDATE tasks
+            SET execution_stage = 'planning'
+            WHERE id = ?
+        """, (task_id,))
+
+        return {"status": "issues_found", "issues": issues}
+    else:
+        # Advance to verification
+        db.execute("""
+            UPDATE tasks
+            SET execution_stage = 'verifying'
+            WHERE id = ?
+        """, (task_id,))
+
+        return {"status": "passed"}
+```
+
+### TASK_PLAN.md Format
+
+**Standard structure**:
+```markdown
+# Task Plan: Fix Authentication Bug
+
+## Objective
+Resolve issue where users can't log in with 2FA enabled.
+
+## Current Status
+Stage 2 of 4 in progress
+
+## Stages
+
+### Stage 1: Investigation ✓
+- Read authentication code
+- Identify 2FA flow
+- Reproduce bug locally
+**Status**: COMPLETE
+**Review**: Passed - Bug located in token validation
+
+### Stage 2: Fix Implementation 🔄
+- Update token validator
+- Add test cases
+- Verify fix locally
+**Status**: IN PROGRESS
+**Started**: 2025-11-17 10:30
+
+### Stage 3: Integration Testing
+- Run full test suite
+- Test 2FA flow end-to-end
+- Verify no regressions
+**Status**: PENDING
+
+### Stage 4: Documentation
+- Update CHANGELOG
+- Add test documentation
+- Create PR description
+**Status**: PENDING
+
+## Notes
+- Token expiry was 5 min, should be 10 min
+- Need to update config docs
+```
+
+### Execution Example
+
+**Workflow**:
+```
+1. Task created → execution_stage='planning'
+   Agent: "Let me analyze the authentication bug..."
+   Creates: TASK_PLAN.md with 4 stages
+   Updates: DB with stages
+
+2. Planning complete → execution_stage='executing'
+   Agent: "Executing Stage 1: Investigation..."
+   Reads code, identifies bug
+   Updates: TASK_PLAN.md (Stage 1 ✓)
+
+3. Stage 1 done → execution_stage='reviewing'
+   Supervisory Agent: "Reviewing Stage 1..."
+   Checks: Files read, issue identified
+   Result: Passed
+
+4. Review passed → execution_stage='verifying'
+   Agent: "Stage 1 complete, proceeding to Stage 2"
+   Updates: current_stage = 2
+
+5. Verification done → execution_stage='executing'
+   Agent: "Executing Stage 2: Fix Implementation..."
+   Edits files, runs tests
+   Updates: TASK_PLAN.md (Stage 2 🔄)
+
+6. Stage 2 done → execution_stage='reviewing'
+   Supervisory Agent: "Reviewing Stage 2..."
+   Checks: Tests passed, files modified
+   Result: Passed
+
+7-12. Repeat for Stages 3 & 4...
+
+13. All stages done → execution_stage='complete'
+    Task marked complete
+```
+
+### When to Use 4-Stage Cycle
+
+**Good Fit**:
+- Long-running tasks (>30 min)
+- Multi-step workflows with dependencies
+- Tasks requiring adaptive planning
+- Overnight autonomous development
+
+**Not Needed**:
+- Simple one-shot tasks
+- Quick fixes (<10 min)
+- Tasks with predefined fixed steps
+
+### Integration with Existing Patterns
+
+**Combine with**:
+- Git worktree isolation (all work in dedicated worktree)
+- Quota management (pause between stages if needed)
+- Hook-based monitoring (track stage progress)
+- Supervisory agents (automated review step)
+
 ## Priority and Queue Management
 
 ### Priority Levels
@@ -576,5 +887,12 @@ END;
 ---
 
 **Status**: DRAFT
-**Version**: 0.3
+**Version**: 0.4
 **Last Updated**: 2025-11-17
+
+**Key Enhancements in v0.4**:
+- Added 4-stage execution cycle (Planning → Executing → Reviewing → Verifying)
+- TASK_PLAN.md workflow with adaptive planning
+- Skeptical review pattern prevents over-confident progression
+- Database support for multi-stage task orchestration (task_plans, task_plan_stages tables)
+- Integration with worktree isolation, quota management, hook monitoring

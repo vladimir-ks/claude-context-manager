@@ -1,9 +1,9 @@
 ---
 metadata:
   status: DRAFT
-  version: 0.2
+  version: 0.4
   modules: [product, requirements]
-  tldr: "Product Requirements - Local-first multi-agent orchestration platform"
+  tldr: "Product Requirements - Local-first multi-agent orchestration with safety, quota, automation"
 ---
 
 # CCM Orchestrator - Product Requirements Document
@@ -89,6 +89,38 @@ metadata:
 **✓ Auto-sync** - Pull skill updates every 60s
 **✓ File-based** - Skills written to `.claude/skills/`
 **✓ New agents only** - Running agents unaffected by updates
+
+### Safety & Sandboxing
+
+**✓ Git worktree isolation** - Each task in dedicated working directory
+**✓ Filesystem isolation** - Agents cannot access outside worktree
+**✓ Git operation restrictions** - No push, no branch switching, no submodules
+**✓ Resource limits** - Max worktree size, file size, commits per task
+**✓ Auto-cleanup** - Stale worktrees removed after 7 days
+**✓ Snapshot rollback** - Auto-snapshots every 10 commits
+**✓ Branch management** - Dedicated branches (ccm/task-{id}) per task
+**✓ Merge approval flow** - User reviews changes before merging to main
+
+### Quota Management
+
+**✓ ccusage integration** - Real-time quota detection (primary method)
+**✓ Conservative fallback** - Proactive limits when ccusage unavailable
+**✓ Auto-pause** - Agents pause at 90% quota usage
+**✓ Auto-resume** - Tasks resume after quota reset
+**✓ Dashboard visibility** - Real-time quota status in Web UI
+**✓ Multi-channel alerts** - Desktop, Telegram, Slack notifications
+**✓ Manual controls** - Force pause/resume overrides
+**✓ Configurable thresholds** - Warning at 50%, critical at 90%
+
+### Automation Framework
+
+**✓ Hook-based extensions** - Custom automations triggered by 9 Claude Code hooks
+**✓ Standard interfaces** - Simple shell script API for automation development
+**✓ Security guards** - Example: Block dangerous bash commands
+**✓ Git checkpoints** - Example: Auto-commit after N file edits
+**✓ Context injection** - Example: Add project context to prompts
+**✓ Extension points** - `~/.ccm/automations/enabled/` directory
+**✓ Shared libraries** - Common utilities and database helpers
 
 ### Integrations
 
@@ -193,10 +225,17 @@ See: [resource-requirements.md](./resource-requirements.md)
 ---
 
 **Status**: DRAFT
-**Version**: 0.3
+**Version**: 0.4
 **Last Updated**: 2025-11-17
 
-**Key Enhancements in v0.3**:
+**Key Enhancements in v0.4**:
+- Safety & Sandboxing (git worktree isolation, filesystem restrictions, rollback mechanisms)
+- Quota Management (ccusage integration, auto-pause/resume, multi-channel alerts)
+- Automation Framework (hook-based extensions, 9 Claude Code hooks, example automations)
+- 4-stage execution cycle (Planning → Executing → Reviewing → Verifying)
+- Complete Claude Code hook schemas (PreToolUse, PostToolUse, etc.)
+
+**Enhancements from v0.3**:
 - Hook-based monitoring (structured events, not terminal scraping)
 - Context-aware intelligent routing
 - Database-driven orchestration (SQLite as control plane)

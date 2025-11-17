@@ -36,41 +36,49 @@ metadata:
 
 ### Advanced Patterns
 4. **[agent-patterns.md](./agent-patterns.md)** - Worker, supervisory, and manager agents
-5. **[orchestration-patterns.md](./orchestration-patterns.md)** - Database-driven workflows
+5. **[orchestration-patterns.md](./orchestration-patterns.md)** - Database-driven workflows, 4-stage cycle
 6. **[context-routing.md](./context-routing.md)** - Context-aware task routing
-7. **[monitoring-architecture.md](./monitoring-architecture.md)** - Hook-based monitoring
+7. **[monitoring-architecture.md](./monitoring-architecture.md)** - Hook-based monitoring (9 Claude Code hooks)
 8. **[sync-strategies.md](./sync-strategies.md)** - Adaptive sync (periodic/threshold/event-driven)
 
+### Safety & Operations
+9. **[safety-and-sandboxing.md](./safety-and-sandboxing.md)** - Git worktree isolation, security model ✨ NEW
+10. **[quota-management.md](./quota-management.md)** - ccusage integration, pause/resume ✨ NEW
+11. **[automation-framework.md](./automation-framework.md)** - Hook-based extensions, example automations ✨ NEW
+
 ### Implementation
-9. **[local-web-interface.md](./local-web-interface.md)** - Web UI at localhost:8765
-10. **[skill-management.md](./skill-management.md)** - Central skill repository
-11. **[technical-deep-dives.md](./technical-deep-dives.md)** - libtmux, FastAPI patterns
-12. **[resource-requirements.md](./resource-requirements.md)** - RAM/CPU estimates, optimization
+12. **[local-web-interface.md](./local-web-interface.md)** - Web UI at localhost:8765
+13. **[skill-management.md](./skill-management.md)** - Central skill repository
+14. **[technical-deep-dives.md](./technical-deep-dives.md)** - libtmux, FastAPI, worktrees, ccusage
+15. **[resource-requirements.md](./resource-requirements.md)** - RAM/CPU estimates, optimization
 
 ### Integration & Setup
-13. **[installation-setup.md](./installation-setup.md)** - Install flow, configuration profiles
-14. **[integrations.md](./integrations.md)** - GitHub, Telegram, Prometheus, Cloudflare
+16. **[installation-setup.md](./installation-setup.md)** - Install flow, configuration profiles
+17. **[integrations.md](./integrations.md)** - GitHub, Telegram, Prometheus, Cloudflare
 
 ## Document Status
 
 | Document | Diagrams | Lines | Status |
 |----------|----------|-------|--------|
-| PRD.md | 1 | 171 | DRAFT v0.2 |
-| architecture-principles.md | 12 | 780 | DRAFT v0.3 ✨ NEW |
+| PRD.md | 1 | 244 | DRAFT v0.4 |
+| architecture-principles.md | 12 | 780 | DRAFT v0.3 |
 | architecture-overview.md | 6 | 240 | DRAFT v0.2 |
-| data-architecture.md | 5 | 256 | DRAFT v0.2 |
-| agent-patterns.md | 8 | 500 | DRAFT v0.3 ✨ NEW |
-| orchestration-patterns.md | 10 | 450 | DRAFT v0.3 ✨ NEW |
-| context-routing.md | 6 | 450 | DRAFT v0.3 ✨ NEW |
-| monitoring-architecture.md | 5 | 500 | DRAFT v0.3 ✨ NEW |
-| sync-strategies.md | 7 | 400 | DRAFT v0.3 ✨ NEW |
+| data-architecture.md | 5 | 367 | DRAFT v0.4 |
+| agent-patterns.md | 8 | 500 | DRAFT v0.3 |
+| orchestration-patterns.md | 15 | 898 | DRAFT v0.4 |
+| context-routing.md | 6 | 450 | DRAFT v0.3 |
+| monitoring-architecture.md | 5 | 710 | DRAFT v0.4 |
+| sync-strategies.md | 7 | 712 | DRAFT v0.3 |
+| **safety-and-sandboxing.md** | 8 | 650 | DRAFT v0.4 ✨ NEW |
+| **quota-management.md** | 6 | 711 | DRAFT v0.4 ✨ NEW |
+| **automation-framework.md** | 9 | 800 | DRAFT v0.4 ✨ NEW |
 | local-web-interface.md | 8 | 380 | DRAFT v0.2 |
 | installation-setup.md | 1 | 450 | DRAFT v0.2 |
 | resource-requirements.md | 3 | 420 | DRAFT v0.2 |
 | skill-management.md | 6 | 290 | DRAFT v0.2 |
 | integrations.md | 15 | 600 | DRAFT v0.1 |
-| technical-deep-dives.md | 16 | 650 | DRAFT v0.1 |
-| **Total** | **109** | **~6,537** | |
+| technical-deep-dives.md | 20 | 1127 | DRAFT v0.4 |
+| **Total** | **141** | **~10,329** | |
 
 ## Common Paths
 
@@ -83,6 +91,15 @@ metadata:
 **"What can it do for me?"**:
 → Pick persona → Read workflow doc
 
+**"How does sandboxing work?"**:
+→ [safety-and-sandboxing.md](./safety-and-sandboxing.md)
+
+**"How is quota managed?"**:
+→ [quota-management.md](./quota-management.md)
+
+**"Can I extend it with custom automations?"**:
+→ [automation-framework.md](./automation-framework.md)
+
 **"How much RAM/CPU?"**:
 → [resource-requirements.md](./resource-requirements.md)
 
@@ -91,4 +108,14 @@ metadata:
 
 ---
 
+**Version**: 0.4
 **Last Updated**: 2025-11-17
+
+**v0.4 Highlights**:
+- 3 new major documents (Safety & Sandboxing, Quota Management, Automation Framework)
+- Git worktree isolation patterns
+- ccusage integration for quota detection
+- 9 Claude Code hook types documented
+- 4-stage execution cycle pattern
+- +3,792 lines of documentation
+- +32 new diagrams

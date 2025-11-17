@@ -1,9 +1,10 @@
 ---
 metadata:
   status: DRAFT
-  version: 0.3
-  tldr: "Technical implementation patterns: libtmux, FastAPI, hooks, Supabase"
-  dependencies: [architecture-principles.md, monitoring-architecture.md, agent-patterns.md]
+  version: 0.4
+  tldr: "Technical implementation: libtmux, FastAPI, hooks, worktrees, ccusage, Supabase"
+  dependencies: [architecture-principles.md, monitoring-architecture.md, agent-patterns.md, safety-and-sandboxing.md, quota-management.md]
+  code_refs: [_dev_tools/pneuma-claude-hooks/, _dev_tools/cc_automation/]
 ---
 
 # Technical Deep Dives
@@ -668,6 +669,416 @@ flowchart LR
     M1 & M2 & M3 --> Alert3
 ```
 
+## Git Worktree Management
+
+### Worktree Creation Pattern
+
+**Source**: Adapted from git worktree best practices for isolated task execution.
+
+**Implementation**:
+```python
+import subprocess
+import os
+from pathlib import Path
+
+class WorktreeManager:
+    def __init__(self, main_repo_path, worktrees_base):
+        self.main_repo = Path(main_repo_path)
+        self.worktrees_base = Path(worktrees_base)
+
+    def create_worktree(self, task_id, base_branch='main'):
+        """Create isolated worktree for task"""
+        worktree_path = self.worktrees_base / task_id
+        branch_name = f"ccm/{task_id}"
+
+        # Ensure main repo exists
+        if not self.main_repo.exists():
+            raise ValueError(f"Main repo not found: {self.main_repo}")
+
+        # Create worktree with dedicated branch
+        subprocess.run([
+            'git', 'worktree', 'add',
+            str(worktree_path),
+            '-b', branch_name,
+            base_branch
+        ], cwd=self.main_repo, check=True)
+
+        # Record in database
+        db.execute("""
+            INSERT INTO task_worktrees (task_id, worktree_path, branch_name)
+            VALUES (?, ?, ?)
+        """, (task_id, str(worktree_path), branch_name))
+
+        return worktree_path
+
+    def remove_worktree(self, task_id, force=False):
+        """Remove worktree and cleanup"""
+        worktree_data = db.execute("""
+            SELECT worktree_path, branch_name FROM task_worktrees
+            WHERE task_id = ?
+        """, (task_id,)).fetchone()
+
+        if not worktree_data:
+            return
+
+        worktree_path = worktree_data['worktree_path']
+        branch_name = worktree_data['branch_name']
+
+        # Remove worktree
+        cmd = ['git', 'worktree', 'remove', worktree_path]
+        if force:
+            cmd.append('--force')
+
+        subprocess.run(cmd, cwd=self.main_repo, check=True)
+
+        # Delete branch (if merged)
+        subprocess.run([
+            'git', 'branch', '-d' if not force else '-D',
+            branch_name
+        ], cwd=self.main_repo, check=True)
+
+        # Update database
+        db.execute("""
+            UPDATE task_worktrees
+            SET removed_at = datetime('now'), status = 'discarded'
+            WHERE task_id = ?
+        """, (task_id,))
+
+    def list_worktrees(self):
+        """List all git worktrees"""
+        result = subprocess.run([
+            'git', 'worktree', 'list', '--porcelain'
+        ], cwd=self.main_repo, capture_output=True, text=True, check=True)
+
+        worktrees = []
+        current = {}
+
+        for line in result.stdout.split('\n'):
+            if line.startswith('worktree '):
+                if current:
+                    worktrees.append(current)
+                current = {'path': line.split(' ', 1)[1]}
+            elif line.startswith('branch '):
+                current['branch'] = line.split(' ', 1)[1]
+
+        if current:
+            worktrees.append(current)
+
+        return worktrees
+
+    def prune_stale(self):
+        """Remove stale worktree metadata"""
+        subprocess.run(['git', 'worktree', 'prune'], cwd=self.main_repo, check=True)
+```
+
+### Worktree Safety Guards
+
+**Prevent dangerous operations**:
+```python
+def validate_worktree_path(path, task_id):
+    """Ensure path is within allowed worktree"""
+    allowed_root = Path(f"~/.ccm/worktrees/{task_id}").expanduser().resolve()
+    actual_path = Path(path).resolve()
+
+    if not str(actual_path).startswith(str(allowed_root)):
+        raise SecurityError(f"Path outside worktree: {path}")
+
+    return actual_path
+
+# Wrap git commands
+class SafeGitWrapper:
+    ALLOWED_COMMANDS = ['add', 'commit', 'diff', 'status', 'log', 'show']
+    FORBIDDEN_COMMANDS = ['push', 'pull', 'fetch', 'checkout', 'merge', 'rebase']
+
+    def execute(self, command, args, cwd):
+        if command in self.FORBIDDEN_COMMANDS:
+            raise SecurityError(f"Git command '{command}' forbidden for agents")
+
+        if command not in self.ALLOWED_COMMANDS:
+            raise SecurityError(f"Git command '{command}' not in allowed list")
+
+        # Execute safely
+        return subprocess.run(
+            ['git', command] + args,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+```
+
+### Worktree Lifecycle Hooks
+
+**Track worktree state changes**:
+```python
+# After worktree created
+def on_worktree_created(task_id, worktree_path):
+    # Log event
+    db.execute("""
+        INSERT INTO task_events (task_id, event_type, event_data)
+        VALUES (?, 'worktree_created', json_object('path', ?))
+    """, (task_id, str(worktree_path)))
+
+    # Initialize .ccm directory in worktree
+    ccm_dir = Path(worktree_path) / '.ccm'
+    ccm_dir.mkdir(exist_ok=True)
+
+    # Create task metadata file
+    (ccm_dir / 'task.json').write_text(json.dumps({
+        'task_id': task_id,
+        'created_at': datetime.now().isoformat(),
+        'worktree_path': str(worktree_path)
+    }))
+
+# Before worktree removed
+def on_worktree_remove(task_id, merged=False):
+    # Archive worktree if has uncommitted changes
+    worktree_data = db.execute("""
+        SELECT worktree_path FROM task_worktrees WHERE task_id = ?
+    """, (task_id,)).fetchone()
+
+    worktree_path = Path(worktree_data['worktree_path'])
+
+    # Check for uncommitted changes
+    result = subprocess.run(
+        ['git', 'status', '--porcelain'],
+        cwd=worktree_path,
+        capture_output=True,
+        text=True
+    )
+
+    if result.stdout.strip():
+        # Archive uncommitted changes
+        archive_path = Path(f"~/.ccm/archives/{task_id}.tar.gz").expanduser()
+        subprocess.run([
+            'tar', '-czf', str(archive_path), '-C', str(worktree_path.parent), worktree_path.name
+        ])
+
+    # Log removal
+    db.execute("""
+        INSERT INTO task_events (task_id, event_type, event_data)
+        VALUES (?, 'worktree_removed', json_object('merged', ?))
+    """, (task_id, merged))
+```
+
+## Quota Detection via ccusage
+
+### ccusage Integration Pattern
+
+**Source**: Proven working code from pneuma-claude-hooks/statusline.sh
+
+**Implementation**:
+```python
+import subprocess
+import json
+from datetime import datetime, timedelta
+from typing import Optional, Dict
+
+class QuotaMonitor:
+    def __init__(self):
+        self.cache_ttl = 300  # 5 minutes
+        self.last_check = None
+        self.cached_status = None
+
+    def check_quota(self) -> Optional[Dict]:
+        """Check quota using ccusage tool"""
+        # Return cached if recent
+        if self.last_check and (datetime.now() - self.last_check).seconds < self.cache_ttl:
+            return self.cached_status
+
+        try:
+            # Call ccusage with timeout
+            result = subprocess.run(
+                ['ccusage', 'blocks', '--json', '--no-pricing'],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+
+            if result.returncode != 0:
+                return self.conservative_fallback()
+
+            # Parse JSON output
+            data = json.loads(result.stdout)
+
+            # Find active block
+            active_block = next(
+                (b for b in data.get('blocks', []) if b.get('isActive')),
+                None
+            )
+
+            if not active_block:
+                return self.conservative_fallback()
+
+            # Extract quota information
+            status = self._parse_quota_block(active_block)
+
+            # Cache result
+            self.last_check = datetime.now()
+            self.cached_status = status
+
+            # Store in database
+            self._store_quota_status(status)
+
+            return status
+
+        except subprocess.TimeoutExpired:
+            logger.warning("ccusage timeout, using conservative fallback")
+            return self.conservative_fallback()
+        except json.JSONDecodeError as e:
+            logger.error(f"ccusage JSON parse error: {e}")
+            return self.conservative_fallback()
+        except Exception as e:
+            logger.error(f"ccusage check failed: {e}")
+            return self.conservative_fallback()
+
+    def _parse_quota_block(self, block: Dict) -> Dict:
+        """Parse active quota block"""
+        reset_time_str = block.get('usageLimitResetTime') or block.get('endTime')
+        reset_time = datetime.fromisoformat(reset_time_str.replace('Z', '+00:00'))
+
+        now = datetime.now(reset_time.tzinfo)
+        seconds_until_reset = max(0, (reset_time - now).total_seconds())
+
+        percent_used = block.get('percentUsed', 0)
+        remaining = block.get('remainingUsage', 0)
+
+        return {
+            'source': 'ccusage',
+            'reset_time': reset_time,
+            'percent_used': percent_used,
+            'remaining_usage': remaining,
+            'seconds_until_reset': seconds_until_reset,
+            'status': self._determine_status(percent_used),
+            'checked_at': datetime.now()
+        }
+
+    def _determine_status(self, percent_used: float) -> str:
+        """Determine quota status level"""
+        if percent_used >= 90:
+            return 'critical'
+        elif percent_used >= 50:
+            return 'warning'
+        else:
+            return 'ok'
+
+    def _store_quota_status(self, status: Dict):
+        """Store quota status in database"""
+        db.execute("""
+            INSERT OR REPLACE INTO quota_status (id, percent_used, remaining_usage, reset_time, status)
+            VALUES (1, ?, ?, ?, ?)
+        """, (
+            status['percent_used'],
+            status['remaining_usage'],
+            status['reset_time'].isoformat(),
+            status['status']
+        ))
+
+        # Log to history
+        db.execute("""
+            INSERT INTO quota_history (percent_used, remaining_usage, status, source)
+            VALUES (?, ?, ?, ?)
+        """, (
+            status['percent_used'],
+            status['remaining_usage'],
+            status['status'],
+            status['source']
+        ))
+
+    def conservative_fallback(self) -> Dict:
+        """Conservative quota estimation when ccusage unavailable"""
+        # Get token usage from hook events (last hour)
+        hour_ago = datetime.now() - timedelta(hours=1)
+
+        tokens_used = db.execute("""
+            SELECT SUM(
+                COALESCE(json_extract(event_data, '$.usage.input_tokens'), 0) +
+                COALESCE(json_extract(event_data, '$.usage.output_tokens'), 0)
+            ) as total
+            FROM hook_events
+            WHERE hook_type = 'PostToolUse'
+              AND hook_timestamp >= ?
+        """, (hour_ago,)).fetchone()['total'] or 0
+
+        # Conservative hourly limit
+        MAX_TOKENS_PER_HOUR = 100000
+
+        percent_used = min(100, (tokens_used / MAX_TOKENS_PER_HOUR) * 100)
+
+        return {
+            'source': 'conservative',
+            'percent_used': percent_used,
+            'remaining_usage': max(0, MAX_TOKENS_PER_HOUR - tokens_used),
+            'status': self._determine_status(percent_used),
+            'checked_at': datetime.now(),
+            'note': 'Estimated from hook events (ccusage unavailable)'
+        }
+
+    def should_pause_agents(self) -> bool:
+        """Determine if agents should be paused"""
+        status = self.check_quota()
+
+        if not status:
+            # Err on side of caution
+            return True
+
+        return status['status'] == 'critical'
+```
+
+### Quota-Aware Task Scheduling
+
+**Integration with daemon**:
+```python
+class DaemonScheduler:
+    def __init__(self, quota_monitor):
+        self.quota_monitor = quota_monitor
+
+    async def schedule_next_task(self):
+        """Schedule next task respecting quota"""
+        # Check quota first
+        if self.quota_monitor.should_pause_agents():
+            logger.warning("Quota critical, pausing task scheduling")
+            await self.pause_all_agents()
+            return
+
+        # Get next queued task
+        task = db.execute("""
+            SELECT * FROM tasks
+            WHERE status = 'queued'
+            ORDER BY priority, created_at
+            LIMIT 1
+        """).fetchone()
+
+        if task:
+            await self.spawn_agent(task)
+
+    async def pause_all_agents(self):
+        """Pause all running agents due to quota"""
+        running_tasks = db.execute("""
+            SELECT task_id, tmux_window FROM agents
+            WHERE status = 'running'
+        """).fetchall()
+
+        for task in running_tasks:
+            # Send Ctrl+C to tmux window
+            subprocess.run([
+                'tmux', 'send-keys', '-t', task['tmux_window'], 'C-c'
+            ])
+
+            # Update task status
+            db.execute("""
+                UPDATE tasks SET status = 'paused' WHERE id = ?
+            """, (task['task_id'],))
+
+        # Store pause reason
+        quota_status = self.quota_monitor.check_quota()
+        db.execute("""
+            UPDATE quota_status
+            SET paused = TRUE, reset_time = ?
+            WHERE id = 1
+        """, (quota_status['reset_time'].isoformat(),))
+```
+
 ## Testing Strategy
 
 ```mermaid
@@ -706,5 +1117,11 @@ graph TB
 ---
 
 **Status**: DRAFT
-**Version**: 0.1
+**Version**: 0.4
 **Last Updated**: 2025-11-17
+
+**Key Enhancements in v0.4**:
+- Git Worktree Management (WorktreeManager class, safety guards, lifecycle hooks)
+- Quota Detection via ccusage (QuotaMonitor class, conservative fallback, quota-aware scheduling)
+- Proven working code adapted from pneuma-claude-hooks and cc_automation
+- Integration patterns for worktree isolation and quota management

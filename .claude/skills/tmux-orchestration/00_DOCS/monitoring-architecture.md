@@ -1,9 +1,10 @@
 ---
 metadata:
   status: DRAFT
-  version: 0.3
-  tldr: "Hook-based monitoring (primary) and tmux capture-pane (secondary)"
-  dependencies: [architecture-principles.md, agent-patterns.md]
+  version: 0.4
+  tldr: "Complete Claude Code hook schemas, SQLite-only storage, real-time monitoring"
+  dependencies: [architecture-principles.md, agent-patterns.md, automation-framework.md]
+  code_refs: [_dev_tools/pneuma-claude-hooks/]
 ---
 
 # Monitoring Architecture
@@ -109,33 +110,54 @@ CREATE INDEX idx_hook_events_timestamp ON hook_events(hook_timestamp DESC);
 CREATE INDEX idx_hook_events_agent ON hook_events(agent_id);
 ```
 
-### Hook Types
+### Hook Types (9 Total from Claude Code)
 
-**Tool Use Hooks**:
-- `tool_use_start`: Agent decides to use tool
-- `tool_use_complete`: Tool execution successful
-- `tool_error`: Tool execution failed
+**Source**: Validated against pneuma-claude-hooks production system.
 
-**File Operation Hooks**:
-- `file_read`: File opened for reading
-- `file_edit`: File edited
-- `file_write`: New file created
-- `file_delete`: File removed
+**1. PreToolUse**:
+- Triggered: Before any tool execution
+- Use: Security guards, validation, context injection
+- Blockable: Yes (exit code 2 blocks execution)
 
-**Command Hooks**:
-- `bash_command`: Bash command executed
-- `bash_output`: Command output captured
+**2. PostToolUse**:
+- Triggered: After tool completes (success or failure)
+- Use: Logging results, git checkpoints, metrics
+- Blockable: No
 
-**Session Hooks**:
-- `session_start`: Agent session begins
-- `session_pause`: Agent paused (waiting for input)
-- `session_resume`: Agent resumed
-- `session_complete`: Agent task finished
-- `session_error`: Agent crashed or errored
+**3. UserPromptSubmit**:
+- Triggered: User submits prompt to Claude
+- Use: Context injection, prompt logging
+- Blockable: No (input transparency required)
 
-**State Hooks**:
-- `state_change`: Task status changed
-- `context_switch`: Agent changed working directory/context
+**4. Notification**:
+- Triggered: Claude sends notification to user
+- Use: Log notifications, trigger alerts
+- Blockable: No
+
+**5. Stop**:
+- Triggered: Main session stops
+- Use: Cleanup, final reports, session archiving
+- Blockable: No
+
+**6. SubagentStop**:
+- Triggered: Subagent completes
+- Use: Aggregate subagent results
+- Blockable: No
+
+**7. SessionStart**:
+- Triggered: Session begins (first event)
+- Use: Initialize session logging, setup
+- Blockable: No
+
+**8. SessionEnd**:
+- Triggered: Session ends normally
+- Use: Finalize session, write summaries
+- Blockable: No
+
+**9. PreCompact**:
+- Triggered: Before conversation compaction
+- Use: Log pre-compact state, backup
+- Blockable: No
 
 ### Hook Event Data Examples
 
@@ -218,6 +240,37 @@ hooks:
   # Performance
   batch_size: 10  # Write to DB in batches
   async: true  # Don't block agent on DB writes
+```
+
+### Storage Strategy: SQLite Only
+
+**User Decision**: Hook events stored in SQLite only, not synchronized to Supabase.
+
+**Rationale**:
+- **Volume**: Hook events are high-frequency (hundreds per task)
+- **Local Value**: Primarily used for local debugging and monitoring
+- **Query Performance**: SQLite optimized for local queries
+- **Cost**: Avoid Supabase storage costs for verbose data
+
+**What Gets Synced**:
+- Task metadata (status, timestamps)
+- Task results (summaries)
+- Supervisory reports (aggregated analysis)
+- Context registrations
+- System health metrics
+
+**What Stays Local**:
+- All hook_events table data
+- Full terminal logs (pipe-pane output)
+- Detailed tool execution traces
+- Per-task debugging information
+
+**Export for Debugging**:
+```bash
+# Export task hooks for sharing
+ccm-orchestrator task export-hooks <task_id> --output hooks.jsonl
+
+# Creates JSONL file with all hooks for that task
 ```
 
 ### Hook Handler Implementation Pattern
@@ -647,5 +700,11 @@ gzip ~/.ccm-global/logs/*$(date -d yesterday +%Y%m%d)*.log
 ---
 
 **Status**: DRAFT
-**Version**: 0.3
+**Version**: 0.4
 **Last Updated**: 2025-11-17
+
+**Key Enhancements in v0.4**:
+- Complete 9 Claude Code hook type definitions (validated from pneuma-claude-hooks)
+- SQLite-only storage strategy (hooks not synced to Supabase)
+- Cross-reference to automation-framework.md for hook-based extensions
+- Export functionality for debugging and sharing

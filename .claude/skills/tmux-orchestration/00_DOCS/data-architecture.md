@@ -1,9 +1,9 @@
 ---
 metadata:
   status: DRAFT
-  version: 0.3
-  tldr: "SQLite-first database with hook events, contexts, and adaptive sync"
-  dependencies: [context-routing.md, monitoring-architecture.md, agent-patterns.md, sync-strategies.md]
+  version: 0.4
+  tldr: "Enhanced schema with task_worktrees, automation_events, and hook type definitions"
+  dependencies: [context-routing.md, monitoring-architecture.md, agent-patterns.md, sync-strategies.md, safety-and-sandboxing.md, automation-framework.md]
 ---
 
 # Data Architecture
@@ -23,8 +23,10 @@ erDiagram
     TASKS ||--o{ TASK_EVENTS : tracks
     TASKS ||--o{ HOOK_EVENTS : generates
     TASKS ||--o{ SUPERVISORY_REPORTS : reviewed_by
+    TASKS ||--o{ TASK_WORKTREES : isolates
     AGENTS ||--o{ TASK_RESULTS : executes
     AGENTS ||--o{ HOOK_EVENTS : emits
+    HOOK_EVENTS ||--o{ AUTOMATION_EVENTS : triggers
 
     SYSTEMS {
         uuid id PK
@@ -87,13 +89,32 @@ erDiagram
         uuid task_id FK
         string agent_id
         string system_id
-        string hook_type "tool_use|file_edit|bash_command|session_*"
+        string hook_type "PreToolUse|PostToolUse|UserPromptSubmit|Notification|Stop|SubagentStop|SessionStart|SessionEnd|PreCompact"
         timestamp hook_timestamp
         json event_data
-        string tool_name
-        string file_path
+        string tool_name "Read|Edit|Write|Bash|etc"
+        string file_path "For file operations"
         boolean success
         timestamp created_at
+    }
+
+    TASK_WORKTREES {
+        string task_id PK
+        string project_id FK
+        string worktree_path
+        string branch_name
+        timestamp created_at
+        timestamp removed_at
+        string status "active|merged|discarded|stale"
+    }
+
+    AUTOMATION_EVENTS {
+        int id PK
+        string event_id FK
+        string automation
+        string action
+        string details
+        timestamp timestamp
     }
 
     SUPERVISORY_REPORTS {
@@ -168,16 +189,31 @@ erDiagram
 - **SUPERVISORY_REPORTS**: Quality assurance reports from supervisory agents → See [agent-patterns.md](./agent-patterns.md)
 - **SYNC_QUEUE**: Offline operation queue for adaptive sync → See [sync-strategies.md](./sync-strategies.md)
 
+**New Tables (v0.4)**:
+- **TASK_WORKTREES**: Git worktree isolation tracking → See [safety-and-sandboxing.md](./safety-and-sandboxing.md)
+- **AUTOMATION_EVENTS**: Custom automation action logging → See [automation-framework.md](./automation-framework.md)
+
+**Hook Type Enhancement (v0.4)**:
+- HOOK_EVENTS.hook_type now uses official Claude Code hook names (9 types)
+- PreToolUse, PostToolUse, UserPromptSubmit, Notification, Stop, SubagentStop, SessionStart, SessionEnd, PreCompact
+- See [monitoring-architecture.md](./monitoring-architecture.md) for complete definitions
+
 ## Local vs Remote Scope
 
 **SQLite (Local)**:
 - Contains ONLY projects/tasks for THIS system
+- ALL hook_events (never synced, local-only)
+- ALL automation_events (local-only)
+- ALL task_worktrees (local-only)
 - Works completely offline
 - Fast local queries
 - File location: `~/.ccm/ccm.db`
 
 **Supabase (Optional)**:
 - Contains ALL projects/tasks across ALL user's systems
+- Task summaries (NOT detailed hooks)
+- Supervisory reports (aggregated analysis)
+- Context registrations
 - User-scoped via RLS (user only sees their own data)
 - Central skills repository
 - Multi-system coordination
@@ -319,5 +355,12 @@ See: [skill-management.md](./skill-management.md)
 ---
 
 **Status**: DRAFT
-**Version**: 0.2
+**Version**: 0.4
 **Last Updated**: 2025-11-17
+
+**Key Enhancements in v0.4**:
+- Added TASK_WORKTREES table for git worktree isolation tracking
+- Added AUTOMATION_EVENTS table for custom automation logging
+- Enhanced HOOK_EVENTS with official Claude Code hook type names (9 types)
+- Clarified local-only scope for hook_events, automation_events, task_worktrees
+- Updated ER diagram with new relationships
