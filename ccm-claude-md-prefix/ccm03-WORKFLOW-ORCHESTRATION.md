@@ -56,7 +56,7 @@ Wave 4: Review (needs both) → Sequential
 3. Features drive tests
 
 **Test-Driven (TDD)**:
-[[before writing tests it should create infrastructre to use the tests correctly and to have e2e tests and everything like that - for each project insfrastructure should be different and it is a skill how it must be done... ]]
+[[! before writing tests it should create infrastructre to use the tests correctly and to have e2e tests and everything like that - for each project insfrastructure should be different and it is a skill how it must be done... ]]
 1. Write failing tests
 2. Implement to pass tests
 3. Refactor while staying green
@@ -75,7 +75,3 @@ Not everything needs orchestration:
 - "Run tests" → Direct bash
 
 **Rule**: If no parallelization possible, work directly.
-
----
-
-*Load `orchestrator` skill for detailed agent prompts and patterns*

@@ -5,16 +5,23 @@
 **Before ANY development: Check branch. If not `dev`, switch to `dev`.**
 
 - `dev` - All development work
-- `staging` - Alpha testing only
-- `master` - Production releases only (PR from staging)
+- `master` - Production releases only (merge from dev)
 
 **Never develop on `master`. Always use `dev`.**
+
+**Note:** `staging` branch exists but is dormant during active development.
 
 ---
 
 ## Repository Purpose
 
-This repository is dedicated to **developing, testing, and maintaining artifacts for Claude Code CLI**. It serves as a development environment for building high-quality skills, commands, agents, and other Claude Code components.
+This repository serves a **dual purpose**:
+
+1. **NPM Platform**: Published as `@vladimir-ks/claude-context-manager` - A context engineering platform distributed via NPM with automated CI/CD, providing essential Claude Code artifacts to users globally.
+
+2. **Development Environment**: A workspace for developing, testing, and maintaining Claude Code artifacts (skills, commands, agents) using the `managing-claude-context` skill.
+
+**Both identities are equally important**: This is a production NPM package that is also actively developed and enhanced within this repository.
 
 ### Primary Development Tool
 
@@ -34,6 +41,75 @@ This repository contains:
 3. **Commands** - Slash commands for specialized operations
 4. **Agents** - Autonomous specialists for specific tasks
 5. **Documentation** - Specifications, guides, and research materials
+6. **CLI Tool** - `ccm` command-line interface (`bin/claude-context-manager.js`)
+7. **CCM Files** - Global Claude Code guidelines in `ccm-claude-md-prefix/`
+
+## CI/CD Pipeline
+
+**Current workflow (active development phase):**
+
+1. **`dev` branch** → All development work, validation via GitHub Actions
+2. **`master` branch** → Production releases, auto-publish to NPM
+
+**How it works:**
+- Push to `dev`: Validates package integrity, runs checks (ci-dev.yml)
+- Merge `dev` → `master`: Publishes production version to NPM, creates GitHub release (ci-production.yml)
+
+**Note:** The `staging` branch and alpha releases are available but currently unused during active development. When the project reaches stability with more users, we can activate the 3-stage workflow (dev → staging@alpha → master@production) for safer releases.
+
+**Workflows:** `.github/workflows/ci-dev.yml`, `ci-production.yml` (staging workflow exists but dormant)
+
+## CCM File Sync System
+
+**Automatic synchronization** of CCM guideline files from package to user's global Claude Code configuration.
+
+### How It Works
+
+When users run `npm install -g @vladimir-ks/claude-context-manager`, the postinstall script (`scripts/postinstall.js`) automatically:
+
+1. **Syncs CCM files** from `ccm-claude-md-prefix/` → `~/.claude/`
+   - **Installs** new files not in user's directory
+   - **Updates** existing files with changed content (creates backups first)
+   - **Removes** files deleted from package (moves to `.trash/` with timestamp)
+
+2. **Regenerates CLAUDE.md header** in `~/.claude/CLAUDE.md`
+   - Prepends references to all CCM files (e.g., `@./ccm01-USER-SETTINGS.md`)
+   - **Preserves user content** below the header (never deleted)
+
+3. **Tracks state** in registry (`~/.claude-context-manager/registry.json`)
+   - Stores checksums for each CCM file
+   - Detects changes using SHA256 comparison
+   - Maintains installation metadata
+
+**Implementation:** `src/lib/sync-engine.js` (full sync logic)
+
+**Safety features:**
+- Never deletes files (always moves to timestamped `.trash/`)
+- Creates backups before modifications (`.backup-{timestamp}`)
+- User CLAUDE.md content always preserved
+- Package is single source of truth (always overwrites with backup)
+
+### Testing CCM File Updates
+
+**To test changes to CCM files locally:**
+
+1. **Modify files** in `ccm-claude-md-prefix/` directory
+2. **Test locally** before publishing:
+   ```bash
+   node scripts/postinstall.js  # Run sync manually
+   ```
+3. **Verify sync behavior:**
+   - Check `~/.claude/ccm*.md` files updated
+   - Check `~/.claude/CLAUDE.md` header regenerated
+   - Check registry: `cat ~/.claude-context-manager/registry.json`
+   - Check backups: `ls ~/.claude/*.backup-*`
+   - Check trash: `ls ~/.claude/.trash/`
+
+4. **Commit and publish:**
+   - Commit CCM file changes to `dev` branch
+   - Bump version in `package.json` and `CHANGELOG.md`
+   - Push to `dev` (CI validates)
+   - Merge `dev` → `master` to trigger production release
 
 ## Development Workflow
 
@@ -126,9 +202,15 @@ When working in this repository, AI agents should:
 ## Git Workflow
 
 ### Branching Strategy
-- **Primary branch**: `master`
-- Work directly on master for personal development
-- Create feature branches only for experimental work
+
+**CRITICAL: Always use `dev` branch for development work.**
+
+- **`dev`** - All development work (features, fixes, updates, testing)
+- **`master`** - Production releases only (merge from dev)
+
+**Never commit directly to `master`**. All work starts in `dev`.
+
+**Note:** `staging` branch exists for future 3-stage workflow but is currently dormant.
 
 ### Commit Guidelines
 
@@ -291,10 +373,12 @@ For complete navigation and detailed documentation index, see:
 
 ## Important Notes
 
-- **Not Public-Focused**: This repository may be published but is primarily for personal development
-- **Manual Validation**: Testing is conducted manually, no automated CI/CD at this time
+- **Dual Identity**: Production NPM package + active development environment
+- **Automated CI/CD**: Simple 2-stage pipeline (dev → master) with auto-publish during active development
+- **CCM File Sync**: Changes to `ccm-claude-md-prefix/` auto-sync to user's `~/.claude/` on install
 - **All Skills Valid**: Every skill in `.claude/skills/` is a legitimate, version-controlled component
 - **Managing Claude Context is Primary**: All other artifacts are created using this skill
+- **Always Use Dev Branch**: Never develop directly on `master`
 
 ---
 

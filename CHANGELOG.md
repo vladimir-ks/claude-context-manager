@@ -5,6 +5,54 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.1] - 2025-11-18
+
+### CCM File Organization & Documentation
+
+**Purpose:** Rename CCM files to numbered format for proper ordering and update repository documentation to reflect dual identity (NPM platform + development environment).
+
+### Changed
+
+**ccm-claude-md-prefix/ - File Renaming:**
+- Renamed to numbered format for ordered loading:
+  - `ccm-DOCS-ORGANIZATION.md` → `ccm01-USER-SETTINGS.md`
+  - `ccm-USER-SETTINGS.md` → `ccm02-DOCS-ORGANIZATION.md`
+  - `ccm-WORKFLOW-ORCHESTRATION.md` → `ccm03-WORKFLOW-ORCHESTRATION.md`
+- New file: `ccm04-MERMAID-GUIDE.md` (diagrams guide for non-technical users)
+
+**CLAUDE.md - Repository Documentation:**
+- Updated "Repository Purpose" to reflect dual identity (NPM platform + development environment)
+- Added "CI/CD Pipeline" section documenting **simplified 2-stage workflow** (dev → master)
+  - Note: Staging/alpha workflow exists but dormant during active development
+  - Will activate 3-stage workflow when project reaches stability
+- Added "CCM File Sync System" section documenting automatic file synchronization
+- Added "Testing CCM File Updates" workflow for local testing before publishing
+- Updated "Git Workflow" section to reflect current 2-stage approach (dev → master)
+- Updated "Important Notes" and critical branch rules to match 2-stage workflow
+- Enhanced "Repository Components" to include CLI tool and CCM files
+- **Fixed confusion**: Clarified that staging is dormant, not part of active workflow
+
+**Sync Behavior:**
+- Old format files automatically moved to `.trash/` on install
+- New numbered files installed to `~/.claude/`
+- CLAUDE.md header regenerated with numbered file references
+- User content preserved throughout migration
+
+### Documentation
+
+**What Changed:**
+- CLAUDE.md now documents both NPM platform capabilities AND development workflows
+- CI/CD pipeline fully explained (brief overview suitable for developers)
+- CCM file sync system documented with testing procedures
+- Git workflow clarified and reinforced
+
+**Impact:**
+- Users upgrading to 0.3.1 will see old CCM files replaced with numbered versions
+- CLAUDE.md header will reference numbered files (ccm01-, ccm02-, ccm03-, ccm04-)
+- Repository identity more accurately reflects production package status
+
+Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modified (package.json, bin/claude-context-manager.js)
+
 ## [0.3.0] - 2025-01-16
 
 ### Complete CCM File Sync System
