@@ -22,12 +22,15 @@ and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.
 
 **CLAUDE.md - Repository Documentation:**
 - Updated "Repository Purpose" to reflect dual identity (NPM platform + development environment)
-- Added "CI/CD Pipeline" section documenting three-stage workflow (dev → staging → master)
+- Added "CI/CD Pipeline" section documenting **simplified 2-stage workflow** (dev → master)
+  - Note: Staging/alpha workflow exists but dormant during active development
+  - Will activate 3-stage workflow when project reaches stability
 - Added "CCM File Sync System" section documenting automatic file synchronization
 - Added "Testing CCM File Updates" workflow for local testing before publishing
-- Updated "Git Workflow" section to reinforce dev-first branching strategy
-- Updated "Important Notes" to remove outdated "no CI/CD" statement
+- Updated "Git Workflow" section to reflect current 2-stage approach (dev → master)
+- Updated "Important Notes" and critical branch rules to match 2-stage workflow
 - Enhanced "Repository Components" to include CLI tool and CCM files
+- **Fixed confusion**: Clarified that staging is dormant, not part of active workflow
 
 **Sync Behavior:**
 - Old format files automatically moved to `.trash/` on install

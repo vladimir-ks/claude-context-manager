@@ -5,10 +5,11 @@
 **Before ANY development: Check branch. If not `dev`, switch to `dev`.**
 
 - `dev` - All development work
-- `staging` - Alpha testing only
-- `master` - Production releases only (PR from staging)
+- `master` - Production releases only (merge from dev)
 
 **Never develop on `master`. Always use `dev`.**
+
+**Note:** `staging` branch exists but is dormant during active development.
 
 ---
 
@@ -45,18 +46,18 @@ This repository contains:
 
 ## CI/CD Pipeline
 
-**Automated three-stage workflow** for seamless distribution:
+**Current workflow (active development phase):**
 
-1. **`dev` branch** → Validation only (GitHub Actions runs tests, no publish)
-2. **`staging` branch** → Alpha release to NPM (`@alpha` tag for testing)
-3. **`master` branch** → Production release to NPM (auto-publish on version bump)
+1. **`dev` branch** → All development work, validation via GitHub Actions
+2. **`master` branch** → Production releases, auto-publish to NPM
 
 **How it works:**
-- Push to `dev`: Validates package integrity, runs checks
-- Merge `dev` → `staging`: Auto-bumps version with `-alpha` suffix, publishes alpha release
-- Merge `staging` → `master`: Publishes production version, creates GitHub release
+- Push to `dev`: Validates package integrity, runs checks (ci-dev.yml)
+- Merge `dev` → `master`: Publishes production version to NPM, creates GitHub release (ci-production.yml)
 
-**Workflows:** `.github/workflows/ci-dev.yml`, `ci-staging.yml`, `ci-production.yml`
+**Note:** The `staging` branch and alpha releases are available but currently unused during active development. When the project reaches stability with more users, we can activate the 3-stage workflow (dev → staging@alpha → master@production) for safer releases.
+
+**Workflows:** `.github/workflows/ci-dev.yml`, `ci-production.yml` (staging workflow exists but dormant)
 
 ## CCM File Sync System
 
@@ -105,10 +106,10 @@ When users run `npm install -g @vladimir-ks/claude-context-manager`, the postins
    - Check trash: `ls ~/.claude/.trash/`
 
 4. **Commit and publish:**
-   - Commit CCM file changes
-   - Bump version in `package.json`
-   - Push to `dev`, merge to `staging` for alpha testing
-   - If alpha works, merge `staging` → `master` for production
+   - Commit CCM file changes to `dev` branch
+   - Bump version in `package.json` and `CHANGELOG.md`
+   - Push to `dev` (CI validates)
+   - Merge `dev` → `master` to trigger production release
 
 ## Development Workflow
 
@@ -204,11 +205,12 @@ When working in this repository, AI agents should:
 
 **CRITICAL: Always use `dev` branch for development work.**
 
-- **`dev`** - All development work (features, fixes, updates)
-- **`staging`** - Alpha testing and validation before production
-- **`master`** - Production releases only (via PR from staging)
+- **`dev`** - All development work (features, fixes, updates, testing)
+- **`master`** - Production releases only (merge from dev)
 
-**Never commit directly to `master` or `staging`**. All work starts in `dev`.
+**Never commit directly to `master`**. All work starts in `dev`.
+
+**Note:** `staging` branch exists for future 3-stage workflow but is currently dormant.
 
 ### Commit Guidelines
 
@@ -372,11 +374,11 @@ For complete navigation and detailed documentation index, see:
 ## Important Notes
 
 - **Dual Identity**: Production NPM package + active development environment
-- **Automated CI/CD**: Three-stage pipeline (dev → staging → master) with auto-publish
+- **Automated CI/CD**: Simple 2-stage pipeline (dev → master) with auto-publish during active development
 - **CCM File Sync**: Changes to `ccm-claude-md-prefix/` auto-sync to user's `~/.claude/` on install
 - **All Skills Valid**: Every skill in `.claude/skills/` is a legitimate, version-controlled component
 - **Managing Claude Context is Primary**: All other artifacts are created using this skill
-- **Always Use Dev Branch**: Never develop on `master` or `staging`
+- **Always Use Dev Branch**: Never develop directly on `master`
 
 ---
 
