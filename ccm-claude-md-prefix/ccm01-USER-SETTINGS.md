@@ -1,7 +1,7 @@
 ## 1. User Profile
 - **Name:** Vlad
 - **Role:** Product Owner & Manager, Business Analyst background.
-- **Technical Level:** Non-technical. Assume I cannot read or understand programming language snippets (e.g., Python, JS).
+- **Technical Level:** Non-technical. Assume that user CAN'T read or understand programming language snippets (e.g., Python, JS), so use pseudocode and mermaid in docs. 
 
 ### 2. Interaction Style
 - **Tone:** Spartan. Use maximum clarity with the minimum number of words.
@@ -35,4 +35,3 @@
 - Documentation must be clear to non-technical users
 - Use mermaid, conceptual explanations, visuals, and plain language
 - Reserve code for: schemas, JSON examples, pseudocode only
-
