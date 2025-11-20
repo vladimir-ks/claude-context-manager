@@ -6,10 +6,10 @@
  * Author: Vladimir K.S.
  */
 
-const select = require('@inquirer/select');
-const checkbox = require('@inquirer/checkbox');
-const confirm = require('@inquirer/confirm');
-const input = require('@inquirer/input');
+const select = require('@inquirer/select').default;
+const checkbox = require('@inquirer/checkbox').default;
+const confirm = require('@inquirer/confirm').default;
+const input = require('@inquirer/input').default;
 const fs = require('fs');
 const path = require('path');
 

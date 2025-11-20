@@ -107,7 +107,7 @@ async function interactiveCleanup() {
     showBackupStatistics();
 
     // Ask what to do
-    const select = require('@inquirer/select');
+    const select = require('@inquirer/select').default;
     const action = await select({
       message: 'What would you like to do?',
       choices: [
@@ -220,7 +220,7 @@ async function interactiveCleanup() {
 
     } else if (action === 'policy') {
       // Update retention policy
-      const input = require('@inquirer/input');
+      const input = require('@inquirer/input').default;
 
       logger.log('Current Retention Policy:\n', 'bright');
       const currentConfig = registry.getBackupConfig();
