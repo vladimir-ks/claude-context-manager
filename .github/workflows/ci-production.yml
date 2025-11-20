@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify external webhook (social media)
-        if: steps.check-published.outputs.exists == 'false' && secrets.N8N_WEBHOOK_URL != ''
+        if: steps.check-published.outputs.exists == 'false' && secrets.N8N_WEBHOOK_URL
         run: |
           curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
