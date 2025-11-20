@@ -102,6 +102,20 @@ Based on request complexity:
 
 ### Phase 4: Execute Workflow
 
+**CRITICAL: Use TodoWrite for Complex Workflows**
+
+For multi-step workflows (Option B, C, or D), create a task list with TodoWrite:
+
+**Create todos for:**
+- Investigation phase tasks (if Option B)
+- Architecture design tasks (if Option B)
+- Each artifact to create/modify
+- Integration validation
+- User testing/validation
+- Final report to user
+
+Mark tasks in_progress as you work on them, and completed immediately when done.
+
 **Command Orchestration Pattern**:
 
 For each command you need to invoke:
@@ -165,8 +179,10 @@ Route to these based on need:
 Load references from `managing-claude-context/references/` as needed:
 
 **Always useful**:
+- `clear-framework.md` - CLEAR Framework for prompt engineering (CRITICAL)
 - `briefing-and-prompting-philosophy.md` - Understand briefing approach
 - `report-contracts.md` - Understand command outputs
+- `claude-code-model-ids.md` - Model selection guidance for agents/commands
 
 **For agents**:
 - `subagent-design-guide.md` - Agent design patterns
@@ -175,6 +191,8 @@ Load references from `managing-claude-context/references/` as needed:
 **For commands**:
 - `how-to-prompt-commands.md` - Command patterns
 - `subagent-design-guide.md` - Command vs Agent decision
+- `pre-execution-patterns.md` - Pre-execution patterns for commands
+- `command-limitations.md` - Known limitations and workarounds
 
 **For architecture**:
 - `context-architecture-process.md` - Architecture workflow

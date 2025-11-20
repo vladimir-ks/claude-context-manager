@@ -16,7 +16,65 @@ A **command** is a stateless prompt template designed for focused, repeatable ta
 
 **Core Principle**: Brief the expert, don't be the expert. Provide requirements and context; let the command create the prompt template.
 
-## 2. When to Use
+## 2. How to Invoke
+
+### 2.1. User Invocation (Interactive)
+
+When you (the user) invoke this command directly in the main chat:
+
+```bash
+/managing-claude-context:create-edit-command [briefing-document]
+```
+
+**The briefing document can be:**
+- Path to a file containing the briefing (JSON or Markdown)
+- Inline briefing (multiline string with requirements)
+
+**Example:**
+```
+/managing-claude-context:create-edit-command .claude/specs/new-command-briefing.json
+```
+
+### 2.2. Task Tool Invocation (Orchestrated)
+
+When an orchestrator agent delegates to this command via Task tool:
+
+```python
+Task(
+    subagent_type="general-purpose",
+    prompt=f"/managing-claude-context:create-edit-command {briefing_document}"
+)
+```
+
+**Pattern - Long String Argument:**
+
+When briefing is comprehensive, pass as single argument:
+
+```python
+briefing = '''
+{
+  "file_path": ".claude/commands/validate-code.md",
+  "description": "Validates code quality and standards",
+  "command_purpose": "Run linting and validation checks",
+  ...
+}
+'''
+
+Task(
+    subagent_type="general-purpose",
+    prompt=f"/managing-claude-context:create-edit-command {briefing}"
+)
+```
+
+**Benefits of Task tool invocation:**
+- Command executes in isolated context
+- Parallel execution with other commands/agents possible
+- Output captured as structured report
+- No pollution of main conversation
+
+**Note:** The command uses `$ARGUMENTS` to receive the full briefing, supporting both modes seamlessly.
+
+## 3. When to Use
 
 Use this command when you need to create a reusable, stateless tool that can be invoked via a slash command. Commands are best for:
 
@@ -58,6 +116,146 @@ To invoke this command, you must provide a comprehensive briefing that describes
   - `must_not`: Negative constraints (e.g., "MUST NOT modify files outside specified scope")
   - `must`: Positive constraints (e.g., "MUST return Report Contract v2 if invoked by agent")
   - `pre_execution_commands`: Any `!` commands that should run before the main prompt (e.g., `!npm install`)
+
+### 3.2.1. Edit Mode Additional Fields (Optional but Recommended)
+
+When editing an existing command (especially one that belongs to a skill system), including these fields helps the agent understand the target system context:
+
+- **`target_skill_context`** (object, optional): Context about the skill system this command belongs to:
+  - `skill_name` (string): Name of the parent skill (e.g., "doc-refactoring")
+  - `skill_architecture_refs` (array of strings): Paths to architecture docs to read (e.g., [".claude/skills/doc-refactoring/00_DOCS/architecture/workflow-phases.md"])
+  - `related_commands` (array of strings): Paths to sibling commands to study for consistency (e.g., [".claude/commands/doc-refactoring/investigate-doc.md", ".claude/commands/doc-refactoring/consolidate-reports.md"])
+  - `integration_constraints` (array of strings): Known architectural constraints from the skill (e.g., ["Must return JSON report matching template", "Must use TodoWrite for progress tracking"])
+
+**When to Include**: If the command path suggests it belongs to a skill (e.g., `.claude/commands/{skill-name}/command.md`), provide this context to ensure the agent studies the skill's documentation before making changes.
+
+**Example**:
+```json
+{
+  "target_skill_context": {
+    "skill_name": "doc-refactoring",
+    "skill_architecture_refs": [
+      ".claude/skills/doc-refactoring/SKILL.md",
+      ".claude/skills/doc-refactoring/00_DOCS/architecture/orchestrator-workflow.md"
+    ],
+    "related_commands": [
+      ".claude/commands/doc-refactoring/investigate-doc.md",
+      ".claude/commands/doc-refactoring/consolidate-reports.md"
+    ],
+    "integration_constraints": [
+      "Must return Report Contract v2 JSON",
+      "Must work with orchestrator's session state tracking",
+      "Must follow TodoWrite workflow pattern"
+    ]
+  }
+}
+```
+
+### 3.2.2. Argument Design Patterns
+
+**CRITICAL**: The choice between command and agent often comes down to argument structure. Use these patterns to guide your briefing design.
+
+#### Pattern 1: Multiple Discrete Arguments → Command
+
+**When to Use**: Task needs multiple, named inputs that can be passed positionally.
+
+**Characteristics**:
+- Clear, structured inputs (`file_path`, `component_name`, `severity_level`)
+- Each argument has distinct meaning
+- Can be validated independently
+
+**Example**:
+```json
+{
+  "arguments": {
+    "argument_definitions": [
+      {"name": "file_path", "description": "Path to file", "required": true},
+      {"name": "severity", "description": "Warning level", "required": false}
+    ],
+    "variable_substitution": "Use $1 for file_path, $2 for severity"
+  }
+}
+```
+
+**Invocation**: `/lint-file src/app.js high`
+
+#### Pattern 2: Single Briefing Document → Agent OR Command
+
+**When to Use**: Task needs comprehensive context in one structured document.
+
+**Characteristics**:
+- Complex, nested requirements
+- Context-heavy task description
+- Multiple related fields
+
+**Decision Point**:
+- **Use Agent if**: No pre-execution needed AND requires complex orchestration
+- **Use Command if**: Pre-execution needed OR lightweight linear execution preferred
+
+**Example (Command)**:
+```json
+{
+  "arguments": {
+    "argument_definitions": [
+      {"name": "briefing", "description": "Complete briefing document", "required": true}
+    ],
+    "variable_substitution": "Use $ARGUMENTS for entire briefing"
+  }
+}
+```
+
+**Invocation**: `/analyze-module $ARGUMENTS` (briefing passed as single argument)
+
+#### Pattern 3: Pre-Execution Required → Command ONLY
+
+**When to Use**: Task needs bash scripts to run BEFORE prompt processing.
+
+**Characteristics**:
+- Environment setup (npm install, pip install)
+- Context injection (gathering system info, file stats)
+- Validation (checking file existence)
+- Data preparation (running tests, generating reports)
+
+**Example**:
+```json
+{
+  "constraints": {
+    "pre_execution_commands": "!`npm test -- --coverage --json > /tmp/coverage-$$.json`"
+  }
+}
+```
+
+**Why Command Only**: Agents CANNOT do pre-execution. This is a major architectural advantage of commands.
+
+#### Pattern 4: Parallelizable Work → Command
+
+**When to Use**: Task is stateless and can run in parallel with other similar tasks.
+
+**Characteristics**:
+- No dependencies on other tasks
+- Idempotent (same input = same output)
+- Fast execution
+- Isolated scope
+
+**Example**: File processing, report generation, validation checks
+
+**Design Implication**: When orchestrating parallel work, agents delegate to commands via:
+```python
+Task(prompt="/process-file file1.js")
+Task(prompt="/process-file file2.js")
+Task(prompt="/process-file file3.js")
+```
+
+#### Decision Matrix
+
+| Scenario | Artifact Type | Reasoning |
+|----------|--------------|-----------|
+| Multiple arguments needed | Command | Use $1, $2, etc. |
+| Single briefing + no pre-execution + mode activation | Agent | User invocation changes behavior |
+| Single briefing + no pre-execution + parallel work | Command | Lightweight, fast |
+| Pre-execution needed | Command | Agents can't do pre-execution |
+| Complex orchestration needed | Agent | Multi-step reasoning required |
+| Shared knowledge across artifacts | Skill | Zero-redundancy |
 
 ### 3.3. Example Briefing
 

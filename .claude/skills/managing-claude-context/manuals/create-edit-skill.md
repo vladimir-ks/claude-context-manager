@@ -16,21 +16,80 @@ A **skill** is a modular capability that provides on-demand knowledge and proced
 
 **Core Principle**: Brief the expert, don't be the expert. Provide requirements and structure; let the command create the skill content.
 
-## 2. When to Use
+## 2. How to Invoke
+
+### 2.1. User Invocation (Interactive)
+
+When you (the user) invoke this command directly in the main chat:
+
+```bash
+/managing-claude-context:create-edit-skill [briefing-document]
+```
+
+**The briefing document can be:**
+- Path to a file containing the briefing (JSON or Markdown)
+- Inline briefing (multiline string with requirements)
+
+**Example:**
+```
+/managing-claude-context:create-edit-skill .claude/specs/new-skill-briefing.json
+```
+
+### 2.2. Task Tool Invocation (Orchestrated)
+
+When an orchestrator agent delegates to this command via Task tool:
+
+```python
+Task(
+    subagent_type="general-purpose",
+    prompt=f"/managing-claude-context:create-edit-skill {briefing_document}"
+)
+```
+
+**Pattern - Long String Argument:**
+
+When briefing is comprehensive, pass as single argument:
+
+```python
+briefing = '''
+{
+  "skill_name": "documentation-generator",
+  "name": "Generating Documentation",
+  "description": "Generates standard JSDoc comments for JavaScript and TypeScript files",
+  "skill_purpose": "Enable agents to automatically generate high-quality documentation",
+  ...
+}
+'''
+
+Task(
+    subagent_type="general-purpose",
+    prompt=f"/managing-claude-context:create-edit-skill {briefing}"
+)
+```
+
+**Benefits of Task tool invocation:**
+- Command executes in isolated context
+- Parallel execution with other commands/agents possible
+- Output captured as structured report
+- No pollution of main conversation
+
+**Note:** The command uses `$ARGUMENTS` to receive the full briefing, supporting both modes seamlessly.
+
+## 3. When to Use
 
 Use this command when you need to encapsulate a complex, multi-step, repeatable workflow or domain knowledge into a progressively disclosed, on-demand capability for the AI.
 
-## 3. Briefing Structure
+## 4. Briefing Structure
 
 To invoke this command, you must provide a comprehensive briefing that describes **what** the skill teaches, **what** patterns it encapsulates, and **what** knowledge goes in references. The command will use this information to construct the skill structure. [[! maybe we should encourage the agent to provide the skill structure suggesting how it should organize the files to facilitate this progressive loading?]]
 
-### 3.1. Required Fields
+### 4.1. Required Fields
 
 - **`skill_name`** (string): The name of the directory for the skill (e.g., `documentation-generator`).
 - **`name`** (string): The human-readable `name` for the `SKILL.md` frontmatter (e.g., "Generating Documentation").
 - **`description`** (string): The discovery-optimized `description` for the `SKILL.md` frontmatter (1-2 sentences).
 
-### 3.2. Core Requirements Fields
+### 4.2. Core Requirements Fields
 
 - **`skill_purpose`** (string): High-level goal and domain expertise. What problem does this skill solve? What knowledge does it provide?
 - **`core_principles`** (array of strings): Key philosophical principles the skill teaches. What are the fundamental concepts?
@@ -48,7 +107,7 @@ To invoke this command, you must provide a comprehensive briefing that describes
 - **`context_map`** (array): Relevant examples, patterns from other skills, or documentation. Use the standard context map format.
 - **`success_criteria`** (string): How to validate the skill is complete and useful.
 
-### 3.3. Optional Fields
+### 4.3. Optional Fields
 
 - **`scripts`** (array of objects): Scripts to include in the `scripts/` directory. Each object should have:
   - `file_name`: Name of the script file
@@ -82,7 +141,85 @@ To invoke this command, you must provide a comprehensive briefing that describes
 }
 ```
 
-### 3.4. Example Briefing
+### 4.3.1. Edit Mode Additional Fields (Required for Edit Mode)
+
+When editing an existing skill, these fields are **CRITICAL** to ensure backward compatibility and safe evolution:
+
+- **`preserve_compatibility`** (boolean, required for Edit Mode): Whether to maintain backward compatibility with existing skill consumers
+  - `true`: Changes must not break existing agents/commands that load this skill (default when skill has existing users)
+  - `false`: Breaking changes allowed (only if explicitly approved by user and existing consumers updated)
+
+- **`existing_users`** (array of strings, required for Edit Mode): Known agents and commands that load this skill
+  - List all agents (e.g., `".claude/agents/doc-refactoring-investigator.md"`)
+  - List all commands (e.g., `".claude/commands/doc-refactoring/orchestrator.md"`)
+  - This helps the agent understand impact of changes
+
+- **`architecture_evolution`** (object, required for Edit Mode): Guide for how the skill should evolve:
+  - `aspects_to_preserve` (array of strings): What MUST stay the same:
+    - Core principles that existing users depend on
+    - Reference file locations that are hard-coded
+    - Key terminology that appears in existing agent prompts
+    - Workflow patterns that orchestrators follow
+  - `aspects_to_evolve` (array of strings): What CAN be changed:
+    - Internal organization improvements
+    - Additional references or capabilities
+    - Enhanced documentation
+    - New features that don't conflict with existing
+  - `breaking_changes` (array of strings, required if `preserve_compatibility=false`): List of breaking changes to make:
+    - Removed references
+    - Changed file paths
+    - Modified core principles
+    - Altered workflow patterns
+
+**When to Include**: **ALWAYS** include these fields when editing an existing skill. Omitting them defaults to `preserve_compatibility=true` with empty `existing_users` list (agent will search for users).
+
+**Example (Backward Compatible Edit)**:
+```json
+{
+  "preserve_compatibility": true,
+  "existing_users": [
+    ".claude/agents/doc-refactoring-investigator.md",
+    ".claude/agents/doc-refactoring-consolidator.md",
+    ".claude/commands/doc-refactoring/orchestrator.md"
+  ],
+  "architecture_evolution": {
+    "aspects_to_preserve": [
+      "Core philosophy: investigation-driven workflow",
+      "Reference file paths (agents load specific references by path)",
+      "Report format contracts (Report Contract v2 JSON)",
+      "TodoWrite workflow pattern"
+    ],
+    "aspects_to_evolve": [
+      "Add new reference: how to handle large file batches",
+      "Enhance SKILL.md with clearer routing guidance",
+      "Add troubleshooting section to QUICK_START.md"
+    ],
+    "breaking_changes": []
+  }
+}
+```
+
+**Example (Breaking Changes Allowed)**:
+```json
+{
+  "preserve_compatibility": false,
+  "existing_users": [
+    ".claude/agents/legacy-investigator.md"
+  ],
+  "architecture_evolution": {
+    "aspects_to_preserve": [],
+    "aspects_to_evolve": [],
+    "breaking_changes": [
+      "Rename references/ to docs/ for clarity",
+      "Restructure SKILL.md to use new progressive disclosure pattern",
+      "Change report format from JSON to Markdown",
+      "Update all existing users to new format"
+    ]
+  }
+}
+```
+
+### 4.4. Example Briefing
 
 ```json
 {
@@ -155,7 +292,7 @@ To invoke this command, you must provide a comprehensive briefing that describes
 }
 ```
 
-## 4. Orchestrator's Responsibility
+## 5. Orchestrator's Responsibility
 
 As the orchestrator, you must provide a complete briefing that includes all the requirements and structure the command needs to construct an optimal skill. The command will:
 
@@ -174,7 +311,7 @@ As the orchestrator, you must provide a complete briefing that includes all the 
 
 Proposing structure upfront ensures the skill is organized for efficient, progressive loading by agents.
 
-## 5. Expected Output
+## 6. Expected Output
 
 The command will create the skill's directory structure and files:
 
@@ -213,7 +350,7 @@ The command will create the skill's directory structure and files:
 }
 ```
 
-## 6. Orchestrator's Next Step
+## 7. Orchestrator's Next Step
 
 After creating a new skill, you should:
 

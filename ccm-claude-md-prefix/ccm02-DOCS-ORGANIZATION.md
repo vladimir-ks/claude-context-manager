@@ -51,11 +51,11 @@ Your behavior is strictly controlled by the `metadata.status` field in the front
 
 ### Document Starter Template
 
-This is now the required frontmatter matadata object block for the top of every `.md` file. 
-
+**CRITICAL:** YAML frontmatter MUST be the **absolute first content** in every `.md` file. No headers, comments, or text before the opening `---`.
+Example:
 ```yaml
 ---
-{other document metadata here}
+{ other document metadata can be here - can be anything - specific to document type in different cases! }
 metadata:
   status: DRAFT # DRAFT: AI can edit. IN-REVIEW/APPROVED: AI is comment-only. NEEDS-REVIEW: user review required
   version: 0.1

@@ -11,15 +11,47 @@ Before proceeding, you MUST load the `managing-claude-context` skill to understa
 **Required Skill References to Load:**
 
 1. **`managing-claude-context/SKILL.md`** - Core skill file with philosophy and framework (LOAD FIRST)
-2. **`managing-claude-context/manuals/investigate-context.md`** - Your operational manual (REQUIRED)
-3. **`managing-claude-context/references/context-architecture-investigation.md`** - Investigation procedures (REQUIRED)
-4. **`managing-claude-context/references/self-validating-workflows.md`** - For validation strategy (RECOMMENDED)
+2. **`managing-claude-context/references/clear-framework.md`** - CLEAR Framework for prompt engineering (REQUIRED)
+3. **`managing-claude-context/manuals/investigate-context.md`** - Your operational manual (REQUIRED)
+4. **`managing-claude-context/references/context-architecture-investigation.md`** - Investigation procedures (REQUIRED)
+5. **`managing-claude-context/references/self-validating-workflows.md`** - For validation strategy (RECOMMENDED)
+
+## Pre-Execution Context Gathering
+
+**Optional**: If investigation scope is clear and workspace path is provided, use pre-execution to gather initial repository context:
+
+```yaml
+# Example pre-execution for repository scanning
+!`test -d ".claude" && find .claude -name "*.md" | sort > /tmp/artifacts_$$.txt && wc -l < /tmp/artifacts_$$.txt | awk '{print "Existing artifacts: " $1}' || echo "No .claude directory found"`
+```
+
+**Benefits**:
+- Instantly provides list of existing artifacts
+- Reduces investigation time
+- Informs interview questions with current state
+
+**See**: `managing-claude-context/references/pre-execution-patterns.md` for comprehensive patterns
 
 ## Your Mission
 
 Your task is to conduct a thorough, structured investigation before any architectural or implementation work begins. A successful investigation is the most critical predictor of a successful outcome.
 
 ## Your Workflow
+
+**CRITICAL: Create Workflow Plan with TodoWrite**
+
+Use the TodoWrite tool to create a complete task list:
+
+**Create todos for:**
+- **Load Required References**: Initial skill and reference loading
+- **Phase 1: Structured Interview**: Ask comprehensive questions
+- **Phase 2: Analyze Current State**: Scan repository and existing artifacts
+- **Phase 3: Synthesize Findings**: Create context analysis report
+- **Generate Final Report**: Structured JSON output
+
+Mark the first task and begin execution.
+
+---
 
 Follow the three-phase process defined in your manual:
 

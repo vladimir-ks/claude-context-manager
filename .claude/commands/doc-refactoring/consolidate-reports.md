@@ -8,6 +8,53 @@
 
 ---
 
+## Invocation Pattern
+
+**CRITICAL**: This command is invoked via the **Task tool**, NOT via SlashCommand with arguments.
+
+### How Orchestrators Call This Command
+
+The orchestrator uses the `Task` tool and passes the complete briefing in the `prompt` parameter:
+
+```python
+Task(
+  command="/consolidate-reports",
+  prompt="""## Briefing: /consolidate-reports
+
+**Session Directory**: ./.SBTDD-refactoring/docs-refactoring-251119-1430/
+
+**Investigation Reports** (read all):
+- investigation_00_DOCS_architecture_system_overview_md.md
+- investigation_00_DOCS_specifications_command_spec_md.md
+- investigation_CLAUDE_md.md
+- investigation_README_md.md
+- [... N more reports ...]
+
+**Total Reports**: 15
+**Version**: 1 (first consolidation)
+
+**Your Role**: Report Aggregator and Synthesizer
+
+**Instructions**: [Complete execution steps as defined in this command]
+
+**Report Format**: Use template from .claude/skills/doc-refactoring/00_DOCS/report-templates/consolidated-report.md
+"""
+)
+```
+
+### If This Command Needed to Delegate (Example Pattern)
+
+If this command needed to delegate to another command, it would use the `SlashCommand` tool:
+
+```python
+# Example: If consolidator needed to call a validation sub-command
+SlashCommand(command="/doc-refactoring/validate-consistency 'consolidated_summary_v1.md'")
+```
+
+**Note**: This command does NOT currently delegate to other commands. This pattern is shown as an example for reference.
+
+---
+
 ## Your Role
 
 You are a **Report Aggregator and Synthesizer** consolidating multiple investigation reports into a coherent summary for user review.
@@ -30,7 +77,7 @@ Your responsibilities:
 
 ## Briefing Format
 
-The orchestrator will provide:
+The orchestrator will provide the complete briefing in the Task prompt parameter. Expected structure:
 
 ```markdown
 ## Briefing: /consolidate-reports
@@ -58,7 +105,7 @@ The orchestrator will provide:
 ## Execution Steps
 
 ### Step 1: Read All Investigation Reports
-- Read EVERY investigation report provided
+- Read EVERY investigation report provided in briefing
 - Parse structure: executive summary, bloat analysis, consistency issues, dependencies, questions, recommendations
 - Extract key data: bloat %, questions count, critical issues, wave assignment
 
@@ -329,20 +376,38 @@ Save to: `{session_directory}/consolidated_summary_v1.md`
 
 ### Step 12: Return JSON Summary
 
-Return minimal JSON to orchestrator:
+Return minimal JSON to orchestrator following this contract:
 
 ```json
 {
-  "status": "completed",
-  "consolidated_report": "consolidated_summary_v1.md",
-  "summary": "Consolidated {N} investigation reports, {X} cross-cutting questions, {Y} critical issues",
-  "critical_issues_count": 5,
-  "high_priority_count": 12,
-  "total_questions": 42,
-  "cross_cutting_questions": 15,
-  "context_specific_questions": 27
+  "report_metadata": {
+    "agent_name": "consolidate-reports",
+    "task_id": "consolidation-v1",
+    "status": "completed",
+    "confidence_level": 0.95
+  },
+  "findings": {
+    "consolidated_report_path": "consolidated_summary_v1.md",
+    "summary": "Consolidated {N} investigation reports, identified {X} cross-cutting questions and {Y} critical issues",
+    "metrics": {
+      "total_files_analyzed": 15,
+      "critical_issues_count": 5,
+      "high_priority_count": 12,
+      "total_questions": 42,
+      "cross_cutting_questions": 15,
+      "context_specific_questions": 27,
+      "total_bloat_lines": 1200,
+      "average_bloat_percentage": 18.5
+    }
+  }
 }
 ```
+
+**JSON Contract Fields**:
+- `report_metadata.status`: Must be "completed", "blocked", or "failed"
+- `findings.consolidated_report_path`: Relative path to consolidated summary file
+- `findings.summary`: Human-readable one-line summary
+- `findings.metrics`: All aggregated metrics for orchestrator tracking
 
 ---
 
@@ -415,7 +480,7 @@ If affects exactly 3 files:
 - **DO** link all file references
 - **DO** aggregate metrics accurately
 - **DO** create consolidated_summary_v1.md
-- **DO** return minimal JSON summary
+- **DO** return minimal JSON summary matching contract
 
 - **DON'T** duplicate context-specific questions
 - **DON'T** create bloated consolidated summary (target: 500-1000 lines)
@@ -442,7 +507,7 @@ Consolidation is successful when:
 12. Dependency graph summarized
 13. User instructions clear and actionable
 14. consolidated_summary_v1.md created
-15. Minimal JSON summary returned to orchestrator
+15. Minimal JSON summary returned to orchestrator matching contract
 
 ---
 

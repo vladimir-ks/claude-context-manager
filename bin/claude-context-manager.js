@@ -21,9 +21,12 @@ const initCmd = require('../src/commands/init');
 const searchCmd = require('../src/commands/search');
 const updateCmd = require('../src/commands/update');
 const removeCmd = require('../src/commands/remove');
+const uninstallCmd = require('../src/commands/uninstall');
+const restoreCmd = require('../src/commands/restore');
+const cleanupCmd = require('../src/commands/cleanup');
 const activateCmd = require('../src/commands/activate');
 
-const VERSION = '0.3.1';
+const VERSION = '0.3.3';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
@@ -62,12 +65,15 @@ function showHelp() {
 
   log('Commands:', 'bright');
   console.log('  list, ls              List available artifacts');
-  console.log('  install, i            Install artifact(s) to target location');
+  console.log('  install, i            Install artifact(s) - interactive mode available');
+  console.log('  uninstall, un         Uninstall artifact(s) - interactive mode available');
   console.log('  update, up            Update installed artifacts');
+  console.log('  restore               Restore artifact from backup - interactive mode');
+  console.log('  cleanup               Manage and clean up old backups - interactive mode');
   console.log('  status, st            Show installation status');
   console.log('  activate              Activate premium license');
   console.log('  init                  Initialize project with Claude Code artifacts');
-  console.log('  remove, rm            Uninstall artifact');
+  console.log('  remove, rm            Uninstall artifact (legacy, use uninstall)');
   console.log('  search                Search available artifacts');
   console.log('  help, --help, -h      Show this help message');
   console.log('  version, --version, -v Show version information');
@@ -175,6 +181,19 @@ try {
     case 'install':
     case 'i':
       installCmd.install(commandArgs);
+      break;
+
+    case 'uninstall':
+    case 'un':
+      uninstallCmd.uninstall(commandArgs);
+      break;
+
+    case 'restore':
+      restoreCmd.restore(commandArgs);
+      break;
+
+    case 'cleanup':
+      cleanupCmd.cleanup(commandArgs);
       break;
 
     case 'update':

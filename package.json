@@ -1,6 +1,6 @@
 {
   "name": "@vladimir-ks/claude-context-manager",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "description": "Context engineering platform for Claude Code - manage skills, commands, and agents with premium subscription tier",
   "keywords": [
     "claude-code",
@@ -72,7 +72,12 @@
     "test": "node tests/run-all.js",
     "prepublishOnly": "chmod +x bin/* scripts/logging/*"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@inquirer/checkbox": "^3.0.1",
+    "@inquirer/confirm": "^4.0.1",
+    "@inquirer/select": "^3.0.1",
+    "@inquirer/input": "^3.0.1"
+  },
   "devDependencies": {},
   "preferGlobal": true
 }

@@ -32,10 +32,10 @@ function migrateRegistry(registry) {
           const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
           registry.package_version = packageJson.version;
         } else {
-          registry.package_version = '0.3.0';  // Default
+          registry.package_version = '0.3.3';  // Default
         }
       } catch (error) {
-        registry.package_version = '0.3.0';
+        registry.package_version = '0.3.3';
       }
     }
 
@@ -58,6 +58,86 @@ function migrateRegistry(registry) {
         if (!project.claude_md) {
           project.claude_md = null;
         }
+      });
+    }
+  }
+
+  // Migrate from v0.2.0 to v0.3.0
+  if (registry.version === '0.2.0') {
+    registry.version = '0.3.0';
+    migrated = true;
+
+    // Add last_auto_update timestamp
+    if (!registry.last_auto_update) {
+      registry.last_auto_update = null;
+    }
+
+    // Add backup configuration
+    if (!registry.backups) {
+      registry.backups = {
+        retention_days: 30,
+        max_backups_per_artifact: 5,
+        cleanup_schedule: 'weekly'
+      };
+    }
+
+    // Migrate global artifacts to v0.3.0 schema
+    if (registry.installations && registry.installations.global && registry.installations.global.artifacts) {
+      registry.installations.global.artifacts = registry.installations.global.artifacts.map(artifact => {
+        return {
+          ...artifact,
+          updated_at: artifact.updated_at || null,
+          user_modified: artifact.user_modified || false,
+          modification_checksum: artifact.modification_checksum || null,
+          installed_locations: artifact.installed_locations || ['global']
+        };
+      });
+    }
+
+    // Migrate project artifacts to v0.3.0 schema
+    if (registry.installations && registry.installations.projects) {
+      registry.installations.projects = registry.installations.projects.map(project => {
+        // Add project metadata
+        const enhancedProject = {
+          ...project,
+          git_repo: project.git_repo !== undefined ? project.git_repo : false,
+          registered_at: project.registered_at || new Date().toISOString()
+        };
+
+        // Migrate artifacts
+        if (enhancedProject.artifacts) {
+          enhancedProject.artifacts = enhancedProject.artifacts.map(artifact => {
+            return {
+              ...artifact,
+              updated_at: artifact.updated_at || null,
+              user_modified: artifact.user_modified || false,
+              modification_checksum: artifact.modification_checksum || null,
+              installed_locations: artifact.installed_locations || [project.path]
+            };
+          });
+        }
+
+        // Migrate packages
+        if (enhancedProject.packages) {
+          enhancedProject.packages = enhancedProject.packages.map(pkg => {
+            return {
+              ...pkg,
+              updated_at: pkg.updated_at || null
+            };
+          });
+        }
+
+        return enhancedProject;
+      });
+    }
+
+    // Migrate global packages
+    if (registry.installations && registry.installations.global && registry.installations.global.packages) {
+      registry.installations.global.packages = registry.installations.global.packages.map(pkg => {
+        return {
+          ...pkg,
+          updated_at: pkg.updated_at || null
+        };
       });
     }
   }
@@ -350,12 +430,238 @@ function getAllProjects() {
   return registry.installations.projects || [];
 }
 
+/**
+ * Add location to artifact's installed_locations array
+ * @param {string} artifactName - Artifact name
+ * @param {string} location - Location to add ('global' or project path)
+ */
+function addLocationToArtifact(artifactName, location) {
+  const registry = load();
+  let updated = false;
+
+  // Update global artifacts
+  if (registry.installations.global.artifacts) {
+    registry.installations.global.artifacts.forEach(artifact => {
+      if (artifact.name === artifactName) {
+        if (!artifact.installed_locations) {
+          artifact.installed_locations = [];
+        }
+        if (!artifact.installed_locations.includes(location)) {
+          artifact.installed_locations.push(location);
+          updated = true;
+        }
+      }
+    });
+  }
+
+  // Update project artifacts
+  if (registry.installations.projects) {
+    registry.installations.projects.forEach(project => {
+      if (project.artifacts) {
+        project.artifacts.forEach(artifact => {
+          if (artifact.name === artifactName) {
+            if (!artifact.installed_locations) {
+              artifact.installed_locations = [];
+            }
+            if (!artifact.installed_locations.includes(location)) {
+              artifact.installed_locations.push(location);
+              updated = true;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  if (updated) {
+    save(registry);
+  }
+}
+
+/**
+ * Remove location from artifact's installed_locations array
+ * @param {string} artifactName - Artifact name
+ * @param {string} location - Location to remove ('global' or project path)
+ */
+function removeLocationFromArtifact(artifactName, location) {
+  const registry = load();
+  let updated = false;
+
+  // Update global artifacts
+  if (registry.installations.global.artifacts) {
+    registry.installations.global.artifacts.forEach(artifact => {
+      if (artifact.name === artifactName && artifact.installed_locations) {
+        const index = artifact.installed_locations.indexOf(location);
+        if (index !== -1) {
+          artifact.installed_locations.splice(index, 1);
+          updated = true;
+        }
+      }
+    });
+  }
+
+  // Update project artifacts
+  if (registry.installations.projects) {
+    registry.installations.projects.forEach(project => {
+      if (project.artifacts) {
+        project.artifacts.forEach(artifact => {
+          if (artifact.name === artifactName && artifact.installed_locations) {
+            const index = artifact.installed_locations.indexOf(location);
+            if (index !== -1) {
+              artifact.installed_locations.splice(index, 1);
+              updated = true;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  if (updated) {
+    save(registry);
+  }
+}
+
+/**
+ * Get all locations where an artifact is installed
+ * @param {string} artifactName - Artifact name
+ * @returns {Array} Array of locations ('global' and/or project paths)
+ */
+function getArtifactLocations(artifactName) {
+  const registry = load();
+  const locations = new Set();
+
+  // Check global artifacts
+  if (registry.installations.global.artifacts) {
+    const artifact = registry.installations.global.artifacts.find(a => a.name === artifactName);
+    if (artifact && artifact.installed_locations) {
+      artifact.installed_locations.forEach(loc => locations.add(loc));
+    }
+  }
+
+  // Check project artifacts
+  if (registry.installations.projects) {
+    registry.installations.projects.forEach(project => {
+      if (project.artifacts) {
+        const artifact = project.artifacts.find(a => a.name === artifactName);
+        if (artifact && artifact.installed_locations) {
+          artifact.installed_locations.forEach(loc => locations.add(loc));
+        }
+      }
+    });
+  }
+
+  return Array.from(locations);
+}
+
+/**
+ * Mark artifact as user-modified
+ * @param {string} target - 'global' or project path
+ * @param {string} artifactName - Artifact name
+ * @param {string} checksum - Modification checksum
+ */
+function markArtifactModified(target, artifactName, checksum) {
+  const registry = load();
+  let artifact = null;
+
+  if (target === 'global') {
+    if (registry.installations.global.artifacts) {
+      artifact = registry.installations.global.artifacts.find(a => a.name === artifactName);
+    }
+  } else {
+    const project = registry.installations.projects.find(p => p.path === target);
+    if (project && project.artifacts) {
+      artifact = project.artifacts.find(a => a.name === artifactName);
+    }
+  }
+
+  if (artifact) {
+    artifact.user_modified = true;
+    artifact.modification_checksum = checksum;
+    save(registry);
+  }
+}
+
+/**
+ * Check if artifact is user-modified
+ * @param {string} target - 'global' or project path
+ * @param {string} artifactName - Artifact name
+ * @returns {boolean} True if user-modified, false otherwise
+ */
+function isArtifactModified(target, artifactName) {
+  const artifact = getArtifact(target, artifactName);
+  return artifact ? artifact.user_modified === true : false;
+}
+
+/**
+ * Update last auto-update timestamp
+ */
+function updateAutoUpdateTimestamp() {
+  const registry = load();
+  registry.last_auto_update = new Date().toISOString();
+  save(registry);
+}
+
+/**
+ * Get last auto-update timestamp
+ * @returns {string|null} ISO timestamp or null
+ */
+function getLastAutoUpdate() {
+  const registry = load();
+  return registry.last_auto_update || null;
+}
+
+/**
+ * Get backup configuration
+ * @returns {Object} Backup config { retention_days, max_backups_per_artifact, cleanup_schedule }
+ */
+function getBackupConfig() {
+  const registry = load();
+  return registry.backups || {
+    retention_days: 30,
+    max_backups_per_artifact: 5,
+    cleanup_schedule: 'weekly'
+  };
+}
+
+/**
+ * Update backup configuration
+ * @param {Object} config - Backup config to merge
+ */
+function updateBackupConfig(config) {
+  const registry = load();
+  registry.backups = {
+    ...registry.backups,
+    ...config
+  };
+  save(registry);
+}
+
+/**
+ * Get global artifacts (convenience wrapper)
+ * @returns {Array} Global artifacts
+ */
+function getGlobalArtifacts() {
+  return getInstalledArtifacts('global');
+}
+
+/**
+ * Get project artifacts (convenience wrapper)
+ * @param {string} projectPath - Project path
+ * @returns {Array} Project artifacts
+ */
+function getProjectArtifacts(projectPath) {
+  return getInstalledArtifacts(projectPath);
+}
+
 // Export all functions
 module.exports = {
   load,
   save,
   migrateRegistry,
   getInstalledArtifacts,
+  getGlobalArtifacts,
+  getProjectArtifacts,
   getInstalledPackages,
   addArtifact,
   addPackage,
@@ -366,5 +672,15 @@ module.exports = {
   isPackageInstalled,
   getArtifact,
   getPackage,
-  getAllProjects
+  getAllProjects,
+  // v0.3.0 Multi-location tracking
+  addLocationToArtifact,
+  removeLocationFromArtifact,
+  getArtifactLocations,
+  markArtifactModified,
+  isArtifactModified,
+  updateAutoUpdateTimestamp,
+  getLastAutoUpdate,
+  getBackupConfig,
+  updateBackupConfig
 };
