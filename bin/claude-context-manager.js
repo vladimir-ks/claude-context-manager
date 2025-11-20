@@ -154,102 +154,139 @@ function notImplemented(cmd) {
   console.log('');
 }
 
-// Main execution
-try {
-  // Handle version flag
-  if (command === 'version' || command === '--version' || command === '-v') {
-    showVersion();
-    process.exit(0);
-  }
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('\n✗ Unhandled Promise Rejection:');
+  console.error(reason);
+  console.error('\nPromise:', promise);
+  console.error('\nPlease report this issue at:');
+  console.error('https://github.com/vladks/claude-context-manager/issues');
+  process.exit(1);
+});
 
-  // Handle help flag
-  if (!command || command === 'help' || command === '--help' || command === '-h') {
-    showHelp();
-    process.exit(0);
-  }
+process.on('uncaughtException', (error) => {
+  console.error('\n✗ Uncaught Exception:');
+  console.error(error);
+  console.error('\nPlease report this issue at:');
+  console.error('https://github.com/vladks/claude-context-manager/issues');
+  process.exit(1);
+});
 
-  // Check home directory exists
-  if (!checkHomeDirectory()) {
+// Main async execution function
+async function main() {
+  try {
+    // Handle version flag
+    if (command === 'version' || command === '--version' || command === '-v') {
+      showVersion();
+      process.exit(0);
+    }
+
+    // Handle help flag
+    if (!command || command === 'help' || command === '--help' || command === '-h') {
+      showHelp();
+      process.exit(0);
+    }
+
+    // Check home directory exists
+    if (!checkHomeDirectory()) {
+      process.exit(1);
+    }
+
+    // Route commands
+    const commandArgs = args.slice(1); // Remove command name, pass rest as args
+
+    switch (command) {
+      case 'list':
+      case 'ls':
+        await listCmd.list(commandArgs);
+        break;
+
+      case 'install':
+      case 'i':
+        await installCmd.install(commandArgs);
+        break;
+
+      case 'uninstall':
+      case 'un':
+        await uninstallCmd.uninstall(commandArgs);
+        break;
+
+      case 'restore':
+        await restoreCmd.restore(commandArgs);
+        break;
+
+      case 'cleanup':
+        await cleanupCmd.cleanup(commandArgs);
+        break;
+
+      case 'update':
+      case 'up':
+        await updateCmd.update(commandArgs);
+        break;
+
+      case 'status':
+      case 'st':
+        await statusCmd.status(commandArgs);
+        break;
+
+      case 'activate':
+        await activateCmd.activate(commandArgs);
+        break;
+
+      case 'init':
+        await initCmd.init(commandArgs);
+        break;
+
+      case 'remove':
+      case 'rm':
+        await removeCmd.remove(commandArgs);
+        break;
+
+      case 'search':
+        await searchCmd.search(commandArgs);
+        break;
+
+      case 'feedback':
+        await feedbackCmd.feedback(commandArgs);
+        break;
+
+      case 'notifications':
+      case 'notif':
+        await notificationsCmd.notifications(commandArgs);
+        break;
+
+      default:
+        log(`\n✗ Unknown command: ${command}`, 'yellow');
+        console.log('');
+        console.log('Run "ccm help" to see available commands.');
+        console.log('');
+        process.exit(1);
+    }
+
+    // Successful completion
+    process.exit(0);
+
+  } catch (error) {
+    log('\n✗ Error:', 'yellow');
+    console.error(error.message);
+
+    // Show stack trace in debug mode
+    if (process.env.CCM_DEBUG) {
+      console.error('\nStack trace:');
+      console.error(error.stack);
+    }
+
+    console.error('');
+    console.error('Please report this issue at:');
+    console.error('https://github.com/vladks/claude-context-manager/issues');
+    console.error('');
     process.exit(1);
   }
-
-  // Route commands
-  const commandArgs = args.slice(1); // Remove command name, pass rest as args
-
-  switch (command) {
-    case 'list':
-    case 'ls':
-      listCmd.list(commandArgs);
-      break;
-
-    case 'install':
-    case 'i':
-      installCmd.install(commandArgs);
-      break;
-
-    case 'uninstall':
-    case 'un':
-      uninstallCmd.uninstall(commandArgs);
-      break;
-
-    case 'restore':
-      restoreCmd.restore(commandArgs);
-      break;
-
-    case 'cleanup':
-      cleanupCmd.cleanup(commandArgs);
-      break;
-
-    case 'update':
-    case 'up':
-      updateCmd.update(commandArgs);
-      break;
-
-    case 'status':
-    case 'st':
-      statusCmd.status(commandArgs);
-      break;
-
-    case 'activate':
-      activateCmd.activate(commandArgs);
-      break;
-
-    case 'init':
-      initCmd.init(commandArgs);
-      break;
-
-    case 'remove':
-    case 'rm':
-      removeCmd.remove(commandArgs);
-      break;
-
-    case 'search':
-      searchCmd.search(commandArgs);
-      break;
-
-    case 'feedback':
-      feedbackCmd.feedback(commandArgs);
-      break;
-
-    case 'notifications':
-    case 'notif':
-      notificationsCmd.notifications(commandArgs);
-      break;
-
-    default:
-      log(`\n✗ Unknown command: ${command}`, 'yellow');
-      console.log('');
-      console.log('Run "ccm help" to see available commands.');
-      console.log('');
-      process.exit(1);
-  }
-
-} catch (error) {
-  log('\n✗ Error:', 'yellow');
-  console.error(error.message);
-  console.error('');
-  console.error('Please report this issue at:');
-  console.error('https://github.com/vladks/claude-context-manager/issues');
-  console.error('');
-  process.exit(1);
 }
+
+// Execute main function
+main().catch((error) => {
+  console.error('\n✗ Fatal Error:');
+  console.error(error);
+  process.exit(1);
+});

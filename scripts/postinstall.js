@@ -528,69 +528,194 @@ function showWelcomeMessage() {
   console.log('');
 }
 
-// Main execution
-try {
-  log('\nSetting up Claude Context Manager...', 'bright');
+// Path validation helper
+function validatePath(filePath, description) {
+  const normalized = path.normalize(filePath);
 
-  // Create main directory
-  const isNewInstall = createDirectory(HOME_DIR);
-
-  // Create subdirectories
-  createDirectory(path.join(HOME_DIR, 'cache'));
-  createDirectory(path.join(HOME_DIR, 'backups'));
-
-  // Create config if doesn't exist
-  if (!fs.existsSync(CONFIG_FILE)) {
-    createConfig();
-    log('✓ Created configuration file', 'green');
+  // Check for path traversal attempts
+  if (normalized.includes('..')) {
+    throw new Error(`Invalid path (traversal detected): ${description}`);
   }
 
-  // Create registry if doesn't exist
-  if (!fs.existsSync(REGISTRY_FILE)) {
-    createRegistry();
-    log('✓ Created registry file', 'green');
+  // Check if within allowed directories
+  const homeDir = os.homedir();
+  const allowed = [
+    homeDir,
+    path.join(__dirname, '..'),  // Package directory
+    path.dirname(process.execPath)  // Node directory
+  ];
+
+  const isAllowed = allowed.some(dir => normalized.startsWith(path.normalize(dir)));
+  if (!isAllowed) {
+    throw new Error(`Invalid path (outside allowed directories): ${description}`);
   }
 
-  // Create library metadata
-  createLibraryMetadata();
-  log('✓ Initialized artifact library', 'green');
-
-  // Install all commands globally
-  installGlobalCommands();
-
-  // Sync CCM files and regenerate CLAUDE.md header
-  syncClaudeAdditions();
-
-  // Auto-update artifacts in tracked locations
-  if (!isNewInstall) {
-    autoUpdateArtifacts();
-  }
-
-  // Install background update checker service
-  try {
-    const { execSync } = require('child_process');
-    const servicePath = path.join(__dirname, 'background', 'install-service.js');
-
-    if (fs.existsSync(servicePath)) {
-      log('\n✓ Installing background update checker...', 'cyan');
-      execSync(`node "${servicePath}"`, { stdio: 'inherit' });
-    }
-  } catch (error) {
-    log('⚠ Background service installation skipped', 'yellow');
-  }
-
-  // Show welcome message only on fresh install
-  if (isNewInstall) {
-    showWelcomeMessage();
-  } else {
-    log('✓ Updated existing installation', 'green');
-    log(`  Home: ${HOME_DIR}\n`, 'cyan');
-  }
-
-} catch (error) {
-  log('\n✗ Error during setup:', 'red');
-  console.error(error.message);
-  console.error('\nPlease report this issue at:');
-  console.error('https://github.com/vladks/claude-context-manager/issues\n');
-  process.exit(1);
+  return normalized;
 }
+
+// Rollback helper
+function rollbackInstallation(createdPaths) {
+  log('\n⚠ Rolling back installation...', 'yellow');
+
+  createdPaths.reverse().forEach(({ path: filePath, type }) => {
+    try {
+      if (fs.existsSync(filePath)) {
+        if (type === 'directory') {
+          fs.rmSync(filePath, { recursive: true, force: true });
+        } else {
+          fs.unlinkSync(filePath);
+        }
+        log(`  Removed: ${filePath}`, 'dim');
+      }
+    } catch (error) {
+      log(`  Failed to remove: ${filePath}`, 'yellow');
+    }
+  });
+
+  log('✓ Rollback complete', 'green');
+}
+
+// Main execution
+async function main() {
+  const createdPaths = [];  // Track created files/dirs for rollback
+
+  try {
+    log('\nSetting up Claude Context Manager...', 'bright');
+
+    // Validate home directory path
+    validatePath(HOME_DIR, 'home directory');
+
+    // Create main directory
+    const isNewInstall = createDirectory(HOME_DIR);
+    if (isNewInstall) {
+      createdPaths.push({ path: HOME_DIR, type: 'directory' });
+    }
+
+    // Create subdirectories with error handling
+    try {
+      const cacheDir = path.join(HOME_DIR, 'cache');
+      const backupsDir = path.join(HOME_DIR, 'backups');
+      const logsDir = path.join(HOME_DIR, 'logs');
+
+      validatePath(cacheDir, 'cache directory');
+      validatePath(backupsDir, 'backups directory');
+      validatePath(logsDir, 'logs directory');
+
+      createDirectory(cacheDir);
+      createDirectory(backupsDir);
+      createDirectory(logsDir);
+    } catch (error) {
+      throw new Error(`Failed to create subdirectories: ${error.message}`);
+    }
+
+    // Create config if doesn't exist
+    try {
+      if (!fs.existsSync(CONFIG_FILE)) {
+        validatePath(CONFIG_FILE, 'config file');
+        createConfig();
+        createdPaths.push({ path: CONFIG_FILE, type: 'file' });
+        log('✓ Created configuration file', 'green');
+      }
+    } catch (error) {
+      throw new Error(`Failed to create config: ${error.message}`);
+    }
+
+    // Create registry if doesn't exist
+    try {
+      if (!fs.existsSync(REGISTRY_FILE)) {
+        validatePath(REGISTRY_FILE, 'registry file');
+        createRegistry();
+        createdPaths.push({ path: REGISTRY_FILE, type: 'file' });
+        log('✓ Created registry file', 'green');
+      }
+    } catch (error) {
+      throw new Error(`Failed to create registry: ${error.message}`);
+    }
+
+    // Create library metadata
+    try {
+      createLibraryMetadata();
+      log('✓ Initialized artifact library', 'green');
+    } catch (error) {
+      throw new Error(`Failed to create library metadata: ${error.message}`);
+    }
+
+    // Install all commands globally
+    try {
+      installGlobalCommands();
+    } catch (error) {
+      log(`⚠ Command installation failed: ${error.message}`, 'yellow');
+      // Continue - not critical
+    }
+
+    // Sync CCM files and regenerate CLAUDE.md header
+    try {
+      syncClaudeAdditions();
+    } catch (error) {
+      log(`⚠ CCM file sync failed: ${error.message}`, 'yellow');
+      // Continue - not critical
+    }
+
+    // Auto-update artifacts in tracked locations
+    if (!isNewInstall) {
+      try {
+        autoUpdateArtifacts();
+      } catch (error) {
+        log(`⚠ Auto-update failed: ${error.message}`, 'yellow');
+        // Continue - not critical
+      }
+    }
+
+    // Install background update checker service
+    try {
+      const { execSync } = require('child_process');
+      const servicePath = path.join(__dirname, 'background', 'install-service.js');
+
+      if (fs.existsSync(servicePath)) {
+        validatePath(servicePath, 'service script');
+        log('\n✓ Installing background update checker...', 'cyan');
+        execSync(`node "${servicePath}"`, { stdio: 'inherit', timeout: 30000 });
+      }
+    } catch (error) {
+      log('⚠ Background service installation skipped', 'yellow');
+      if (process.env.CCM_DEBUG) {
+        console.error(error);
+      }
+    }
+
+    // Show welcome message only on fresh install
+    if (isNewInstall) {
+      showWelcomeMessage();
+    } else {
+      log('✓ Updated existing installation', 'green');
+      log(`  Home: ${HOME_DIR}\n`, 'cyan');
+    }
+
+    process.exit(0);
+
+  } catch (error) {
+    log('\n✗ Error during setup:', 'red');
+    console.error(error.message);
+
+    if (process.env.CCM_DEBUG) {
+      console.error('\nStack trace:');
+      console.error(error.stack);
+    }
+
+    // Rollback on critical failure
+    if (createdPaths.length > 0) {
+      rollbackInstallation(createdPaths);
+    }
+
+    console.error('\nPlease report this issue at:');
+    console.error('https://github.com/vladks/claude-context-manager/issues\n');
+    process.exit(1);
+  }
+}
+
+// Execute main function
+main().catch((error) => {
+  console.error('\n✗ Fatal postinstall error:');
+  console.error(error);
+  process.exit(1);
+});
