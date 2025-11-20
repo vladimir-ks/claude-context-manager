@@ -461,9 +461,10 @@ function deleteAllBackups(artifactName) {
  */
 function getCcmBackupDir(location) {
   if (location === 'global') {
-    const homeDir = config.getHomeDir();
     // Global: ~/.claude/.ccm-backup/
-    return path.join(homeDir, '..', '.claude', '.ccm-backup');
+    // Use os.homedir() directly instead of config.getHomeDir() to avoid path traversal issues
+    const os = require('os');
+    return path.join(os.homedir(), '.claude', '.ccm-backup');
   } else {
     // Project: <project>/.claude/.ccm-backup/
     return path.join(location, '.claude', '.ccm-backup');
@@ -546,8 +547,20 @@ function createSmartBackup(filePath, location, metadata = {}) {
   const backupPath = path.join(backupDir, backupFileName);
   const metadataPath = path.join(backupDir, `${timestamp}-${fileName}.json`);
 
-  // Copy file to backup
-  fs.copyFileSync(filePath, backupPath);
+  // Copy file to backup with error handling
+  try {
+    fs.copyFileSync(filePath, backupPath);
+  } catch (error) {
+    // Cleanup failed backup if it was partially created
+    if (fs.existsSync(backupPath)) {
+      try {
+        fs.unlinkSync(backupPath);
+      } catch (cleanupError) {
+        // Ignore cleanup errors
+      }
+    }
+    throw new Error(`Smart backup copy failed: ${error.message}`);
+  }
 
   // Create metadata JSON
   const backupMetadata = {
@@ -591,12 +604,29 @@ function cleanupOldCcmBackups(location, retentionDays = 90) {
   const files = fs.readdirSync(backupDir);
 
   for (const file of files) {
+    // Skip metadata files - they will be deleted with their backup files
+    if (file.endsWith('.json')) {
+      continue;
+    }
+
     const filePath = path.join(backupDir, file);
+    const metadataPath = `${filePath}.json`;
     const stats = fs.statSync(filePath);
 
     if (stats.mtime < cutoffDate) {
       try {
+        // Delete backup file
         fs.unlinkSync(filePath);
+
+        // Delete associated metadata if it exists
+        if (fs.existsSync(metadataPath)) {
+          try {
+            fs.unlinkSync(metadataPath);
+          } catch (metaError) {
+            console.warn(`Failed to delete metadata for ${file}: ${metaError.message}`);
+          }
+        }
+
         deleted.push({ file, age_days: Math.floor((Date.now() - stats.mtime) / (1000 * 60 * 60 * 24)) });
       } catch (error) {
         console.warn(`Failed to delete backup ${file}: ${error.message}`);

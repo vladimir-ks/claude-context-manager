@@ -140,6 +140,16 @@ async function submitFeedback(message, options = {}) {
     force = false
   } = options;
 
+  // Validate message is not empty
+  if (!message || !message.trim()) {
+    console.log('');
+    logger.log('✗ Error: Message cannot be empty', 'red');
+    console.log('');
+    console.log('Usage: ccm feedback "your message here"');
+    console.log('');
+    return;
+  }
+
   console.log('');
   logger.log('═══════════════════════════════════════════════════════', 'cyan');
   logger.log('  Submitting Feedback', 'bright');
@@ -155,7 +165,11 @@ async function submitFeedback(message, options = {}) {
     console.log(`You've submitted ${rateLimit.current} feedback reports in the last 24 hours.`);
     console.log('Please wait before submitting more feedback.');
     console.log('');
-    console.log(`Window resets: ${colors.yellow}${rateLimit.resets_at.toLocaleString()}${colors.reset}`);
+    if (rateLimit.resets_at) {
+      console.log(`Window resets: ${colors.yellow}${rateLimit.resets_at.toLocaleString()}${colors.reset}`);
+    } else {
+      console.log('Window will reset in 24 hours from first submission');
+    }
     console.log('');
     logger.log('For critical issues, use:', 'bright');
     logger.log(`  ccm feedback "message" --force`, 'cyan');

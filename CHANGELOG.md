@@ -138,31 +138,48 @@ and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.
 
 **Version Management:**
 - Checksum calculation: recursive for directories
-- Semantic version comparison (major.minor.patch)
+- Semantic version comparison (major.minor.patch + pre-release support)
 - Archive retention: indefinite (manual cleanup)
 - Integration with registry for tracking
+- Interactive version selection UI in install command
 
-### Roadmap: Deferred to v0.3.7+
+**Background Update Checker:**
+- Platform-specific service installation (macOS LaunchAgent, Linux systemd/cron, Windows Task Scheduler)
+- Automatic NPM registry check every 8 hours
+- System notifications once per 24h if update available
+- User control: `ccm notifications on|off|status|check`
+- Secure command execution (no injection vulnerabilities)
 
-The following features were planned but deferred for focused release:
+**Social Media Publishing:**
+- GitHub Actions webhook integration
+- Configurable via N8N_WEBHOOK_URL secret
+- Payload includes `is_alpha` flag for alpha vs production differentiation
+- Auto-triggered on NPM publish
 
-**Background Update Checker (v0.3.7):**
-- LaunchAgent (macOS), cron (Linux), Task Scheduler (Windows)
-- Check every 8 hours, notify once per 24h
-- System notifications
-- User can disable: `ccm notifications off`
+### Bug Fixes
 
-**Social Media Publishing (v0.3.7):**
-- GitHub webhook → n8n → social platforms
-- Configurable via GitHub secrets
-- Payload includes `is_alpha` flag
-- Production and alpha releases
+**Critical Fixes:**
+- **Error system**: Added input validation to prevent invalid error codes
+- **Feedback system**: Added missing `logger.clearLine()` method (would crash on feedback submission)
+- **Backup system**: Fixed path construction to use `os.homedir()` directly (prevents path traversal issues)
+- **Update checker**: Fixed macOS/Linux/Windows notification command injection vulnerabilities
+- **Update checker**: Added validation for NPM registry responses (handles multiple response formats)
+- **Version manager**: Fixed pre-release version comparison (1.0.0-alpha now correctly < 1.0.0)
 
-**Artifact Versioning UI (v0.3.7):**
-- Interactive version selection during install
-- Version downgrade support
-- Visual version history
-- Migration guides between versions
+**High Priority Fixes:**
+- **Feedback system**: Added empty message validation
+- **Feedback system**: Added null check for rate limit `resets_at` display
+- **Backup system**: Added try-catch error handling for file copy operations with cleanup
+- **Backup system**: Fixed metadata file deletion to pair with backup files (prevents orphaned metadata)
+- **Update checker**: Fixed cron path expansion (use absolute path instead of ~)
+- **Update checker**: Fixed Windows Task XML to use dynamic start date (not hard-coded 2025-01-01)
+- **Version manager**: Added re-sort after version deletion (ensures latest version is correct)
+
+**Medium Priority Fixes:**
+- **Error system**: Fixed fileOperationFailed to use explicit mapping instead of dynamic lookup
+- **Error system**: Fixed color mixing in feedback prompt (reset before applying cyan)
+- **Update checker**: Added `notify-send` existence check before execution (Linux)
+- **Update checker**: Simplified Windows notifications to use `msg` command (more reliable)
 
 ### Impact
 

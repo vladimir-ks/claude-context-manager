@@ -72,7 +72,7 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
     "test": "node tests/run-all.js",
-    "prepublishOnly": "chmod +x bin/* scripts/logging/*"
+    "prepublishOnly": "chmod +x bin/* scripts/logging/* scripts/background/*"
   },
   "dependencies": {
     "@inquirer/checkbox": "^3.0.1",

@@ -260,18 +260,37 @@ function getLatestVersion(artifactName, artifactType) {
  * @returns {number} -1 if v1 < v2, 0 if equal, 1 if v1 > v2
  */
 function compareVersions(v1, v2) {
-  const parts1 = v1.split('.').map(Number);
-  const parts2 = v2.split('.').map(Number);
+  // Split version into numeric and pre-release parts
+  const parseVersion = (v) => {
+    const match = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/);
+    if (!match) {
+      // Invalid version format, treat as 0.0.0
+      return { major: 0, minor: 0, patch: 0, prerelease: null };
+    }
+    return {
+      major: parseInt(match[1], 10),
+      minor: parseInt(match[2], 10),
+      patch: parseInt(match[3], 10),
+      prerelease: match[4] || null
+    };
+  };
 
-  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-    const num1 = parts1[i] || 0;
-    const num2 = parts2[i] || 0;
+  const p1 = parseVersion(v1);
+  const p2 = parseVersion(v2);
 
-    if (num1 > num2) return 1;
-    if (num1 < num2) return -1;
-  }
+  // Compare major.minor.patch
+  if (p1.major !== p2.major) return p1.major > p2.major ? 1 : -1;
+  if (p1.minor !== p2.minor) return p1.minor > p2.minor ? 1 : -1;
+  if (p1.patch !== p2.patch) return p1.patch > p2.patch ? 1 : -1;
 
-  return 0;
+  // If major.minor.patch are equal, check pre-release
+  // Version without pre-release > version with pre-release (1.0.0 > 1.0.0-alpha)
+  if (!p1.prerelease && !p2.prerelease) return 0;
+  if (!p1.prerelease && p2.prerelease) return 1;
+  if (p1.prerelease && !p2.prerelease) return -1;
+
+  // Both have pre-release, compare lexically
+  return p1.prerelease.localeCompare(p2.prerelease);
 }
 
 /**
@@ -350,6 +369,9 @@ function deleteVersion(artifactName, artifactType, version) {
 
   // Remove from metadata
   metadata.versions = metadata.versions.filter(v => v.version !== version);
+
+  // Re-sort versions after deletion (newest first)
+  metadata.versions.sort((a, b) => compareVersions(b.version, a.version));
 
   // Update latest if deleted version was latest
   if (metadata.latest === version) {

@@ -97,6 +97,19 @@ const ERROR_CODES = {
  * @returns {Object} Structured error object
  */
 function createError(code, title, options = {}) {
+  // Validate code
+  if (!code || typeof code !== 'string') {
+    throw new TypeError('Error code required and must be string');
+  }
+  if (!Object.values(ERROR_CODES).includes(code)) {
+    throw new Error(`Invalid error code: ${code}. Must be one of CCM_ERR_XXX codes.`);
+  }
+
+  // Validate title
+  if (!title || typeof title !== 'string') {
+    throw new TypeError('Error title required and must be string');
+  }
+
   const {
     cause = 'Unknown cause',
     location = 'Unknown location',
@@ -105,6 +118,11 @@ function createError(code, title, options = {}) {
     aiNote = null,
     metadata = {}
   } = options;
+
+  // Validate fixes is array
+  if (!Array.isArray(fixes)) {
+    throw new TypeError('Fixes must be an array of strings');
+  }
 
   return {
     code,
@@ -157,7 +175,7 @@ function formatError(error, verbose = true) {
   }
 
   // Feedback prompt
-  output.push(`\n${colors.dim}Need help? Run: ${colors.cyan}ccm feedback "${error.title.toLowerCase()}"${colors.reset}`);
+  output.push(`\n${colors.dim}Need help? Run: ${colors.reset}${colors.cyan}ccm feedback "${error.title.toLowerCase()}"${colors.reset}`);
 
   return output.join('\n') + '\n';
 }
@@ -257,8 +275,19 @@ const ErrorBuilders = {
     }
   ),
 
-  fileOperationFailed: (operation, filePath, reason, location) => createError(
-    ERROR_CODES[`FILE_${operation.toUpperCase()}_FAILED`] || ERROR_CODES.UNKNOWN_ERROR,
+  fileOperationFailed: (operation, filePath, reason, location) => {
+    // Explicit mapping to avoid dynamic lookup issues
+    const FILE_OPERATION_CODES = {
+      'READ': ERROR_CODES.FILE_READ_FAILED,
+      'WRITE': ERROR_CODES.FILE_WRITE_FAILED,
+      'DELETE': ERROR_CODES.FILE_DELETE_FAILED,
+      'COPY': ERROR_CODES.FILE_COPY_FAILED
+    };
+
+    const code = FILE_OPERATION_CODES[operation.toUpperCase()] || ERROR_CODES.FILE_READ_FAILED;
+
+    return createError(
+    code,
     `File ${operation} Failed`,
     {
       cause: reason,
@@ -273,7 +302,8 @@ const ErrorBuilders = {
       aiNote: `File operation: ${operation}. Path: ${filePath}. Check file system permissions and disk space.`,
       metadata: { operation, filePath, reason }
     }
-  ),
+    );
+  },
 
   networkError: (operation, reason, location) => createError(
     ERROR_CODES.NETWORK_ERROR,

@@ -26,6 +26,7 @@ const restoreCmd = require('../src/commands/restore');
 const cleanupCmd = require('../src/commands/cleanup');
 const activateCmd = require('../src/commands/activate');
 const feedbackCmd = require('../src/commands/feedback');
+const notificationsCmd = require('../src/commands/notifications');
 
 const VERSION = '0.3.6';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
@@ -73,6 +74,7 @@ function showHelp() {
   console.log('  cleanup               Manage and clean up old backups - interactive mode');
   console.log('  status, st            Show installation status');
   console.log('  feedback              Submit feedback, bug reports, feature requests');
+  console.log('  notifications, notif  Manage update notifications (on/off/status/check)');
   console.log('  activate              Activate premium license');
   console.log('  init                  Initialize project with Claude Code artifacts');
   console.log('  remove, rm            Uninstall artifact (legacy, use uninstall)');
@@ -227,6 +229,11 @@ try {
 
     case 'feedback':
       feedbackCmd.feedback(commandArgs);
+      break;
+
+    case 'notifications':
+    case 'notif':
+      notificationsCmd.notifications(commandArgs);
       break;
 
     default:

@@ -120,6 +120,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Notify external webhook (social media)
+        if: steps.check-published.outputs.exists == 'false' && secrets.N8N_WEBHOOK_URL != ''
+        run: |
+          curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "release",
+              "is_alpha": false,
+              "package": "@vladimir-ks/claude-context-manager",
+              "version": "${{ steps.package-version.outputs.version }}",
+              "npm_url": "https://www.npmjs.com/package/@vladimir-ks/claude-context-manager",
+              "github_url": "https://github.com/${{ github.repository }}",
+              "repository": "${{ github.repository }}",
+              "commit": "${{ github.sha }}",
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }' || echo "⚠️  Webhook notification failed (non-fatal)"
+
       - name: Summary
         run: |
           if [ "${{ steps.check-published.outputs.exists }}" == "true" ]; then
@@ -132,5 +149,9 @@ jobs:
 
             if [ "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]; then
               echo "📝 GitHub Release created"
+            fi
+
+            if [ "${{ secrets.N8N_WEBHOOK_URL }}" != "" ]; then
+              echo "📢 Webhook notification sent"
             fi
           fi
