@@ -5,6 +5,35 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.7-dev] - 2025-11-20
+
+### Production Hardening & Stabilization
+
+Critical bug fixes and production readiness improvements. System review identified 75 issues; this release addresses all critical, high, and selected medium priority items.
+
+### Fixed
+- Critical async/await bug in CLI - all 13 command handlers not awaited (race conditions, silent failures)
+- Missing global error handlers for unhandled rejections and exceptions
+- Postinstall script had no error handling or rollback capability
+- Missing input validation (path traversal, injection risks)
+
+### Added
+- **src/utils/validators.js** - Input validation (artifact names, paths, types, locations)
+- **src/utils/file-ops.js** - Safe file operations with disk space, permission, and symlink checks
+- Network timeout protection (10s) on all HTTPS requests
+- Atomic file operations (temp + rename pattern) to prevent partial writes
+- Debug logging system (CCM_DEBUG=true) with 7-day auto-cleanup, 5MB rotation
+- Graceful shutdown handlers (SIGINT/SIGTERM) with 2s cleanup window
+
+### Changed
+- README.md - Updated to v0.3.6 with "What's New" section
+- All CLI commands now properly use async/await
+- Postinstall script validates paths and rolls back on failure
+- Error handling improved throughout with debug mode support
+
+**Files:** 2 new (validators.js, file-ops.js), 5 modified (cli, postinstall, github-api, logger, README)
+**Status:** Production-ready, all critical blockers resolved
+
 ## [0.3.6] - 2025-11-20
 
 ### Major UX Improvements Release

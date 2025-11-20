@@ -2,9 +2,10 @@
 
 **Context engineering platform for Claude Code - manage skills, commands, and agents with ease**
 
-[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/vladks/claude-context-manager/releases)
+[![Version](https://img.shields.io/badge/version-0.3.6-blue.svg)](https://github.com/vladks/claude-context-manager/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![NPM](https://img.shields.io/badge/npm-%40vladks%2Fclaude--context--manager-red.svg)](https://www.npmjs.com/package/@vladks/claude-context-manager)
+[![Status](https://img.shields.io/badge/status-active%20development-green.svg)](https://github.com/vladks/claude-context-manager)
 
 ---
 
@@ -49,6 +50,27 @@ A comprehensive platform for discovering, installing, and managing Claude Code a
 - Data analysis tools
 - AI code review
 - Priority support and updates
+
+### 🚀 What's New in v0.3.6 (Production Hardening)
+
+**Major UX Improvements:**
+- **Smart Backup System**: Dual detection (checksum + mtime), 90-day retention, automatic cleanup
+- **AI-Friendly Error Messages**: Structured error codes (CCM_ERR_XXX), suggested fixes, feedback integration
+- **Feedback System**: Submit bugs/features directly to GitHub (rate-limited, duplicate detection)
+- **Update Notifications**: Background checker with system notifications (macOS/Linux/Windows)
+- **Version Management**: Install specific versions with archive support
+- **Enhanced Restoration**: Interactive backup browser with metadata preview
+- **Cleanup Tools**: Manage old backups with retention policies
+
+**Production Stabilization:**
+- Fixed critical async/await bugs in CLI
+- Added global error handlers for uncaught exceptions
+- Added input validation and security hardening
+- Added network timeout protection (10s)
+- Added atomic file operations (temp + rename)
+- Added debug logging system with auto-cleanup
+- Added graceful shutdown handlers (SIGINT/SIGTERM)
+- Enhanced file operation validation (disk space, permissions, symlinks)
 
 ---
 
