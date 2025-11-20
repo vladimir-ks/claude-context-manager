@@ -2,10 +2,15 @@
  * Logger Utility
  *
  * Provides colored console output with consistent formatting
+ * and optional debug file logging with auto-cleanup
  * for Claude Context Manager CLI
  *
  * Author: Vladimir K.S.
  */
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 // ANSI color codes
 const colors = {
@@ -19,6 +24,12 @@ const colors = {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m'
 };
+
+// Debug logging configuration
+const DEBUG_ENABLED = process.env.CCM_DEBUG === 'true' || process.env.CCM_DEBUG === '1';
+const LOG_DIR = path.join(os.homedir(), '.claude-context-manager', 'logs');
+const LOG_RETENTION_DAYS = 7; // Keep logs for 7 days
+const MAX_LOG_SIZE = 5 * 1024 * 1024; // 5MB per log file
 
 /**
  * Log message with color
@@ -90,6 +101,103 @@ function clearLine() {
   process.stdout.write('\r\x1b[K');
 }
 
+/**
+ * Write debug message to log file (only if CCM_DEBUG=true)
+ * @param {string} level - Log level: 'debug', 'info', 'warn', 'error'
+ * @param {string} message - Log message
+ * @param {Object} data - Additional data to log
+ */
+function debugLog(level, message, data = null) {
+  if (!DEBUG_ENABLED) return;
+
+  try {
+    // Ensure log directory exists
+    if (!fs.existsSync(LOG_DIR)) {
+      fs.mkdirSync(LOG_DIR, { recursive: true, mode: 0o755 });
+    }
+
+    // Generate log file path (one file per day)
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const logFile = path.join(LOG_DIR, `ccm-${date}.log`);
+
+    // Check log file size, rotate if needed
+    if (fs.existsSync(logFile)) {
+      const stats = fs.statSync(logFile);
+      if (stats.size > MAX_LOG_SIZE) {
+        // Rotate log
+        const rotatedFile = path.join(LOG_DIR, `ccm-${date}-${Date.now()}.log`);
+        fs.renameSync(logFile, rotatedFile);
+      }
+    }
+
+    // Format log entry
+    const timestamp = new Date().toISOString();
+    let logEntry = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+
+    if (data) {
+      logEntry += `\n  Data: ${JSON.stringify(data, null, 2)}`;
+    }
+
+    logEntry += '\n';
+
+    // Append to log file
+    fs.appendFileSync(logFile, logEntry, { mode: 0o644 });
+
+  } catch (error) {
+    // Silently ignore logging errors (don't break the app)
+  }
+}
+
+/**
+ * Clean up old log files (keep only last N days)
+ */
+function cleanupOldLogs() {
+  try {
+    if (!fs.existsSync(LOG_DIR)) return;
+
+    const now = Date.now();
+    const retentionMs = LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+    const files = fs.readdirSync(LOG_DIR);
+
+    files.forEach(file => {
+      if (!file.startsWith('ccm-') || !file.endsWith('.log')) return;
+
+      const filePath = path.join(LOG_DIR, file);
+      const stats = fs.statSync(filePath);
+      const age = now - stats.mtimeMs;
+
+      if (age > retentionMs) {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+  } catch (error) {
+    // Silently ignore cleanup errors
+  }
+}
+
+/**
+ * Log debug message
+ * @param {string} message - Debug message
+ * @param {Object} data - Additional data
+ */
+function debug(message, data = null) {
+  if (DEBUG_ENABLED) {
+    debugLog('debug', message, data);
+    // Also log to console in debug mode
+    log(`[DEBUG] ${message}`, 'dim');
+    if (data) {
+      console.log(data);
+    }
+  }
+}
+
+// Run cleanup on load (async, non-blocking)
+if (DEBUG_ENABLED) {
+  setImmediate(cleanupOldLogs);
+}
+
 // Export all functions
 module.exports = {
   log,
@@ -99,5 +207,8 @@ module.exports = {
   info,
   progress,
   clearLine,
+  debug,
+  debugLog,
+  cleanupOldLogs,
   colors // Export colors for advanced usage
 };

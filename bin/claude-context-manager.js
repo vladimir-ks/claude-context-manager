@@ -172,6 +172,38 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
+// Graceful shutdown handlers
+let shutdownInProgress = false;
+
+function gracefulShutdown(signal) {
+  if (shutdownInProgress) {
+    // Force exit if already shutting down
+    process.exit(1);
+  }
+
+  shutdownInProgress = true;
+
+  console.log(`\n\nReceived ${signal}, shutting down gracefully...`);
+
+  // Give operations 2 seconds to complete
+  setTimeout(() => {
+    console.log('Shutdown complete.');
+    process.exit(0);
+  }, 2000);
+
+  // If operations complete before timeout, exit immediately
+  process.on('beforeExit', () => {
+    if (shutdownInProgress) {
+      console.log('Shutdown complete.');
+      process.exit(0);
+    }
+  });
+}
+
+// Handle graceful shutdown on SIGINT (Ctrl+C) and SIGTERM
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
 // Main async execution function
 async function main() {
   try {

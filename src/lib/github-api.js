@@ -66,6 +66,12 @@ function makeRequest(method, path, data = null) {
       reject(new Error(`Network error: ${error.message}`));
     });
 
+    // Add 10 second timeout
+    req.setTimeout(10000, () => {
+      req.destroy();
+      reject(new Error('Request timeout (10s)'));
+    });
+
     if (data) {
       req.write(JSON.stringify(data));
     }
