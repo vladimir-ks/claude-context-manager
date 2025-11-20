@@ -28,7 +28,7 @@ const activateCmd = require('../src/commands/activate');
 const feedbackCmd = require('../src/commands/feedback');
 const notificationsCmd = require('../src/commands/notifications');
 
-const VERSION = '0.3.6';
+const VERSION = '0.3.7';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
