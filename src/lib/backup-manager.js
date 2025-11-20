@@ -449,8 +449,213 @@ function deleteAllBackups(artifactName) {
   }
 }
 
+/**
+ * ===== NEW SMART BACKUP SYSTEM =====
+ * Simplified backup system using .ccm-backup/ directory
+ */
+
+/**
+ * Get .ccm-backup directory for location
+ * @param {string} location - 'global' or project path
+ * @returns {string} Backup directory path
+ */
+function getCcmBackupDir(location) {
+  if (location === 'global') {
+    const homeDir = config.getHomeDir();
+    // Global: ~/.claude/.ccm-backup/
+    return path.join(homeDir, '..', '.claude', '.ccm-backup');
+  } else {
+    // Project: <project>/.claude/.ccm-backup/
+    return path.join(location, '.claude', '.ccm-backup');
+  }
+}
+
+/**
+ * Generate compact timestamp: YYMMDD-hh-mm
+ * @returns {string} Compact timestamp
+ */
+function generateCompactTimestamp() {
+  const now = new Date();
+  const YY = String(now.getFullYear()).slice(-2);
+  const MM = String(now.getMonth() + 1).padStart(2, '0');
+  const DD = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  return `${YY}${MM}${DD}-${hh}-${mm}`;
+}
+
+/**
+ * Check if file was modified by user (smart detection)
+ * @param {string} filePath - Path to file
+ * @param {string} installedAt - ISO timestamp when file was installed
+ * @param {string} registryChecksum - Checksum from registry
+ * @returns {boolean} True if file was modified by user
+ */
+function isFileModified(filePath, installedAt, registryChecksum) {
+  if (!fs.existsSync(filePath)) {
+    return false; // File doesn't exist, can't be modified
+  }
+
+  // Check 1: Checksum comparison
+  const crypto = require('crypto');
+  const content = fs.readFileSync(filePath, 'utf8');
+  const currentChecksum = crypto.createHash('sha256').update(content).digest('hex');
+
+  if (currentChecksum === registryChecksum) {
+    return false; // Checksum matches, file unchanged
+  }
+
+  // Check 2: Modification date (file modified after install?)
+  const stats = fs.statSync(filePath);
+  const installedDate = new Date(installedAt);
+
+  if (stats.mtime > installedDate) {
+    return true; // File modified after installation
+  }
+
+  return false; // Checksum changed but mtime doesn't indicate modification (edge case)
+}
+
+/**
+ * Create smart backup - only if file was modified
+ * @param {string} filePath - Full path to file
+ * @param {string} location - 'global' or project path
+ * @param {Object} metadata - Metadata { reason, version, installedAt, registryChecksum }
+ * @returns {Object|null} { created: boolean, backupPath: string, reason: string } or null if not needed
+ */
+function createSmartBackup(filePath, location, metadata = {}) {
+  const fileName = path.basename(filePath);
+
+  // Smart detection: Only backup if modified
+  const isModified = isFileModified(
+    filePath,
+    metadata.installedAt,
+    metadata.registryChecksum
+  );
+
+  if (!isModified) {
+    return { created: false, reason: 'unchanged', fileName };
+  }
+
+  // File was modified - create backup
+  const backupDir = getCcmBackupDir(location);
+  fs.mkdirSync(backupDir, { recursive: true, mode: 0o755 });
+
+  const timestamp = generateCompactTimestamp();
+  const backupFileName = `${timestamp}-${fileName}`;
+  const backupPath = path.join(backupDir, backupFileName);
+  const metadataPath = path.join(backupDir, `${timestamp}-${fileName}.json`);
+
+  // Copy file to backup
+  fs.copyFileSync(filePath, backupPath);
+
+  // Create metadata JSON
+  const backupMetadata = {
+    original_path: filePath,
+    location: location,
+    backup_timestamp: new Date().toISOString(),
+    reason: metadata.reason || 'pre_update',
+    version_before: metadata.version || 'unknown',
+    file_size: fs.statSync(filePath).size,
+    installed_at: metadata.installedAt,
+    checksum_before: metadata.registryChecksum
+  };
+
+  fs.writeFileSync(metadataPath, JSON.stringify(backupMetadata, null, 2));
+
+  return {
+    created: true,
+    backupPath,
+    fileName,
+    reason: 'modified'
+  };
+}
+
+/**
+ * Clean up old backups from .ccm-backup/ directory
+ * @param {string} location - 'global' or project path
+ * @param {number} retentionDays - Delete backups older than this many days (default 90)
+ * @returns {Array} List of deleted backups
+ */
+function cleanupOldCcmBackups(location, retentionDays = 90) {
+  const backupDir = getCcmBackupDir(location);
+
+  if (!fs.existsSync(backupDir)) {
+    return []; // No backups to clean
+  }
+
+  const deleted = [];
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+  const files = fs.readdirSync(backupDir);
+
+  for (const file of files) {
+    const filePath = path.join(backupDir, file);
+    const stats = fs.statSync(filePath);
+
+    if (stats.mtime < cutoffDate) {
+      try {
+        fs.unlinkSync(filePath);
+        deleted.push({ file, age_days: Math.floor((Date.now() - stats.mtime) / (1000 * 60 * 60 * 24)) });
+      } catch (error) {
+        console.warn(`Failed to delete backup ${file}: ${error.message}`);
+      }
+    }
+  }
+
+  return deleted;
+}
+
+/**
+ * List all backups in .ccm-backup directory
+ * @param {string} location - 'global' or project path
+ * @returns {Array} List of backup files with metadata
+ */
+function listCcmBackups(location) {
+  const backupDir = getCcmBackupDir(location);
+
+  if (!fs.existsSync(backupDir)) {
+    return [];
+  }
+
+  const files = fs.readdirSync(backupDir);
+  const backups = [];
+
+  for (const file of files) {
+    if (file.endsWith('.json')) continue; // Skip metadata files
+
+    const filePath = path.join(backupDir, file);
+    const metadataPath = `${filePath}.json`;
+    const stats = fs.statSync(filePath);
+
+    let metadata = {};
+    if (fs.existsSync(metadataPath)) {
+      try {
+        metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      } catch (error) {
+        // Invalid metadata
+      }
+    }
+
+    backups.push({
+      file,
+      path: filePath,
+      size: stats.size,
+      created: stats.mtime,
+      metadata
+    });
+  }
+
+  // Sort by creation date (newest first)
+  backups.sort((a, b) => b.created - a.created);
+
+  return backups;
+}
+
 // Export all functions
 module.exports = {
+  // Old backup system (keep for compatibility)
   createBackup,
   listBackups,
   restoreBackup,
@@ -459,5 +664,12 @@ module.exports = {
   getBackupStatistics,
   deleteBackup,
   deleteAllBackups,
-  getBackupDir
+  getBackupDir,
+  // New smart backup system
+  getCcmBackupDir,
+  generateCompactTimestamp,
+  isFileModified,
+  createSmartBackup,
+  cleanupOldCcmBackups,
+  listCcmBackups
 };
