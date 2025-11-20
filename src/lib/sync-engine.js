@@ -80,7 +80,7 @@ function extractUserContent(claudeMdContent) {
         const prevLine = lines[j].trim();
         if (prevLine === '') continue;  // Skip empty lines
 
-        if (prevLine.startsWith('@./ccm-')) {
+        if (prevLine.startsWith('@./ccm')) {
           lastSeparatorIdx = i;
           break;
         }

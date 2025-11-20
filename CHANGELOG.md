@@ -5,6 +5,24 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.5] - 2025-11-20
+
+### Hotfix: CLAUDE.md Duplication Bug
+
+**Critical Fix:** Fixed pattern matching in `extractUserContent()` that caused CCM file references to duplicate on every install.
+
+### Fixed
+
+- **CLAUDE.md duplication**: Fixed `startsWith('@./ccm-')` pattern to `startsWith('@./ccm')` to match actual filenames (`ccm01-`, `ccm02-`, etc.)
+  - Location: `src/lib/sync-engine.js` line 83
+  - Impact: Prevents infinite header growth on repeated installs
+  - User content always preserved correctly
+- **Test verification**: Confirmed fix with multiple consecutive installs (line count stable)
+
+**Root Cause:** Pattern `'@./ccm-'` never matched filenames like `'@./ccm01-USER-SETTINGS.md'` because of number between `ccm` and `-`, causing boundary detection to fail and treating entire file as user content, leading to header duplication.
+
+---
+
 ## [0.3.4] - 2025-11-20
 
 ### Hotfix: Inquirer.js Import Issue
