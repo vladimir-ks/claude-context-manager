@@ -47,13 +47,35 @@ jobs:
           npm pack --dry-run 2>&1 | grep "README.md"
           echo "✅ All key files present"
 
-      # Future: Add linting when we add ESLint
-      # - name: Run linter
-      #   run: npm run lint
+      - name: Security audit
+        run: |
+          echo "Running security audit..."
+          npm audit --production
+          echo "✅ No critical vulnerabilities found"
 
-      # Future: Add tests when we add them
-      # - name: Run tests
-      #   run: npm test
+      - name: Run linter
+        run: |
+          echo "Running ESLint..."
+          npm run lint
+          echo "✅ Linting passed"
+
+      - name: Check formatting
+        run: |
+          echo "Checking Prettier formatting..."
+          npm run format:check
+          echo "✅ Formatting is consistent"
+
+      - name: Run tests
+        run: |
+          echo "Running test suite..."
+          npm test
+          echo "✅ All tests passed"
+
+      - name: Check test coverage
+        run: |
+          echo "Checking test coverage..."
+          npm run test:coverage
+          echo "✅ Coverage meets requirements"
 
       - name: Summary
         run: |

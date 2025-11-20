@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Coverage
+coverage/
+
+# Husky
+.husky/
+
+# Archives
+archive-packages/
+
+# Documentation (preserve original formatting)
+00_DOCS/
+.claude/
+
+# Logs
+*.log
+
+# Cache
+.cache/
