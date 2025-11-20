@@ -26,7 +26,7 @@ const restoreCmd = require('../src/commands/restore');
 const cleanupCmd = require('../src/commands/cleanup');
 const activateCmd = require('../src/commands/activate');
 
-const VERSION = '0.3.4';
+const VERSION = '0.3.5';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
