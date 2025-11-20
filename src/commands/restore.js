@@ -78,7 +78,7 @@ async function interactiveRestore() {
       value: name
     }));
 
-    const select = require('@inquirer/select');
+    const select = require('@inquirer/select').default;
     const selectedArtifact = await select({
       message: 'Select artifact:',
       choices: artifactChoices

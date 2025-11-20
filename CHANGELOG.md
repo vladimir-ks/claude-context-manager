@@ -5,6 +5,24 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.4] - 2025-11-20
+
+### Hotfix: Inquirer.js Import Issue
+
+**Critical Fix:** Fixed CommonJS imports for Inquirer.js modules to properly access `.default` exports.
+
+### Fixed
+
+- **Inquirer imports**: Added `.default` to all Inquirer.js module imports for CommonJS compatibility
+  - `src/lib/interactive-menu.js` - Fixed select, checkbox, confirm, input imports
+  - `src/commands/cleanup.js` - Fixed select and input imports
+  - `src/commands/restore.js` - Fixed select import
+- **Interactive commands now functional**: All interactive menus (install, uninstall, restore, cleanup) now work correctly
+
+**Impact:** This fixes the "select is not a function" error that prevented all interactive commands from working in v0.3.3.
+
+---
+
 ## [0.3.3] - 2025-11-20
 
 ### Interactive CLI & Multi-Location Management
