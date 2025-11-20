@@ -528,29 +528,22 @@ function showWelcomeMessage() {
   console.log('');
 }
 
-// Path validation helper
+// Path validation helper - uses validators.js for consistency
 function validatePath(filePath, description) {
-  const normalized = path.normalize(filePath);
+  const validators = require('../src/utils/validators');
 
-  // Check for path traversal attempts
-  if (normalized.includes('..')) {
-    throw new Error(`Invalid path (traversal detected): ${description}`);
-  }
-
-  // Check if within allowed directories
   const homeDir = os.homedir();
-  const allowed = [
+  const allowedDirs = [
     homeDir,
     path.join(__dirname, '..'),  // Package directory
     path.dirname(process.execPath)  // Node directory
   ];
 
-  const isAllowed = allowed.some(dir => normalized.startsWith(path.normalize(dir)));
-  if (!isAllowed) {
-    throw new Error(`Invalid path (outside allowed directories): ${description}`);
+  if (!validators.isValidFilePath(filePath, allowedDirs)) {
+    throw new Error(`Invalid path: ${description}`);
   }
 
-  return normalized;
+  return path.normalize(filePath);
 }
 
 // Rollback helper

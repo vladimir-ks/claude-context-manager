@@ -175,6 +175,14 @@ process.on('uncaughtException', (error) => {
 // Graceful shutdown handlers
 let shutdownInProgress = false;
 
+// Register beforeExit handler once at module level
+process.on('beforeExit', () => {
+  if (shutdownInProgress) {
+    console.log('Shutdown complete.');
+    process.exit(0);
+  }
+});
+
 function gracefulShutdown(signal) {
   if (shutdownInProgress) {
     // Force exit if already shutting down
@@ -190,14 +198,6 @@ function gracefulShutdown(signal) {
     console.log('Shutdown complete.');
     process.exit(0);
   }, 2000);
-
-  // If operations complete before timeout, exit immediately
-  process.on('beforeExit', () => {
-    if (shutdownInProgress) {
-      console.log('Shutdown complete.');
-      process.exit(0);
-    }
-  });
 }
 
 // Handle graceful shutdown on SIGINT (Ctrl+C) and SIGTERM

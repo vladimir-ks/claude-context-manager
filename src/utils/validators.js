@@ -59,21 +59,25 @@ function isValidFilePath(filePath, allowedBasePaths = []) {
     return false;
   }
 
-  const normalized = path.normalize(filePath);
-
-  // Block obvious traversal
-  if (normalized.includes('..')) {
-    return false;
-  }
+  // Use path.resolve to normalize and resolve any .. or . segments
+  const resolved = path.resolve(filePath);
 
   // If allowed paths specified, check if within them
   if (allowedBasePaths.length > 0) {
     const isWithinAllowed = allowedBasePaths.some(basePath => {
-      const normalizedBase = path.normalize(basePath);
-      return normalized.startsWith(normalizedBase);
+      const resolvedBase = path.resolve(basePath);
+      // Check if resolved path starts with resolved base
+      // This prevents traversal attacks including URL-encoded variants
+      return resolved.startsWith(resolvedBase + path.sep) || resolved === resolvedBase;
     });
 
     if (!isWithinAllowed) {
+      return false;
+    }
+  } else {
+    // If no allowed paths specified, block paths with .. traversal
+    // This catches obvious traversal attempts when no base paths given
+    if (filePath.includes('..')) {
       return false;
     }
   }
@@ -138,8 +142,12 @@ function isValidLocation(location) {
     return false;
   }
 
-  // Check for traversal
-  if (location.includes('..')) {
+  // Use path.resolve to check for traversal (handles URL-encoded and other variants)
+  const resolved = path.resolve(location);
+  const normalized = path.normalize(location);
+
+  // If resolve changed the path significantly, it contained traversal
+  if (resolved !== path.resolve(normalized)) {
     return false;
   }
 

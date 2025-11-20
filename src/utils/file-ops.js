@@ -352,12 +352,8 @@ function atomicWriteFile(filePath, data) {
     // Write to temp file
     fs.writeFileSync(tempPath, data, 'utf8');
 
-    // Verify write succeeded
-    if (!fs.existsSync(tempPath)) {
-      throw new Error('Temp file was not created');
-    }
-
     // Atomic rename (overwrites target if exists)
+    // Note: No existence check needed - writeFileSync would have thrown if it failed
     fs.renameSync(tempPath, filePath);
 
     return { success: true, error: null };
@@ -409,12 +405,8 @@ function atomicCopyFile(sourcePath, targetPath) {
     // Copy to temp file
     fs.copyFileSync(sourcePath, tempPath);
 
-    // Verify copy succeeded
-    if (!fs.existsSync(tempPath)) {
-      throw new Error('Temp file was not created');
-    }
-
     // Atomic rename (overwrites target if exists)
+    // Note: No existence check needed - copyFileSync would have thrown if it failed
     fs.renameSync(tempPath, targetPath);
 
     return { success: true, error: null, warnings: validation.warnings };
@@ -437,6 +429,62 @@ function atomicCopyFile(sourcePath, targetPath) {
   }
 }
 
+/**
+ * Simple file copy (wraps safeCopyFile for backward compatibility)
+ * @param {string} sourcePath - Source file
+ * @param {string} targetPath - Target file
+ */
+function copyFile(sourcePath, targetPath) {
+  const result = safeCopyFile(sourcePath, targetPath);
+  if (!result.success) {
+    throw new Error(result.error);
+  }
+}
+
+/**
+ * Recursively copy directory
+ * @param {string} sourcePath - Source directory
+ * @param {string} targetPath - Target directory
+ */
+function copyDirectory(sourcePath, targetPath) {
+  try {
+    // Validate paths
+    if (!isValidFilePath(sourcePath)) {
+      throw new Error(`Invalid source path: ${sourcePath}`);
+    }
+    if (!isValidFilePath(targetPath)) {
+      throw new Error(`Invalid target path: ${targetPath}`);
+    }
+
+    // Create target directory if it doesn't exist
+    if (!fs.existsSync(targetPath)) {
+      fs.mkdirSync(targetPath, { recursive: true, mode: 0o755 });
+    }
+
+    // Read source directory
+    const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const srcPath = path.join(sourcePath, entry.name);
+      const destPath = path.join(targetPath, entry.name);
+
+      if (entry.isDirectory()) {
+        // Recursively copy subdirectory
+        copyDirectory(srcPath, destPath);
+      } else if (entry.isFile()) {
+        // Copy file
+        fs.copyFileSync(srcPath, destPath);
+      } else if (entry.isSymbolicLink()) {
+        // Copy symlink
+        const linkTarget = fs.readlinkSync(srcPath);
+        fs.symlinkSync(linkTarget, destPath);
+      }
+    }
+  } catch (error) {
+    throw new Error(`Failed to copy directory: ${error.message}`);
+  }
+}
+
 module.exports = {
   checkDiskSpace,
   checkPermissions,
@@ -446,5 +494,7 @@ module.exports = {
   safeWriteFile,
   safeCopyFile,
   atomicWriteFile,
-  atomicCopyFile
+  atomicCopyFile,
+  copyFile,
+  copyDirectory
 };
