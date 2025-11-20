@@ -5,6 +5,206 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.6] - 2025-11-20
+
+### Major UX Improvements Release
+
+**Purpose:** Comprehensive user experience enhancements including smart backups, AI-friendly error messages, integrated feedback system, and artifact version management.
+
+### Added
+
+**Smart Backup System:**
+- `.ccm-backup/` directory in installation root for centralized backups
+- Compact timestamp format: `YYMMDD-hh-mm-{filename}.md` (sortable, readable)
+- Smart detection: only backup files actually modified by user
+  - Dual detection: checksum comparison + modification date
+  - Prevents unnecessary backups of unchanged files
+- Automatic cleanup: 90-day retention with automatic purge
+- Console notices when backups created (visible to AI and users)
+- Backup metadata JSON for each backup
+- Integration: `src/lib/backup-manager.js`, `src/lib/sync-engine.js`
+
+**AI-Friendly Error System:**
+- `src/utils/errors.js` - Structured error messages with codes
+- Error codes: CCM_ERR_001 through CCM_ERR_099
+  - 001-019: Installation errors
+  - 020-039: Registry/configuration errors
+  - 040-059: File operation errors
+  - 060-079: Network/API errors
+  - 080-099: General errors
+- Structured format parseable by AI:
+  - Error code, title, cause, location
+  - Suggested fixes (step-by-step)
+  - AI-specific hints
+  - Context information
+- Error builders for common scenarios
+- Feedback integration in all error messages
+
+**Feedback System:**
+- `.claude/skills/ccm-feedback/` - Intelligent feedback skill
+- `src/commands/feedback.js` - CLI command for feedback submission
+- `src/lib/github-api.js` - GitHub REST API integration
+  - Issue creation and search
+  - Duplicate detection (error codes + keyword matching)
+  - Similarity scoring (Jaccard algorithm)
+- `src/lib/rate-limiter.js` - Rate limiting system
+  - 3 submissions per 24 hours
+  - Local tracking: `~/.claude-context-manager/feedback-log.json`
+  - Force bypass for critical issues (--force)
+  - 30-day log retention
+- Commands:
+  - `ccm feedback "message"` - Submit feedback
+  - `ccm feedback --status` - Show rate limit status
+  - `ccm feedback --list` - List recent submissions
+  - `ccm feedback --include-system-info` - Include Node/OS info
+- Features:
+  - Automatic duplicate detection before submission
+  - Links to existing issues if duplicate found
+  - System info collection (opt-in)
+  - Submission history tracking
+
+**Artifact Version Management:**
+- `src/lib/version-manager.js` - Independent artifact versioning
+- Archive structure: `archive-packages/{type}s/{artifact}/v{version}/`
+- Version metadata tracking:
+  - Version history, release dates, checksums
+  - Changelog per version
+  - Archive paths
+- Functions:
+  - Archive current versions
+  - Retrieve specific versions
+  - Compare semantic versions
+  - Calculate artifact checksums
+- Foundation for version selection during install (coming in v0.3.7)
+
+### Changed
+
+**Backup System:**
+- Replaced inline `.backup-{timestamp}` files with centralized `.ccm-backup/`
+- CCM file backups now use smart detection
+- CLAUDE.md backups only created if file modified
+- Sync engine shows detailed console output:
+  ```
+  ✓ Syncing CCM files...
+    ccm01-USER-SETTINGS.md - unchanged
+    ccm02-DOCS-ORGANIZATION.md - updated
+    ✓ Backup: .ccm-backup/251120-19-34-ccm02-DOCS-ORGANIZATION.md
+  ✓ Cleaned up 3 old backup(s) (90+ days)
+  ```
+
+**Help Output:**
+- Added `feedback` command to help text
+- Updated examples to include feedback usage
+
+### Package Updates
+
+- Version bump: 0.3.5 → 0.3.6
+- Added files to distribution:
+  - `.claude/skills/ccm-feedback/`
+  - `archive-packages/` (for future version archives)
+- New dependencies: None (uses built-in https, crypto, fs modules)
+
+### Technical Details
+
+**Smart Backup Detection:**
+- Compare checksum: current file vs registry checksum
+- Compare modification date: file mtime vs install timestamp
+- Only backup if both checks indicate modification
+- Metadata JSON includes:
+  - Original path, location, timestamp
+  - Reason (pre_update, pre_header_regeneration)
+  - Version before/after
+  - File size, checksums
+
+**Error System Integration:**
+- Ready for integration across all commands
+- Error builders for common scenarios:
+  - `artifactNotFound()`
+  - `installationFailed()`
+  - `registryNotFound()`
+  - `fileOperationFailed()`
+  - `networkError()`
+  - `rateLimitExceeded()`
+- JSON export for AI parsing: `formatErrorForAI()`
+
+**Feedback Duplicate Detection:**
+1. Extract error codes (CCM_ERR_XXX) from message
+2. Search GitHub issues for exact error code match
+3. If no match, extract keywords (normalized, stop words removed)
+4. Search issues with top 5 keywords
+5. Calculate Jaccard similarity for each result
+6. If similarity ≥ 75% → Duplicate
+7. Otherwise → Create new issue
+
+**Version Management:**
+- Checksum calculation: recursive for directories
+- Semantic version comparison (major.minor.patch + pre-release support)
+- Archive retention: indefinite (manual cleanup)
+- Integration with registry for tracking
+- Interactive version selection UI in install command
+
+**Background Update Checker:**
+- Platform-specific service installation (macOS LaunchAgent, Linux systemd/cron, Windows Task Scheduler)
+- Automatic NPM registry check every 8 hours
+- System notifications once per 24h if update available
+- User control: `ccm notifications on|off|status|check`
+- Secure command execution (no injection vulnerabilities)
+
+**Social Media Publishing:**
+- GitHub Actions webhook integration
+- Configurable via N8N_WEBHOOK_URL secret
+- Payload includes `is_alpha` flag for alpha vs production differentiation
+- Auto-triggered on NPM publish
+
+### Bug Fixes
+
+**Critical Fixes:**
+- **Error system**: Added input validation to prevent invalid error codes
+- **Feedback system**: Added missing `logger.clearLine()` method (would crash on feedback submission)
+- **Backup system**: Fixed path construction to use `os.homedir()` directly (prevents path traversal issues)
+- **Update checker**: Fixed macOS/Linux/Windows notification command injection vulnerabilities
+- **Update checker**: Added validation for NPM registry responses (handles multiple response formats)
+- **Version manager**: Fixed pre-release version comparison (1.0.0-alpha now correctly < 1.0.0)
+
+**High Priority Fixes:**
+- **Feedback system**: Added empty message validation
+- **Feedback system**: Added null check for rate limit `resets_at` display
+- **Backup system**: Added try-catch error handling for file copy operations with cleanup
+- **Backup system**: Fixed metadata file deletion to pair with backup files (prevents orphaned metadata)
+- **Update checker**: Fixed cron path expansion (use absolute path instead of ~)
+- **Update checker**: Fixed Windows Task XML to use dynamic start date (not hard-coded 2025-01-01)
+- **Version manager**: Added re-sort after version deletion (ensures latest version is correct)
+
+**Medium Priority Fixes:**
+- **Error system**: Fixed fileOperationFailed to use explicit mapping instead of dynamic lookup
+- **Error system**: Fixed color mixing in feedback prompt (reset before applying cyan)
+- **Update checker**: Added `notify-send` existence check before execution (Linux)
+- **Update checker**: Simplified Windows notifications to use `msg` command (more reliable)
+
+### Impact
+
+**For Users:**
+- Backups no longer clutter installation directory
+- Only modified files backed up (saves disk space)
+- Clear error messages with actionable fixes
+- Easy feedback submission (no GitHub account needed for reporting)
+- Protection against spam with rate limiting
+
+**For AI Agents:**
+- Structured error messages (parseable)
+- AI-specific hints in error output
+- Backup notices visible in console output
+- Error codes for precise debugging
+- Feedback system integration in error flow
+
+**For Developers:**
+- Error system ready for command integration
+- Version management foundation for artifact evolution
+- GitHub API module for issue management
+- Rate limiter reusable for other features
+
+---
+
 ## [0.3.5] - 2025-11-20
 
 ### Hotfix: CLAUDE.md Duplication Bug

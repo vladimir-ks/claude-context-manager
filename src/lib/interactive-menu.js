@@ -413,6 +413,51 @@ async function inputText(message, defaultValue = '') {
   return answer;
 }
 
+/**
+ * Prompt: Select artifact version
+ * @param {string} artifactName - Name of artifact
+ * @param {Array} versions - Available versions [{ version, released, changelog }, ...]
+ * @returns {Promise<string>} Selected version
+ */
+async function selectArtifactVersion(artifactName, versions) {
+  if (!versions || versions.length === 0) {
+    console.log('\nNo versions available.');
+    return null;
+  }
+
+  // Sort versions (newest first)
+  const versionManager = require('./version-manager');
+  const sortedVersions = [...versions].sort((a, b) =>
+    versionManager.compareVersions(b.version, a.version)
+  );
+
+  const choices = sortedVersions.map((ver, index) => {
+    const isLatest = index === 0;
+    const releaseDate = ver.released ? new Date(ver.released).toLocaleDateString() : 'Unknown date';
+    const changelogPreview = ver.changelog ? ` - ${ver.changelog.substring(0, 50)}${ver.changelog.length > 50 ? '...' : ''}` : '';
+
+    return {
+      name: `v${ver.version}${isLatest ? ' (latest)' : ''} - ${releaseDate}${changelogPreview}`,
+      value: ver.version,
+      description: ver.changelog || 'No changelog available'
+    };
+  });
+
+  // Add "latest" option at the top
+  choices.unshift({
+    name: '✓ Latest version (recommended)',
+    value: 'latest'
+  });
+
+  const selected = await select({
+    message: `Select version for '${artifactName}':`,
+    choices,
+    pageSize: 10
+  });
+
+  return selected;
+}
+
 // Export all functions
 module.exports = {
   isGitRepo,
@@ -429,5 +474,6 @@ module.exports = {
   selectBackup,
   selectUpdateScope,
   selectUninstallScope,
-  inputText
+  inputText,
+  selectArtifactVersion
 };

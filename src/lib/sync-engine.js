@@ -18,6 +18,7 @@ const os = require('os');
 const registry = require('./registry');
 const fileOps = require('../utils/file-ops');
 const logger = require('../utils/logger');
+const backupManager = require('./backup-manager');
 
 /**
  * Calculate SHA256 checksum of a file
@@ -123,6 +124,8 @@ function generateCLAUDEMdHeader(files) {
  * @returns {Object} Sync report
  */
 function syncCCMFiles(target = 'global') {
+  console.log('\n✓ Syncing CCM files...');
+
   const report = {
     added: [],
     updated: [],
@@ -194,8 +197,10 @@ function syncCCMFiles(target = 'global') {
         });
 
         report.added.push(file);
+        console.log(`  ${file} - added`);
       } catch (error) {
         report.errors.push({ file, operation: 'install', error: error.message });
+        console.log(`  ${file} - error: ${error.message}`);
       }
     } else {
       // EXISTING FILE - Check if needs update
@@ -206,12 +211,17 @@ function syncCCMFiles(target = 'global') {
       if (destChecksum !== sourceChecksum) {
         // File changed - Update
         try {
-          // Create backup
-          const timestamp = Date.now();
-          const backupPath = path.join(targetLocation, `${file}.backup-${timestamp}`);
-          if (fs.existsSync(destPath)) {
-            fs.copyFileSync(destPath, backupPath);
-          }
+          // Create smart backup (only if file was modified by user)
+          const backupResult = backupManager.createSmartBackup(
+            destPath,
+            target,
+            {
+              installedAt: registryEntry.installed_at,
+              registryChecksum: registryEntry.checksum,
+              reason: 'pre_update',
+              version: 'current'
+            }
+          );
 
           // Copy new version
           fs.copyFileSync(sourcePath, destPath);
@@ -222,11 +232,22 @@ function syncCCMFiles(target = 'global') {
           registryEntry.updated_at = new Date().toISOString();
 
           report.updated.push(file);
+
+          // Console output
+          if (backupResult.created) {
+            const backupFileName = path.basename(backupResult.backupPath);
+            console.log(`  ${file} - updated`);
+            console.log(`  ✓ Backup: .ccm-backup/${backupFileName}`);
+          } else {
+            console.log(`  ${file} - updated (no backup needed - unchanged)`);
+          }
         } catch (error) {
           report.errors.push({ file, operation: 'update', error: error.message });
+          console.log(`  ${file} - error: ${error.message}`);
         }
       } else {
         report.unchanged.push(file);
+        console.log(`  ${file} - unchanged`);
       }
     }
   }
@@ -266,6 +287,16 @@ function syncCCMFiles(target = 'global') {
 
   // Save updated registry
   registry.save(reg);
+
+  // Cleanup old backups (90 days retention)
+  try {
+    const deletedBackups = backupManager.cleanupOldCcmBackups(target, 90);
+    if (deletedBackups.length > 0) {
+      console.log(`\n✓ Cleaned up ${deletedBackups.length} old backup(s) (90+ days)`);
+    }
+  } catch (error) {
+    console.log(`\n⚠ Warning: Backup cleanup failed: ${error.message}`);
+  }
 
   return report;
 }
@@ -314,10 +345,27 @@ function regenerateCLAUDEMdHeader(target = 'global') {
     existingContent = fs.readFileSync(claudeMdPath, 'utf8');
     userContent = extractUserContent(existingContent);
 
-    // Create backup
-    const timestamp = Date.now();
-    const backupPath = path.join(targetLocation, `CLAUDE.md.backup-${timestamp}`);
-    fs.copyFileSync(claudeMdPath, backupPath);
+    // Create smart backup if CLAUDE.md exists
+    try {
+      const claudeMdEntry = installation.ccm_managed_files.find(f => f.path === 'CLAUDE.md');
+      const backupResult = backupManager.createSmartBackup(
+        claudeMdPath,
+        target,
+        {
+          installedAt: claudeMdEntry ? claudeMdEntry.installed_at : new Date(0).toISOString(),
+          registryChecksum: claudeMdEntry ? claudeMdEntry.checksum : null,
+          reason: 'pre_header_regeneration',
+          version: 'current'
+        }
+      );
+
+      if (backupResult.created) {
+        const backupFileName = path.basename(backupResult.backupPath);
+        console.log(`✓ CLAUDE.md backup: .ccm-backup/${backupFileName}`);
+      }
+    } catch (error) {
+      console.log(`⚠ Warning: CLAUDE.md backup failed: ${error.message}`);
+    }
   }
 
   // Combine new header with user content

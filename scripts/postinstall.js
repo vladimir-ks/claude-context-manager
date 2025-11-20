@@ -566,6 +566,19 @@ try {
     autoUpdateArtifacts();
   }
 
+  // Install background update checker service
+  try {
+    const { execSync } = require('child_process');
+    const servicePath = path.join(__dirname, 'background', 'install-service.js');
+
+    if (fs.existsSync(servicePath)) {
+      log('\n✓ Installing background update checker...', 'cyan');
+      execSync(`node "${servicePath}"`, { stdio: 'inherit' });
+    }
+  } catch (error) {
+    log('⚠ Background service installation skipped', 'yellow');
+  }
+
   // Show welcome message only on fresh install
   if (isNewInstall) {
     showWelcomeMessage();

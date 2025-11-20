@@ -77,7 +77,17 @@ function info(message) {
  */
 function progress(message) {
   const msg = message == null ? '' : String(message);
-  log(`⏳ ${msg}`, 'dim');
+  // Use process.stdout.write to avoid newline (allows clearLine to work)
+  process.stdout.write(`${colors.dim}⏳ ${msg}${colors.reset}`);
+}
+
+/**
+ * Clear current line (useful after progress indicator)
+ * Uses ANSI escape code to clear line and move cursor to beginning
+ */
+function clearLine() {
+  // \r moves cursor to start of line, \x1b[K clears from cursor to end of line
+  process.stdout.write('\r\x1b[K');
 }
 
 // Export all functions
@@ -88,5 +98,6 @@ module.exports = {
   warn,
   info,
   progress,
+  clearLine,
   colors // Export colors for advanced usage
 };
