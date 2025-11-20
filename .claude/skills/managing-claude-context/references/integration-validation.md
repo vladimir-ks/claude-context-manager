@@ -227,6 +227,158 @@ For detailed input contract specifications, consult:
 - **Command Inputs**: Command file itself - Defines arguments and variable substitution
 - **Skill Inputs**: Skill's `SKILL.md` - Defines when to load (triggers)
 
+### 5. Task Tool Delegation Validation
+
+**Validate that commands/agents are correctly invoked via Task tool:**
+
+Task tool delegation is the primary pattern for parallel execution. Commands invoked via Task tool act as subagents in isolated contexts.
+
+**Validation Checklist**:
+
+- [ ] **Invocation Pattern**: Agent uses `Task(prompt="/command-name args")` NOT `SlashCommand(command="...")`
+- [ ] **Argument Formatting**: Arguments with spaces are properly quoted
+- [ ] **Pre-execution Works**: Commands with `!`backtick`` pre-execution execute correctly via Task tool
+- [ ] **Isolated Context**: Command operates in isolated context (no pollution to main chat)
+- [ ] **Parallel Execution**: Multiple Task calls can run simultaneously without conflicts
+- [ ] **Report Format**: If command produces output for agent, it uses structured format (JSON or markdown)
+
+**Example Validation**:
+
+```markdown
+Agent: "code-analyzer"
+Command: "/analyze-file"
+
+Validation Steps:
+
+1. Read agent prompt - verify it uses: Task(prompt="/analyze-file $1")
+2. Test with spaces: Task(prompt="/analyze-file 'src/my file.js'")
+3. If command has pre-execution, verify it runs successfully
+4. Launch 3 parallel invocations - verify no conflicts
+5. Verify agent can parse command's output
+```
+
+**Common Issues**:
+
+❌ **Wrong Pattern**:
+```python
+# DON'T - Agent trying to use SlashCommand
+SlashCommand(command="/analyze-file src/app.js")
+```
+
+✅ **Correct Pattern**:
+```python
+# DO - Agent using Task tool
+Task(prompt="/analyze-file src/app.js")
+```
+
+❌ **Unquoted Spaces**:
+```python
+# DON'T - Breaks argument parsing
+Task(prompt="/analyze-file src/my file.js")
+```
+
+✅ **Quoted Spaces**:
+```python
+# DO - Properly quotes paths with spaces
+Task(prompt="/analyze-file 'src/my file.js'")
+```
+
+**Pre-Execution Validation**:
+
+If command uses pre-execution (`!`backtick``):
+1. Test via user invocation first
+2. Test via Task tool delegation
+3. Verify pre-execution runs in BOTH modes (verified 2025-11-20)
+4. Check `/tmp/` files are created correctly
+5. Ensure process ID isolation (`$$`) prevents collisions
+
+### 6. Skill Sharing Validation
+
+**Validate that multiple artifacts correctly share skills:**
+
+Skills enable zero-redundancy by allowing multiple commands/agents to load the same procedural knowledge.
+
+**Validation Checklist**:
+
+- [ ] **Multiple Artifacts Load Same Skill**: Verify 2+ commands/agents reference same skill
+- [ ] **Skill Loading Works**: Each artifact successfully loads and uses skill knowledge
+- [ ] **Zero-Redundancy**: No duplicated procedural knowledge across artifacts
+- [ ] **Consistency**: All artifacts using skill follow same procedures
+- [ ] **Progressive Disclosure**: Skill loaded only when artifact executes (not always-on)
+- [ ] **References Work**: Skills internal references (e.g., `references/*.md`) load correctly
+
+**Example Validation**:
+
+```markdown
+Skill: "api-testing"
+Artifacts: /test-endpoint, /test-integration, test-runner agent
+
+Validation Steps:
+
+1. Read api-testing/SKILL.md - verify it contains testing procedures
+2. Read /test-endpoint - verify it loads api-testing skill
+3. Read /test-integration - verify it loads api-testing skill
+4. Read test-runner agent - verify it loads api-testing skill
+5. Execute each artifact - verify skill loads successfully
+6. Verify NO procedural duplication across artifacts
+7. Update skill - verify all artifacts benefit from update
+```
+
+**Pattern to Validate**:
+
+```
+Skill: shared-knowledge (exists in ONE place)
+   ↓
+   ├─> Command 1 (loads skill)
+   ├─> Command 2 (loads skill)
+   ├─> Command 3 (loads skill)
+   └─> Agent 1 (loads skill)
+```
+
+**Common Issues**:
+
+❌ **Duplication Instead of Sharing**:
+```markdown
+<!-- Command 1 -->
+Testing procedure (100 lines)
+[Command logic]
+
+<!-- Command 2 -->
+Testing procedure (100 lines) # DUPLICATED!
+[Command logic]
+```
+
+✅ **Skill Sharing**:
+```markdown
+<!-- Skill -->
+Testing procedure (100 lines)
+
+<!-- Command 1 -->
+Load skill: testing
+[Command logic]
+
+<!-- Command 2 -->
+Load skill: testing
+[Command logic]
+```
+
+**Decision Matrix Validation**:
+
+| Artifacts | Should Use Skill? | Reasoning |
+|-----------|-------------------|-----------|
+| 1 artifact needs knowledge | NO | No redundancy issue |
+| 2+ artifacts need knowledge | YES | Prevent duplication |
+| Knowledge is trivial | NO | Not worth extraction |
+| Knowledge is complex | YES | Centralize maintenance |
+
+**Validation Steps**:
+
+1. **Identify Shared Knowledge**: Find procedural knowledge duplicated across artifacts
+2. **Extract to Skill**: Create skill with shared knowledge
+3. **Update Artifacts**: Replace duplication with skill loading
+4. **Test Integration**: Verify all artifacts load and use skill correctly
+5. **Measure Reduction**: Quantify context reduction (e.g., 300 lines → 100 lines)
+
 ## Testing Integration Points
 
 ### Manual Testing

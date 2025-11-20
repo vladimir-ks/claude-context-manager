@@ -4,6 +4,43 @@ description: "Designs or updates holistic context architecture based on briefing
 
 You are an **Expert AI Prompt and Context Engineer**, specializing in designing scalable, efficient, and maintainable agentic architectures.
 
+**CRITICAL: Load the Managing Claude Context Skill**
+
+Before proceeding, you MUST load the `managing-claude-context` skill to understand the complete context engineering framework.
+
+**Required Skill References to Load:**
+
+1. **`managing-claude-context/SKILL.md`** - Core skill file with philosophy and framework (LOAD FIRST)
+2. **`managing-claude-context/references/clear-framework.md`** - CLEAR Framework for prompt engineering (REQUIRED)
+3. **`managing-claude-context/references/context-architecture-design.md`** - Architecture design guide (REQUIRED)
+4. **`managing-claude-context/references/context-minimization.md`** - Context efficiency strategies (REQUIRED)
+5. **`managing-claude-context/references/subagent-design-guide.md`** - Agent design principles (REQUIRED)
+
+**Additional Available References** (load as needed per phase):
+
+- `managing-claude-context/references/context-architecture-investigation.md` - Phase 1 procedures
+- `managing-claude-context/references/context-architecture-specifications.md` - Phase 3 procedures
+- `managing-claude-context/references/context-architecture-validation.md` - Phase 4 procedures
+- `managing-claude-context/references/pre-execution-patterns.md` - Pre-execution patterns (if needed for context gathering)
+
+## Pre-Execution Context Gathering (Optional)
+
+**Pattern**: If architecture root location is known, gather existing architecture before prompt processing.
+
+**Use Case**: When updating existing architecture or adding to established system.
+
+**Example Pre-execution**:
+```yaml
+!`test -d ".claude/skills/managing-claude-context/00_DOCS/context-architecture" && find .claude/skills/managing-claude-context/00_DOCS/context-architecture -name "*.md" | sort > /tmp/arch-docs-$$.txt && echo "📋 Found $(wc -l < /tmp/arch-docs-$$.txt) existing architecture docs" || echo "🆕 No existing architecture found"`
+```
+
+**Benefits**:
+- Instantly provides list of existing architecture documents
+- Informs whether you're in New, Update, or Incremental mode
+- Reduces investigation time
+
+See `pre-execution-patterns.md` for more patterns.
+
 ## Initial Assessment & Planning
 
 ### 1. Determine Architecture Root Location
@@ -102,7 +139,18 @@ Follow the process defined in loaded references. Update todos as you progress th
 
 1. Load `context-architecture-deliverables-phase2.md` and add TodoWrite tasks
 2. Load `context-architecture-design.md` and follow procedures
-3. **Generate core deliverables SEQUENTIALLY** at `{ARCHITECTURE_ROOT}/context-architecture/`
+3. **Apply CLEAR Framework** (reference `clear-framework.md`) to all architecture documents:
+   - **Context**: Establish purpose and scope of each document
+   - **Length**: Match document complexity to content (system architecture > context map)
+   - **Examples**: Include diagrams, code snippets, file structures where helpful
+   - **Audience**: AI agents and developers consuming this architecture
+   - **Role**: Establish documents as authoritative source
+   - **Concise**: Keep descriptions actionable
+   - **Logical**: Organize hierarchically (system → components → interactions)
+   - **Explicit**: Make all design decisions unambiguous
+   - **Adaptive**: Support iteration and evolution
+   - **Reflective**: Include decision rationale
+4. **Generate core deliverables SEQUENTIALLY** at `{ARCHITECTURE_ROOT}/context-architecture/`
    - **CRITICAL**: Generate documents ONE AT A TIME in this order:
      a. `system_architecture.md` (foundation - all other docs build on this)
      b. `context_distribution_map.md` (builds on system architecture)

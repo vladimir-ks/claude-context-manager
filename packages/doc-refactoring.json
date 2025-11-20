@@ -1,0 +1,36 @@
+{
+  "name": "doc-refactoring",
+  "version": "0.1.0",
+  "description": "Combat documentation bloat through intelligent refactoring - multi-agent orchestration for consolidation, deduplication, and validation",
+  "tier": "free",
+  "category": "documentation",
+  "author": "Vladimir K.S.",
+  "artifacts": [
+    {
+      "type": "skill",
+      "name": "doc-refactoring",
+      "source_path": ".claude/skills/doc-refactoring/",
+      "copy_mode": "directory",
+      "description": "Intelligent documentation refactoring and consolidation"
+    },
+    {
+      "type": "command_group",
+      "name": "doc-refactoring",
+      "source_path": ".claude/commands/doc-refactoring/",
+      "copy_mode": "directory",
+      "description": "6 specialized commands for document analysis and refactoring",
+      "commands": [
+        "doc-refactoring-orchestrator",
+        "investigate-doc",
+        "refactor-doc",
+        "validate-doc-batch",
+        "validate-user-feedback",
+        "consolidate-reports"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "size_bytes": null,
+  "readme": "This package includes the doc-refactoring skill and 6 specialized commands for combating documentation bloat:\n\n**Skill:**\n- doc-refactoring: Multi-agent orchestration framework for intelligent documentation consolidation\n\n**Commands:**\n- /doc-refactoring:doc-refactoring-orchestrator - Main orchestrator for multi-document refactoring\n- /doc-refactoring:investigate-doc - Analyze document structure and identify issues\n- /doc-refactoring:refactor-doc - Perform intelligent refactoring operations\n- /doc-refactoring:validate-doc-batch - Batch validation of refactored documents\n- /doc-refactoring:validate-user-feedback - Process user feedback on refactoring\n- /doc-refactoring:consolidate-reports - Generate consolidated refactoring reports\n\n**Use Cases:**\n- Eliminate redundancy across documentation sets\n- Consolidate fragmented information\n- Validate documentation integrity\n- Progressive disclosure restructuring\n- Multi-agent coordination for large doc sets\n\n**After Installation:**\n1. Load skill: Use the Skill tool with 'doc-refactoring'\n2. Run orchestrator: /doc-refactoring:doc-refactoring-orchestrator\n3. Follow guided workflow for analysis → refactoring → validation\n\n**Documentation:**\n- Quick Start: .claude/skills/doc-refactoring/QUICK_START.md\n- Core Philosophy: .claude/skills/doc-refactoring/SKILL.md\n- Command Manuals: .claude/skills/doc-refactoring/manuals/\n- References: .claude/skills/doc-refactoring/references/",
+  "installation_notes": "This package will install to:\n  - Skill: ~/.claude/skills/doc-refactoring/ (global) or <project>/.claude/skills/doc-refactoring/ (project)\n  - Commands: ~/.claude/commands/doc-refactoring/ (global) or <project>/.claude/commands/doc-refactoring/ (project)\n\nThe package includes 1 skill and 6 specialized commands for documentation management."
+}

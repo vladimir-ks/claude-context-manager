@@ -109,6 +109,16 @@ function createLibraryMetadata() {
         size_bytes: null,
         dependencies: [],
         source_path: '.claude/skills/managing-claude-context/'
+      },
+      {
+        name: 'doc-refactoring',
+        version: '0.1.0',
+        description: 'Combat documentation bloat through intelligent refactoring',
+        tier: 'free',
+        category: 'documentation',
+        size_bytes: null,
+        dependencies: [],
+        source_path: '.claude/skills/doc-refactoring/'
       }
     ]
   };
@@ -125,6 +135,18 @@ function createLibraryMetadata() {
           { type: 'skill', name: 'managing-claude-context' }
         ],
         definition_path: 'packages/core-essentials.json'
+      },
+      {
+        name: 'doc-refactoring',
+        version: '0.1.0',
+        description: 'Combat documentation bloat through intelligent refactoring',
+        tier: 'free',
+        category: 'documentation',
+        artifacts: [
+          { type: 'skill', name: 'doc-refactoring' },
+          { type: 'command_group', name: 'doc-refactoring' }
+        ],
+        definition_path: 'packages/doc-refactoring.json'
       }
     ]
   };
@@ -182,30 +204,44 @@ function installGlobalCommands() {
     return;
   }
 
-  // Copy all commands from package to global directory
-  const commands = fs.readdirSync(sourceCommands).filter(f => f.endsWith('.md'));
+  // Load file operations utility for recursive copying
+  const fileOps = require('../src/utils/file-ops');
 
-  if (commands.length === 0) {
+  // Copy all commands from package to global directory (files and nested directories)
+  const entries = fs.readdirSync(sourceCommands, { withFileTypes: true });
+
+  if (entries.length === 0) {
     log('⚠ No command files found in package', 'yellow');
     return;
   }
 
   let installedCount = 0;
-  commands.forEach(commandFile => {
-    const source = path.join(sourceCommands, commandFile);
-    const dest = path.join(globalCommands, commandFile);
+  let installedDirs = 0;
+
+  entries.forEach(entry => {
+    const source = path.join(sourceCommands, entry.name);
+    const dest = path.join(globalCommands, entry.name);
 
     try {
-      fs.copyFileSync(source, dest);
-      fs.chmodSync(dest, 0o644);  // Readable by all
-      installedCount++;
+      if (entry.isDirectory()) {
+        // Copy nested command directories recursively
+        fileOps.copyDirectory(source, dest);
+        installedDirs++;
+      } else if (entry.name.endsWith('.md')) {
+        // Copy individual command files
+        fileOps.copyFile(source, dest);
+        installedCount++;
+      }
     } catch (error) {
-      log(`⚠ Failed to install ${commandFile}: ${error.message}`, 'yellow');
+      log(`⚠ Failed to install ${entry.name}: ${error.message}`, 'yellow');
     }
   });
 
-  if (installedCount > 0) {
-    log(`✓ Installed ${installedCount} command(s) globally`, 'green');
+  if (installedCount > 0 || installedDirs > 0) {
+    const summary = [];
+    if (installedCount > 0) summary.push(`${installedCount} command(s)`);
+    if (installedDirs > 0) summary.push(`${installedDirs} command group(s)`);
+    log(`✓ Installed ${summary.join(' and ')} globally`, 'green');
     log(`  ${globalCommands}/`, 'cyan');
   }
 }
@@ -245,6 +281,199 @@ function syncClaudeAdditions() {
 
   } catch (error) {
     log(`⚠ Error syncing CCM files: ${error.message}`, 'yellow');
+    console.error(error);
+  }
+}
+
+function autoUpdateArtifacts() {
+  try {
+    const registry = require('../src/lib/registry');
+    const multiLocation = require('../src/lib/multi-location-tracker');
+    const conflictDetector = require('../src/lib/conflict-detector');
+    const backupManager = require('../src/lib/backup-manager');
+    const fileOps = require('../src/utils/file-ops');
+    const packageJson = require('../package.json');
+
+    // Load registry
+    const reg = registry.load();
+
+    // Check if this is an update (registry exists and has last_auto_update)
+    const lastUpdate = registry.getLastAutoUpdate();
+    const currentVersion = packageJson.version;
+
+    // If first install or no tracked artifacts, skip auto-update
+    const hasArtifacts = (reg.installations.global.artifacts && reg.installations.global.artifacts.length > 0) ||
+                         (reg.installations.projects && reg.installations.projects.length > 0);
+
+    if (!hasArtifacts) {
+      return; // Nothing to update
+    }
+
+    // Check if package version changed
+    const packageRegistry = reg.installations.global.packages || [];
+    const ccmPackage = packageRegistry.find(p => p.name === 'ccm-core');
+
+    const isUpdate = lastUpdate !== null || (ccmPackage && ccmPackage.version !== currentVersion);
+
+    if (!isUpdate) {
+      // First install, mark timestamp but don't update
+      registry.updateAutoUpdateTimestamp();
+      return;
+    }
+
+    log('\n╔════════════════════════════════════════════════════════╗', 'cyan');
+    log('║  Auto-Update: Updating tracked installations          ║', 'bright');
+    log('╚════════════════════════════════════════════════════════╝\n', 'cyan');
+
+    // Get all multi-location artifacts
+    const multiLocationArtifacts = multiLocation.getMultiLocationArtifacts();
+
+    if (multiLocationArtifacts.length === 0) {
+      log('✓ No multi-location artifacts to update', 'green');
+      registry.updateAutoUpdateTimestamp();
+      return;
+    }
+
+    log(`Found ${multiLocationArtifacts.length} artifact(s) in multiple locations\n`, 'bright');
+
+    let updatedCount = 0;
+    let skippedCount = 0;
+    let backedUpCount = 0;
+
+    // Update each multi-location artifact
+    multiLocationArtifacts.forEach(artInfo => {
+      const { name, type, locations } = artInfo;
+
+      log(`Updating: ${name}`, 'cyan');
+
+      locations.forEach(location => {
+        try {
+          const locationLabel = location === 'global' ? '  Global (~/.claude)' : `  ${location}`;
+
+          // Construct paths
+          let artifactPath;
+          let sourcePath;
+
+          if (location === 'global') {
+            const homeDir = path.join(os.homedir(), '.claude');
+            if (type === 'skill') {
+              artifactPath = path.join(homeDir, 'skills', name);
+              sourcePath = path.join(__dirname, '..', '.claude', 'skills', name);
+            } else if (type === 'command') {
+              artifactPath = path.join(homeDir, 'commands', name);
+              sourcePath = path.join(__dirname, '..', '.claude', 'commands', name);
+            }
+          } else {
+            if (type === 'skill') {
+              artifactPath = path.join(location, '.claude', 'skills', name);
+              sourcePath = path.join(__dirname, '..', '.claude', 'skills', name);
+            } else if (type === 'command') {
+              artifactPath = path.join(location, '.claude', 'commands', name);
+              sourcePath = path.join(__dirname, '..', '.claude', 'commands', name);
+            }
+          }
+
+          if (!artifactPath || !sourcePath) {
+            log(`${locationLabel}: ⚠ Unknown type ${type}`, 'yellow');
+            skippedCount++;
+            return;
+          }
+
+          // Check if source exists
+          if (!fs.existsSync(sourcePath)) {
+            log(`${locationLabel}: ⚠ Source not found`, 'yellow');
+            skippedCount++;
+            return;
+          }
+
+          // Check if target exists
+          if (!fs.existsSync(artifactPath)) {
+            log(`${locationLabel}: ⚠ Not installed, skipping`, 'yellow');
+            skippedCount++;
+            return;
+          }
+
+          // Detect user modifications
+          const modCheck = conflictDetector.detectUserModification(artifactPath, location, name);
+
+          if (modCheck.modified) {
+            // User modified - create backup
+            log(`${locationLabel}: Creating backup (user modified)...`, 'yellow');
+
+            const artifact = registry.getArtifact(location, name);
+            backupManager.createBackup(
+              artifactPath,
+              name,
+              location,
+              {
+                backup_reason: 'auto_update_user_modified',
+                version_before: artifact ? artifact.version : 'unknown',
+                version_after: currentVersion
+              }
+            );
+
+            backedUpCount++;
+          }
+
+          // Update artifact
+          const stats = fs.statSync(sourcePath);
+
+          // Remove old version
+          if (fs.existsSync(artifactPath)) {
+            fs.rmSync(artifactPath, { recursive: true, force: true });
+          }
+
+          // Copy new version
+          if (stats.isDirectory()) {
+            fileOps.copyDirectory(sourcePath, artifactPath);
+          } else {
+            fileOps.copyFile(sourcePath, artifactPath);
+          }
+
+          // Update registry
+          const newChecksum = conflictDetector.calculateArtifactChecksum(artifactPath);
+          const artifact = registry.getArtifact(location, name);
+
+          if (artifact) {
+            artifact.version = currentVersion;
+            artifact.checksum = newChecksum;
+            artifact.updated_at = new Date().toISOString();
+            artifact.user_modified = false;
+            artifact.modification_checksum = null;
+            registry.save();
+          }
+
+          log(`${locationLabel}: ✓ Updated`, 'green');
+          updatedCount++;
+
+        } catch (error) {
+          const locationLabel = location === 'global' ? '  Global (~/.claude)' : `  ${location}`;
+          log(`${locationLabel}: ✗ ${error.message}`, 'red');
+          skippedCount++;
+        }
+      });
+
+      console.log('');
+    });
+
+    // Update timestamp
+    registry.updateAutoUpdateTimestamp();
+
+    // Summary
+    log('═══════════════════════════════════════════════════════', 'cyan');
+    if (updatedCount > 0) {
+      log(`✓ Auto-Update Complete: ${updatedCount} location(s) updated`, 'green');
+    }
+    if (backedUpCount > 0) {
+      log(`  ${backedUpCount} backup(s) created for user modifications`, 'yellow');
+    }
+    if (skippedCount > 0) {
+      log(`  ${skippedCount} location(s) skipped`, 'yellow');
+    }
+    console.log('');
+
+  } catch (error) {
+    log(`⚠ Auto-update failed: ${error.message}`, 'yellow');
     console.error(error);
   }
 }
@@ -331,6 +560,11 @@ try {
 
   // Sync CCM files and regenerate CLAUDE.md header
   syncClaudeAdditions();
+
+  // Auto-update artifacts in tracked locations
+  if (!isNewInstall) {
+    autoUpdateArtifacts();
+  }
 
   // Show welcome message only on fresh install
   if (isNewInstall) {

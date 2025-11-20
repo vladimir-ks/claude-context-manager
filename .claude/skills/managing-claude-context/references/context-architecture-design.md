@@ -60,6 +60,136 @@ Use a **Command** when:
 
 **Design Implication**: Architecture should leverage both modes - use shared context for sequential workflows, separated tasks for parallel execution opportunities.
 
+### Pre-Execution Patterns for Commands
+
+**CRITICAL**: Commands support bash pre-execution scripts (`!`backtick`` syntax) that run BEFORE the prompt is processed. This is a **major architectural advantage over agents** which cannot do pre-execution.
+
+**Pre-execution works in BOTH invocation modes**:
+- ✅ User invocation in main chat
+- ✅ Task tool delegation (verified 2025-11-20)
+
+#### Pattern 1: Environment Setup
+
+**Use Case**: Install dependencies or configure environment before command executes.
+
+**Example**:
+```yaml
+---
+description: "Analyze Python package dependencies"
+---
+
+!`pip install pipdeptree 2>/dev/null && pipdeptree --json > /tmp/deps-$$.json`
+
+Analyze the dependency tree at `/tmp/deps-$$.json` and identify security vulnerabilities.
+```
+
+**Benefits**:
+- Ensures required tools are available
+- Isolates setup from main logic
+- Fails fast if environment can't be configured
+
+#### Pattern 2: Context Injection
+
+**Use Case**: Gather system state, file metadata, or dynamic information before processing.
+
+**Example**:
+```yaml
+---
+description: "Analyze code coverage gaps"
+---
+
+!`npm test -- --coverage --json > /tmp/coverage-$$.json && echo "✅ Tests complete"`
+
+Review the coverage report at `/tmp/coverage-$$.json`. Identify modules with <80% coverage and recommend test additions.
+```
+
+**Benefits**:
+- Injects fresh, dynamic data into prompt context
+- Reduces API calls within prompt execution
+- Provides structured data for analysis
+
+#### Pattern 3: Validation
+
+**Use Case**: Check preconditions before executing main command logic.
+
+**Example**:
+```yaml
+---
+description: "Deploy application to production"
+---
+
+!`git diff --quiet && echo "✅ Clean" > /tmp/status-$$.txt || echo "❌ Uncommitted" > /tmp/status-$$.txt`
+
+Check status at `/tmp/status-$$.txt`. If uncommitted changes exist, HALT and warn user. Otherwise, proceed with deployment.
+```
+
+**Benefits**:
+- Fail-fast validation
+- Prevents destructive operations
+- Clear error messages
+
+#### Pattern 4: Data Preparation
+
+**Use Case**: Transform or aggregate data before analysis.
+
+**Example**:
+```yaml
+---
+description: "Analyze API performance metrics"
+---
+
+!`curl -s http://localhost:3000/metrics > /tmp/metrics-$$.json && jq '.response_times' /tmp/metrics-$$.json > /tmp/perf-$$.json`
+
+Analyze performance data at `/tmp/perf-$$.json`. Identify endpoints with p95 > 500ms and recommend optimizations.
+```
+
+**Benefits**:
+- Offloads data processing to bash tools
+- Provides clean, formatted data to prompt
+- Reduces prompt complexity
+
+#### Best Practices
+
+**Atomic Chains**:
+```bash
+!`command1 && command2 && command3`
+```
+- Use `&&` to ensure all commands succeed
+- Chain fails at first error
+
+**Process ID Isolation**:
+```bash
+!`echo "data" > /tmp/output-$$.txt`
+```
+- Use `$$` for unique file names per process
+- Prevents collisions in parallel execution
+
+**Error Handling**:
+```bash
+!`command 2>/dev/null || echo "fallback"`
+```
+- Redirect stderr to suppress noise
+- Provide fallback values
+
+**Keep Scripts Fast**:
+- Pre-execution adds latency
+- Optimize for speed
+- Consider caching results
+
+#### When NOT to Use Pre-Execution
+
+❌ **Don't use for**:
+- Complex logic requiring AI reasoning
+- Operations that modify production systems
+- Long-running processes (>5 seconds)
+- Interactive user input
+
+✅ **DO use for**:
+- Environment validation
+- Context gathering
+- Quick data transformations
+- Precondition checks
+
 ### Agent Selection Criteria
 
 Use an **Agent** when:
@@ -80,10 +210,24 @@ Use an **Agent** when:
 
 **CRITICAL: Agents Use Commands for Delegation and Parallelization**:
 
-- **Agents can invoke `/commands`** within their isolated chats to delegate subtasks
-- **Agents can parallelize flows** by invoking multiple `/commands` simultaneously
-- **Main chat AI agent** should use both `/commands` AND `/agents` in parallel executions
-- **Nested parallelization**: Within agent chats, agents can further parallelize by invoking multiple `/commands`
+- **Agents delegate via Task tool**: Use `Task(prompt="/command-name args")` pattern to invoke commands
+- **Agents can parallelize flows**: Launch multiple Task calls with different `/commands` in single message
+- **Main chat AI agent**: Uses Task tool for both commands AND agents in parallel executions
+- **Nested parallelization**: Within agent chats, agents can further parallelize by launching multiple Task calls with different `/commands`
+
+**Correct Delegation Pattern**:
+```python
+# Agent delegating to command
+Task(
+  subagent_type="general-purpose",
+  prompt="/command-name arg1 arg2"
+)
+
+# Parallel delegation (3 commands)
+Task(prompt="/command-1 args")
+Task(prompt="/command-2 args")
+Task(prompt="/command-3 args")
+```
 
 **Design Implication**: Architecture should design agents to leverage commands for:
 

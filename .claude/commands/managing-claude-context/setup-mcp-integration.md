@@ -12,13 +12,15 @@ Before proceeding, you MUST load the `managing-claude-context` skill to understa
 **Required Skill References to Load:**
 
 1. **`managing-claude-context/SKILL.md`** - Core skill file with philosophy, framework, and workflow patterns (LOAD FIRST)
-2. **`managing-claude-context/references/subagent-design-guide.md`** - Agent design principles and four-phase prompt structure (REQUIRED)
-3. **`managing-claude-context/references/briefing-and-prompting-philosophy.md`** - Understanding the four-phase prompt structure (REQUIRED)
-4. **`managing-claude-context/references/report-contracts.md`** - Output format requirements (REQUIRED)
-5. **`managing-claude-context/references/integration-validation.md`** - Ensuring agent and command integrate correctly (REQUIRED)
-6. **`managing-claude-context/references/how-to-prompt-commands.md`** - Command design patterns (REQUIRED)
-7. **`managing-claude-context/references/mcp-server-context.md`** - Architectures for tool isolation (REQUIRED)
-8. **`managing-claude-context/references/context-minimization.md`** - Context efficiency strategies (RECOMMENDED)
+2. **`managing-claude-context/references/clear-framework.md`** - CLEAR Framework for prompt engineering (REQUIRED)
+3. **`managing-claude-context/references/claude-code-model-ids.md`** - Model selection guidance (REQUIRED)
+4. **`managing-claude-context/references/subagent-design-guide.md`** - Agent design principles and four-phase prompt structure (REQUIRED)
+5. **`managing-claude-context/references/briefing-and-prompting-philosophy.md`** - Understanding the four-phase prompt structure (REQUIRED)
+6. **`managing-claude-context/references/report-contracts.md`** - Output format requirements (REQUIRED)
+7. **`managing-claude-context/references/integration-validation.md`** - Ensuring agent and command integrate correctly (REQUIRED)
+8. **`managing-claude-context/references/how-to-prompt-commands.md`** - Command design patterns (REQUIRED)
+9. **`managing-claude-context/references/mcp-server-context.md`** - Architectures for tool isolation (REQUIRED)
+10. **`managing-claude-context/references/context-minimization.md`** - Context efficiency strategies (RECOMMENDED)
 
 **Additional Available References:**
 
@@ -32,6 +34,24 @@ Process a briefing for a new **MCP Specialist Team**. This involves creating thr
 
 ### Your Workflow
 
+**CRITICAL: Create Workflow Plan with TodoWrite**
+
+Use the TodoWrite tool to create a complete task list. This ensures you follow the entire process without deviation.
+
+**Create todos for:**
+- **Load Foundational Knowledge**: Initial skill and reference loading
+- **Phase 1: Briefing Validation**: Validate briefing completeness
+- **Phase 2: Generate Specialist Agent**: Create agent system prompt with CLEAR framework
+- **Phase 2: Generate Wrapper Command**: Create wrapper command file
+- **Phase 2: Generate MCP Configuration**: Create MCP config file
+- **Phase 2: Test Integration**: Verify headless invocation works
+- **Phase 3: Create Files**: Write all files to disk
+- **Phase 3: Generate Final Report**: Structured JSON output
+
+Mark the first task and begin execution.
+
+---
+
 **Phase 1: Briefing Validation**
 
 1. Load the `managing-claude-context` skill and all required references listed above.
@@ -44,6 +64,17 @@ Process a briefing for a new **MCP Specialist Team**. This involves creating thr
 1. **Generate the Specialist Agent's System Prompt**:
 
    - Based on the "General Charter" in the briefing, construct a high-fidelity system prompt for the new specialist agent.
+   - **Apply CLEAR Framework** (reference `clear-framework.md`) to the agent prompt:
+     - **Context**: Establish agent's domain expertise and operational context
+     - **Length**: Define expected report verbosity (summary/detailed/comprehensive)
+     - **Examples**: Link to example briefings and reports if available
+     - **Audience**: Specify orchestrator or user as consumer
+     - **Role**: Define core agent persona and specialist expertise
+     - **Concise**: Keep instructions actionable and focused
+     - **Logical**: Structure prompt in clear phases
+     - **Explicit**: Make all requirements unambiguous
+     - **Adaptive**: Support iteration and clarification
+     - **Reflective**: Include validation checkpoints
    - This prompt MUST follow the four-phase structure defined in `managing-claude-context/references/briefing-and-prompting-philosophy.md`:
      1. **Header**: Define its persona as a versatile expert in its tool (e.g., "You are a Playwright expert...").
      2. **Phase 1: Briefing Validation**: Instruct it to validate the briefings it will receive in the future.
@@ -54,6 +85,15 @@ Process a briefing for a new **MCP Specialist Team**. This involves creating thr
 2. **Generate the Specialist Agent File Content**:
 
    - Combine the generated system prompt with the necessary YAML frontmatter (`name`, `description`, `tools`, `model`).
+   - **Model Selection** (reference `claude-code-model-ids.md`):
+     - **Use Sonnet** (`claude-sonnet-4-5-20250514`) for:
+       - Complex reasoning and multi-step analysis
+       - Tasks requiring strategic thinking
+       - MCP tools that need careful interpretation
+     - **Use Haiku** (`claude-haiku-4-5-20251001`) for:
+       - Simple, focused operations
+       - High-speed execution requirements
+       - Straightforward MCP tool usage
    - The `description` should be a concise version of the charter.
    - The `tools` array must include the name of the MCP tool.
 

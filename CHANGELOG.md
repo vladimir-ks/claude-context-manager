@@ -5,6 +5,150 @@ All notable changes to this repository will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.1.0.html).
 
+## [0.3.3] - 2025-11-20
+
+### Interactive CLI & Multi-Location Management
+
+**Purpose:** Complete UX redesign with interactive menus, multi-location artifact tracking, automatic updates, and comprehensive backup management. Transform CCM from flag-based CLI to user-friendly interactive experience.
+
+### Added
+
+**Interactive Menu System:**
+- `src/lib/interactive-menu.js` - Complete interactive CLI using Inquirer.js
+  - Smart context detection (git repo, current directory)
+  - Multi-select prompts for packages and artifacts
+  - Location selection with intelligent defaults
+  - Conflict confirmation workflows
+  - Backup choice prompts
+- New dependencies: `@inquirer/select`, `@inquirer/checkbox`, `@inquirer/confirm`, `@inquirer/input`
+
+**Multi-Location Tracking:**
+- `src/lib/multi-location-tracker.js` - Track artifacts across multiple installations
+  - Single artifact can be installed in global + multiple projects
+  - Cross-reference tracking between locations
+  - Conflict detection across all locations
+  - Validation and integrity checking
+  - Installation summary and analysis
+
+**Backup Management:**
+- `src/lib/backup-manager.js` - Comprehensive backup/restore system
+  - Timestamped backup directories with metadata
+  - Retention policies (configurable: 30 days, 5 backups per artifact)
+  - Automatic cleanup based on age and count
+  - Pre-install, pre-update, and pre-uninstall backups
+  - Backup statistics and analysis
+
+**Conflict Detection:**
+- `src/lib/conflict-detector.js` - User modification detection
+  - SHA256 checksum calculation for files and directories
+  - Detect user modifications by comparing checksums
+  - Find conflicts before installation/updates
+  - Generate human-readable conflict reports
+  - Artifact integrity validation
+
+**New Commands:**
+- `src/commands/uninstall.js` - Remove artifacts with multi-location support
+  - Interactive mode: Select artifacts and locations with menus
+  - Multi-location selection for artifacts in multiple places
+  - Automatic backup creation before removal
+  - Flag-based mode for backward compatibility
+
+- `src/commands/restore.js` - Restore artifacts from backups
+  - Interactive mode: Browse backups with metadata
+  - Backup selection with version and timestamp info
+  - Target location selection
+  - Pre-restore backup of current state
+  - Registry update after restore
+
+- `src/commands/cleanup.js` - Manage old backups
+  - Interactive mode: View stats, configure policy, delete backups
+  - Automatic cleanup based on retention policy
+  - Per-artifact or global cleanup
+  - Backup statistics dashboard
+  - Retention policy configuration
+
+**Auto-Update System:**
+- `scripts/postinstall.js` - `autoUpdateArtifacts()` function
+  - Detects package version changes
+  - Finds all tracked installation locations
+  - Creates backups for user-modified artifacts
+  - Updates all locations automatically
+  - Handles multi-location artifacts intelligently
+
+### Changed
+
+**Registry Schema v0.3.0:**
+- `src/lib/registry.js` - New fields and migration logic
+  - `last_auto_update`: Timestamp for tracking updates
+  - `installed_locations[]`: Track all installation locations per artifact
+  - `user_modified`: Flag for user modification detection
+  - `modification_checksum`: Checksum when modified
+  - `git_repo`: Git repository detection
+  - `registered_at`, `updated_at`: Timestamps
+  - Automatic migration from v0.2.0 to v0.3.0
+  - New functions: `addLocationToArtifact`, `removeLocationFromArtifact`, `getArtifactLocations`, `markArtifactModified`, `updateAutoUpdateTimestamp`, `getBackupConfig`, `updateBackupConfig`
+
+**Enhanced Install Command:**
+- `src/commands/install.js` - Complete redesign
+  - **Interactive mode** (no flags): Guided 4-step installation
+    1. Select package type (solutions vs individual)
+    2. Select packages or artifacts
+    3. Select location (global/project/both)
+    4. Conflict detection and backup choice
+  - **Flag-based mode**: Backward compatible with existing scripts
+  - Multi-location installation support
+  - Conflict detection before installation
+  - User choice for backup vs overwrite
+  - Progress indicators and clear feedback
+
+**Distribution Fixes:**
+- `scripts/postinstall.js` - `installGlobalCommands()` rewritten
+  - Fixed: Nested command directories not copied (bug)
+  - Now copies `managing-claude-context/` and `doc-refactoring/` subdirectories recursively
+  - Uses `fileOps.copyDirectory()` for recursive copying
+  - Tracks both flat commands and command groups
+
+**CLI Integration:**
+- `bin/claude-context-manager.js` - New commands registered
+  - Added: `uninstall`, `restore`, `cleanup`
+  - Updated help text with interactive mode indicators
+  - Maintained backward compatibility
+
+**Library Metadata:**
+- `scripts/postinstall.js` - Added doc-refactoring skill to free tier
+  - Now installable via `ccm install` command
+  - Package definition: `packages/doc-refactoring.json`
+
+### Fixed
+
+- **Nested commands not distributed**: Commands in subdirectories (e.g., `managing-claude-context/`, `doc-refactoring/`) now copy correctly during install
+- **doc-refactoring not installable**: Added to library metadata and created package definition
+- **No multi-location tracking**: Registry now tracks artifacts across all installation locations
+- **No backup before overwrite**: Automatic backups created during install, update, and uninstall
+- **Flag-based CLI UX**: Interactive menus make installation user-friendly for non-technical users
+
+### Documentation
+
+- Added: `packages/doc-refactoring.json` - Package definition for doc-refactoring skill
+- Updated: Help text in CLI to indicate interactive mode availability
+
+### Migration Notes
+
+**For Users:**
+- Run `npm install -g @vladimir-ks/claude-context-manager@latest` to upgrade
+- On first install after upgrade, auto-update will run and update all tracked artifacts
+- Backups will be created automatically for any user-modified artifacts
+- Interactive mode available by running `ccm install`, `ccm uninstall`, `ccm restore`, `ccm cleanup` without flags
+- Legacy flag-based commands still work for automation and scripts
+
+**For Developers:**
+- Registry v0.3.0 migration runs automatically on first `registry.load()`
+- New utility modules available: `interactive-menu`, `multi-location-tracker`, `conflict-detector`, `backup-manager`
+- Auto-update runs on every `npm install` (not on first install)
+- Backups stored in `~/.claude-context-manager/backups/<artifact>/<timestamp>/`
+
+---
+
 ## [0.3.1] - 2025-11-18
 
 ### CCM File Organization & Documentation

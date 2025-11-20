@@ -29,31 +29,53 @@ A subagent is an **orchestrated isolated specialist**. It operates in its own co
   - Produce outputs that are high-quality inputs for downstream agents/commands
   - Be aware it is working in a team with other agents and be careful with its work scope
 
-## 2. Command vs Agent Decision Framework
+## 2. Command vs Agent vs Skill Decision Framework
 
-Before designing a subagent, you must decide whether to create a **Command** or an **Agent**. This is a critical architectural decision.
+Before designing a subagent, you must decide whether to create a **Command**, an **Agent**, or a **Skill**. This is a critical architectural decision based on the user's clarifications:
 
 ### 2.1. Use a Command When:
 
-- **Stateless**: The task has no memory requirements between invocations
+**Decision Criteria** (at least ONE must be true):
+- **Pre-execution Needed**: Task requires bash script execution BEFORE prompt processing (e.g., `npm install`, file validation, context injection)
+- **Multiple Arguments**: Task needs structured inputs via `$1`, `$2`, etc. (not just a single briefing document)
+- **Parallelizable Work**: Task is stateless and can be executed in parallel with other commands
+
+**Additional Characteristics**:
 - **Focused**: Single, well-defined task with clear inputs/outputs
 - **Repeatable**: Same inputs produce same outputs (idempotent)
 - **Linear Execution**: Follows a straightforward, sequential path
-- **Variable Substitution**: Needs to accept arguments via `$ARGUMENTS` or `$1`, `$2`, etc.
 - **Lightweight**: Quick execution, minimal context requirements
 
-**Examples**: File editing, running tests, generating reports, simple transformations
+**Examples**: File editing, running tests, generating reports, environment setup, context gathering
 
-**CRITICAL: Two Usage Modes**:
+**CRITICAL: Commands via Task Tool Act as Subagents**:
+When invoked via `Task(prompt="/command-name args")`, commands operate in isolated contexts and are functionally indistinguishable from agents. They become parallel workers in the orchestration pattern.
 
+**Two Invocation Contexts**:
 1. **Shared Context Mode**: User invokes in main conversation - operates with full conversation context
-2. **Separated Task Mode**: User or agent invokes as separate task - enables parallel execution
+2. **Separated Task Mode**: Invoked via Task tool - runs in isolated context, enables parallel execution
 
-**Design Implication**: Commands should be designed to work in both modes, enabling maximum parallelization when invoked as separated tasks.
+**Pre-Execution Advantage**:
+Commands can use `!`backtick`` syntax to run bash scripts BEFORE the prompt is processed. This works in BOTH invocation modes (user AND Task tool). Agents CANNOT do this - this is a major architectural advantage.
+
+```yaml
+---
+description: "Example command with pre-execution"
+---
+
+!`npm test -- --coverage --json > /tmp/coverage-$$.json && echo "Tests complete"`
+
+Now analyze the coverage report at `/tmp/coverage-$$.json` and provide recommendations.
+```
 
 ### 2.2. Use an Agent When:
 
-- **Complex Orchestration**: Needs to coordinate multiple steps or tools
+**Decision Criteria** (ALL must be true):
+- **Single Briefing Input**: Task takes one comprehensive briefing document (not multiple discrete arguments)
+- **No Pre-execution**: Task doesn't need bash scripts to run before prompt processing
+- **Mode Activation OR Complex Orchestration**: Task either changes main agent behavior (mode activation) or requires autonomous multi-step coordination
+
+**Additional Characteristics**:
 - **Stateful Reasoning**: Requires maintaining context or making decisions based on intermediate results
 - **Multi-Step Workflow**: Involves conditional logic, loops, or branching
 - **Delegation**: Needs to delegate to other tools (commands or other agents)
@@ -62,16 +84,51 @@ Before designing a subagent, you must decide whether to create a **Command** or 
 
 **Examples**: Feature implementation, code refactoring, architectural analysis, complex investigations
 
-**CRITICAL: Agents Use Commands for Delegation and Parallelization**:
+**CRITICAL: Two Invocation Modes**:
 
-- **Agents should be encouraged invoke `/commands`** within their isolated chats to delegate subtasks
-- **Agents can parallelize flows** by invoking multiple `/commands` simultaneously
-- **Nested parallelization**: Agents break down work into parallelizable commands
-- **Design agents to leverage commands** for deterministic operations and parallel execution
+1. **User Invocation (Mode Activation)**: When user invokes agent command in main chat, it changes the main agent's behavior and persona within the current conversation. This is NOT parallel work - it's reprogramming the main agent.
 
-**Design Implication**: When designing agents, identify opportunities to delegate subtasks to commands for parallel execution and efficiency.
+2. **Task Tool Invocation (Parallel Work)**: When invoked via Task tool, agent operates in isolated context for parallel execution. This is indistinguishable from command-as-subagent pattern.
 
-### 2.3. Decision Flowchart
+**Delegation Pattern** (Agents orchestrate commands):
+```python
+# Agent delegating to commands for parallel work
+Task(prompt="/command-1 arg1 arg2")
+Task(prompt="/command-2 arg1 arg2")
+Task(prompt="/command-3 arg1 arg2")
+```
+
+**Design Implication**: Agents should delegate deterministic, parallelizable work to commands. Agents provide intelligence and orchestration; commands provide speed and parallel execution.
+
+### 2.3. Use a Skill When:
+
+**Decision Criteria**:
+- **Shared Knowledge**: Multiple commands or agents need the same procedural knowledge
+- **Zero-Redundancy Goal**: Want to avoid duplicating prompts across artifacts
+- **On-Demand Loading**: Knowledge should be loaded progressively, not always-on
+
+**Characteristics**:
+- **Modular Capability**: Self-contained procedural knowledge
+- **Progressive Disclosure**: Loaded only when needed
+- **Shared by Multiple Artifacts**: Commands and agents reference same skill
+
+**Examples**: Testing frameworks, security scanning procedures, API integration patterns, documentation standards
+
+**Pattern**:
+```markdown
+<!-- In command or agent prompt -->
+**Load Skill**: Load the `testing-framework` skill for guidance on test structure.
+
+<!-- Skill provides procedural knowledge -->
+The skill contains references to:
+- Test design patterns
+- Assertion libraries
+- Coverage requirements
+```
+
+**Design Implication**: When multiple commands/agents need the same knowledge, extract it into a skill rather than duplicating instructions.
+
+### 2.4. Decision Flowchart
 
 ```
 Is the task stateless and focused?
@@ -425,8 +482,26 @@ An agent **can and should** use slash commands (`/commands/*.md`) for its own in
 **Pattern**:
 
 ```markdown
-When you need to perform [specific task], invoke the `/command-name` command with [arguments].
+When you need to perform [specific task], use the Task tool to invoke the command:
+
+Task(
+  subagent_type="general-purpose",
+  prompt="/command-name arg1 arg2"
+)
+
 Process the command's report and incorporate the findings into your own analysis.
+```
+
+**Example Delegation**:
+```python
+# Agent delegating file summarization tasks
+Task(prompt="/summarize-file src/module/file1.py")
+Task(prompt="/summarize-file src/module/file2.py")
+Task(prompt="/summarize-file src/module/file3.py")
+
+# All three commands execute in parallel
+# Agent receives 3 summary reports
+# Agent synthesizes findings without reading full files
 ```
 
 ### 5.2. Agents Delegating to Other Agents

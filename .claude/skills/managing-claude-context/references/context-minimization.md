@@ -158,6 +158,93 @@ References are loaded only when specific domain knowledge is needed:
 3. Selectively loads only the references needed for the current task
 4. Avoids loading irrelevant references to maintain context efficiency
 
+### Skills as Zero-Redundancy Mechanism
+
+**CRITICAL**: Skills are the primary tool for achieving zero-redundancy across commands and agents.
+
+**The Redundancy Problem**:
+
+Without skills, multiple commands or agents requiring the same procedural knowledge would duplicate that knowledge in their prompts:
+
+```markdown
+<!-- Command 1 -->
+# Testing procedure (100 lines)
+[Command-specific logic]
+
+<!-- Command 2 -->
+# Testing procedure (100 lines) - DUPLICATED!
+[Command-specific logic]
+
+<!-- Command 3 -->
+# Testing procedure (100 lines) - DUPLICATED!
+[Command-specific logic]
+```
+
+**Total Context**: 300 lines of duplicated procedures + command logic
+
+**The Skills Solution**:
+
+Extract shared knowledge into a skill that multiple artifacts reference:
+
+```markdown
+<!-- Skill: testing-procedures -->
+# Testing procedure (100 lines)
+[Comprehensive testing knowledge]
+
+<!-- Command 1 -->
+Load skill: testing-procedures
+[Command-specific logic]
+
+<!-- Command 2 -->
+Load skill: testing-procedures
+[Command-specific logic]
+
+<!-- Command 3 -->
+Load skill: testing-procedures
+[Command-specific logic]
+```
+
+**Total Context**: 100 lines (skill) + command logic (loaded once per execution)
+
+**Benefits**:
+
+1. **Zero-Redundancy**: Procedural knowledge exists in exactly ONE place
+2. **Progressive Disclosure**: Skill loaded only when command/agent executes
+3. **Consistency**: All artifacts using skill follow same procedures
+4. **Maintainability**: Update skill once, all artifacts benefit
+5. **Context Efficiency**: No duplication in always-loaded context
+
+**Pattern: Multiple Artifacts, One Skill**
+
+```
+Skill: testing-procedures (shared knowledge)
+   ↓
+   ├─> Command: /test-unit (loads skill)
+   ├─> Command: /test-integration (loads skill)
+   ├─> Agent: test-runner (loads skill)
+   └─> Agent: test-validator (loads skill)
+```
+
+**Design Rule**: When multiple commands or agents need the same procedural knowledge, extract it into a skill rather than duplicating instructions.
+
+**Decision Matrix**:
+
+| Scenario | Solution | Reasoning |
+|----------|----------|-----------|
+| 1 artifact needs knowledge | Keep in artifact | No redundancy issue |
+| 2+ artifacts need knowledge | Create skill | Prevent duplication |
+| Knowledge is trivial | Keep in artifact | Not worth extraction |
+| Knowledge is complex | Create skill | Centralize maintenance |
+
+**Example Use Cases**:
+
+- **Testing frameworks**: Multiple test commands share testing procedures
+- **Security auditing**: Multiple audit agents share vulnerability checks
+- **API integration**: Multiple API commands share auth and request patterns
+- **Documentation**: Multiple doc commands share formatting standards
+
+This pattern is the cornerstone of context minimization - preventing prompt duplication while enabling progressive disclosure.
+
 **Context-Aware Selection:** The agent decides which references are relevant by:
 
 - Matching reference topics to current task requirements
