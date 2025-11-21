@@ -4,6 +4,28 @@ All notable changes to this project are documented here. For detailed version hi
 
 ---
 
+## [0.4.1] - 2025-11-21
+
+Update awareness and artifact synchronization improvements. Users now see clear update indicators and can upgrade CCM with a simple command.
+
+### Added
+
+- **Update reminder on every command** - Non-blocking notifications show available CCM updates without performance overhead
+- **CCM self-update command** - Run `ccm update` (no args) to upgrade CCM itself without remembering npm commands
+- **Version comparison in catalog** - `ccm list` shows installed vs available versions with clear update indicators (yellow arrows)
+- **Interactive artifact updates** - Choose to update all artifacts, skip all, or select individually during installation
+
+### Fixed
+
+- **Auto-update skipping artifacts (CRITICAL)** - Global-only artifacts now update correctly; previously silently skipped during CCM upgrades
+- **Catalog version sync** - Artifact versions in catalog now dynamically generated from package.json instead of static hardcoded values
+
+### Technical Notes
+
+Implementation details: `git log v0.4.0..v0.4.1`
+
+---
+
 ## [0.4.0] - 2025-11-21
 
 Major infrastructure release: Automated artifact version management with rollback capability, enhanced safety features, and critical security fixes.
