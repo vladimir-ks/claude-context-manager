@@ -225,11 +225,128 @@ async function updateArtifact(artifact, target, flags) {
 }
 
 /**
+ * Self-update CCM to latest version
+ */
+async function selfUpdate() {
+  const updateChecker = require('../lib/update-checker');
+  const { execSync } = require('child_process');
+  const readline = require('readline');
+
+  logger.log('\nChecking for CCM updates...\n', 'bright');
+
+  // Get current version
+  const currentVersion = updateChecker.getCurrentVersion();
+
+  if (!currentVersion) {
+    logger.error('Could not determine current version');
+    console.log('');
+    return;
+  }
+
+  // Load cached update state
+  const HOME_DIR = require('path').join(require('os').homedir(), '.claude-context-manager');
+  const UPDATE_STATE_FILE = require('path').join(HOME_DIR, 'update-state.json');
+
+  let latestVersion = null;
+
+  try {
+    if (require('fs').existsSync(UPDATE_STATE_FILE)) {
+      const state = JSON.parse(require('fs').readFileSync(UPDATE_STATE_FILE, 'utf8'));
+      const cacheAge = Date.now() - new Date(state.last_check).getTime();
+      const CACHE_VALID_TIME = 5 * 60 * 1000; // 5 minutes
+
+      if (state.latest_version && cacheAge < CACHE_VALID_TIME) {
+        latestVersion = state.latest_version;
+      }
+    }
+  } catch (error) {
+    // Ignore cache errors
+  }
+
+  // If no valid cache, fetch from NPM
+  if (!latestVersion) {
+    logger.progress('Checking NPM registry...');
+    try {
+      latestVersion = await updateChecker.checkLatestVersion();
+      logger.clearLine();
+    } catch (error) {
+      logger.clearLine();
+      logger.warn('Could not check for updates (network error)');
+      logger.log('  Try again later or update manually:\n', 'dim');
+      logger.log('  npm install -g @vladimir-ks/claude-context-manager@latest\n', 'cyan');
+      return;
+    }
+  }
+
+  // Compare versions
+  const comparison = updateChecker.compareVersions(latestVersion, currentVersion);
+
+  if (comparison <= 0) {
+    logger.success(`CCM is up to date (v${currentVersion})`);
+    console.log('');
+    return;
+  }
+
+  // Show update available
+  logger.log('Update Available:', 'bright');
+  logger.log(`  Current: v${currentVersion}`, 'reset');
+  logger.log(`  Latest:  v${latestVersion}`, 'green');
+  console.log('');
+
+  // Prompt user
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  rl.question('Install update now? (Y/n): ', answer => {
+    rl.close();
+
+    const proceed = answer.trim().toLowerCase() !== 'n' && answer.trim().toLowerCase() !== 'no';
+
+    if (!proceed) {
+      logger.log('Update cancelled\n', 'reset');
+      return;
+    }
+
+    // Execute npm install
+    logger.log('\nInstalling update...\n', 'bright');
+
+    try {
+      execSync('npm install -g @vladimir-ks/claude-context-manager@latest', {
+        stdio: 'inherit'
+      });
+
+      console.log('');
+      logger.success(`CCM updated to v${latestVersion}`);
+      console.log('');
+    } catch (error) {
+      console.log('');
+      logger.error('Update failed');
+      console.log('');
+      logger.log('Error:', 'bright');
+      console.log(`  ${error.message}`);
+      console.log('');
+      logger.log('Try manually:', 'bright');
+      logger.log('  npm install -g @vladimir-ks/claude-context-manager@latest', 'cyan');
+      console.log('');
+      process.exit(1);
+    }
+  });
+}
+
+/**
  * Update command handler
  * @param {Array} args - Command line arguments
  */
 async function update(args) {
   try {
+    // No arguments = self-update CCM
+    if (args.length === 0) {
+      return await selfUpdate();
+    }
+
+    // Arguments provided = update artifacts (existing logic)
     const flags = parseFlags(args);
     validateFlags(flags);
 
