@@ -553,3 +553,50 @@ When designing an agent prompt, ensure it includes:
 - [ ] Error handling that produces valid reports even on failure
 
 By following these principles, you create agents that are reliable, predictable, and perfect citizens in an orchestrated system.
+
+## 8. When Specialists Load the Skill
+
+### 8.1. General Pattern
+
+**Default**: Specialists receive complete briefing from orchestrator and execute based on command prompt. They do NOT load skill or manuals.
+
+**Exception**: Specialists SHOULD load skill when they need workflow understanding.
+
+### 8.2. When to Load SKILL.md
+
+Specialists should load skill when needing:
+
+1. **Workflow Understanding** - Comprehensive view of multi-phase process
+2. **Positioning Context** - Understanding which phase they're in, what comes before/after
+3. **Output Purpose** - How their results feed the next agent in pipeline
+4. **Input Rationale** - Why they received specific inputs (what process created them)
+5. **Shared Principles** - Documentation quality standards, architecture patterns applicable across all agents
+
+### 8.3. When NOT to Load SKILL.md
+
+Specialists should NOT load skill when:
+
+- Briefing is complete and self-contained
+- Task is simple and isolated
+- Command prompt provides all necessary instructions
+- Loading skill would add unnecessary context overhead
+
+### 8.4. Guidance for Command/Agent Design
+
+**In Command Prompts**: Include "Optional Skill Load" section
+
+```markdown
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `[skill-name]/SKILL.md` if you need:
+- Workflow context (understanding where you fit in process)
+- How your report feeds downstream agents
+- Shared principles applicable to your task
+
+**Optional Reference Load**:
+- `reference-name.md` - When you need specialized knowledge
+```
+
+This approach balances efficiency (execute from briefing) with flexibility (load skill when context needed).
