@@ -11,6 +11,15 @@ module.exports = {
   // Test match patterns
   testMatch: ['**/tests/**/*.test.js', '**/tests/**/*.spec.js'],
 
+  // Ignore non-Jest test files (custom test runners)
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/tests/integration/', // Custom console-based tests
+    '/tests/unit/', // Custom console-based tests
+    '/tests/test-inquirer', // Interactive test files
+    '/tests/run-all.js' // Custom test runner
+  ],
+
   // Coverage directory
   coverageDirectory: 'coverage',
 
