@@ -45,6 +45,9 @@ async function list(args) {
     logger.progress('Loading catalog...');
     const cat = catalog.loadCatalog();
 
+    // Load package.json artifacts for version comparison
+    const packageArtifacts = catalog.loadPackageArtifacts();
+
     // Load registry to check installed status
     const globalInstalled = registry.getInstalledArtifacts('global');
     const globalInstalledNames = globalInstalled.map(a => a.name);
@@ -69,13 +72,29 @@ async function list(args) {
       if (freeSkills.length > 0) {
         logger.log('Skills:', 'bright');
         freeSkills.forEach(skill => {
-          const mark = globalInstalledNames.includes(skill.name) ? '✓' : ' ';
-          const installedText = globalInstalledNames.includes(skill.name)
-            ? '[INSTALLED globally]'
-            : '';
-          const color = mark === '✓' ? 'green' : 'reset';
+          const installedArtifact = globalInstalled.find(a => a.name === skill.name);
+          const packageMeta = packageArtifacts.skills[skill.name];
 
-          logger.log(`  ${mark} ${skill.name} (v${skill.version}) ${installedText}`, color);
+          let displayText;
+          let color;
+
+          if (installedArtifact) {
+            const installedVer = installedArtifact.version;
+            const availableVer = packageMeta?.version || skill.version;
+
+            if (installedVer !== availableVer) {
+              displayText = `  ✓ ${skill.name} [v${installedVer} → v${availableVer} available]`;
+              color = 'yellow';
+            } else {
+              displayText = `  ✓ ${skill.name} [v${installedVer} installed]`;
+              color = 'green';
+            }
+          } else {
+            displayText = `  • ${skill.name} (v${skill.version})`;
+            color = 'dim';
+          }
+
+          logger.log(displayText, color);
           console.log(`     ${skill.description}`);
         });
         console.log('');
@@ -85,13 +104,29 @@ async function list(args) {
       if (freeCommands.length > 0) {
         logger.log('Commands:', 'bright');
         freeCommands.forEach(cmd => {
-          const mark = globalInstalledNames.includes(cmd.name) ? '✓' : ' ';
-          const installedText = globalInstalledNames.includes(cmd.name)
-            ? '[INSTALLED globally]'
-            : '';
-          const color = mark === '✓' ? 'green' : 'reset';
+          const installedArtifact = globalInstalled.find(a => a.name === cmd.name);
+          const packageMeta = packageArtifacts.commands[cmd.name];
 
-          logger.log(`  ${mark} ${cmd.name} (v${cmd.version}) ${installedText}`, color);
+          let displayText;
+          let color;
+
+          if (installedArtifact) {
+            const installedVer = installedArtifact.version;
+            const availableVer = packageMeta?.version || cmd.version;
+
+            if (installedVer !== availableVer) {
+              displayText = `  ✓ ${cmd.name} [v${installedVer} → v${availableVer} available]`;
+              color = 'yellow';
+            } else {
+              displayText = `  ✓ ${cmd.name} [v${installedVer} installed]`;
+              color = 'green';
+            }
+          } else {
+            displayText = `  • ${cmd.name} (v${cmd.version})`;
+            color = 'dim';
+          }
+
+          logger.log(displayText, color);
           console.log(`     ${cmd.description}`);
         });
         console.log('');

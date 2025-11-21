@@ -252,6 +252,29 @@ function listByCategory(category) {
   );
 }
 
+/**
+ * Load package.json artifacts metadata
+ * @returns {Object} { skills: {...}, commands: {...} }
+ */
+function loadPackageArtifacts() {
+  try {
+    const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+
+    if (!fs.existsSync(packageJsonPath)) {
+      return { skills: {}, commands: {} };
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    return {
+      skills: packageJson.artifacts?.skills || {},
+      commands: packageJson.artifacts?.commands || {}
+    };
+  } catch (error) {
+    return { skills: {}, commands: {} };
+  }
+}
+
 // Export all functions
 module.exports = {
   loadFreeCatalog,
@@ -259,5 +282,6 @@ module.exports = {
   loadCatalog,
   searchArtifacts,
   getArtifact,
-  listByCategory
+  listByCategory,
+  loadPackageArtifacts
 };
