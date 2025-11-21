@@ -204,9 +204,9 @@ async function checkUpdates() {
 
 /**
  * Entry point
- * @param {Array} args - Command line arguments
+ * @param {Array} _args - Command line arguments (unused)
  */
-async function main(args) {
+async function main(_args) {
   await checkUpdates();
 }
 

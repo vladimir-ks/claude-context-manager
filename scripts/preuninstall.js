@@ -283,7 +283,7 @@ async function main() {
     const answer = await prompt('Your choice (1/2/3): ');
 
     switch (answer) {
-      case '1':
+      case '1': {
         // Remove all artifacts
         console.log('');
         log('Removing all artifacts...', 'bright');
@@ -307,6 +307,8 @@ async function main() {
 
         // Exit 0 - allow uninstall to proceed
         process.exit(0);
+        break; // eslint compliance (unreachable)
+      }
 
       case '2':
         // Proceed without removing artifacts
@@ -318,6 +320,7 @@ async function main() {
 
         // Exit 0 - allow uninstall to proceed
         process.exit(0);
+        break; // eslint compliance (unreachable)
 
       case '3':
         // Cancel uninstall
@@ -327,6 +330,7 @@ async function main() {
 
         // Exit 1 - block uninstall
         process.exit(1);
+        break; // eslint compliance (unreachable)
 
       default:
         // Invalid choice, cancel to be safe
