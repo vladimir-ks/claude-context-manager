@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, investigator, command-spec]
+  tldr: "Specification for investigate-doc command - analyzes individual files for bloat, contradictions, gaps, and dependencies"
+  dependencies: [../../manuals/investigate-doc.md, ../../SKILL.md]
+  command: /investigate-doc
+  last_updated: 2025-11-19
+---
+
 # Investigator Command Specification
 
 **Command**: `/investigate-doc`
 **Type**: Specialist task (solutions architect + tech writer)
 **Context**: Isolated task (launched by orchestrator)
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

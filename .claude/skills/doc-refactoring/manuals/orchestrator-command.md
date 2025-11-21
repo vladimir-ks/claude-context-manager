@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, orchestrator]
+  tldr: "Briefing guide for orchestrator command - explains complete 10-phase workflow, knowledge loading strategy, and session coordination patterns"
+  dependencies: [../SKILL.md]
+  for_command: /doc-refactoring-orchestrator
+  audience: "AI orchestrators loading this manual to brief the orchestrator command"
+  last_updated: 2025-11-19
+---
+
 # Orchestrator Command Manual
+
+**Audience**: For AI orchestrators and developers. This manual explains the complete doc-refactoring orchestration workflow.
+
+**Note**: The orchestrator command loads the skill and orchestrator-workflow reference at session start, then loads specialist manuals per-phase.
 
 ## Overview
 

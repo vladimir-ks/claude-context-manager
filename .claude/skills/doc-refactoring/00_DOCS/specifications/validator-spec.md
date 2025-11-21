@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, validator, command-spec]
+  tldr: "Specification for validate-user-feedback command - reviews user comments for contradictions, creates iterative versions (v2, v3) until all resolved"
+  dependencies: [../../manuals/validate-user-feedback.md, ../../SKILL.md]
+  command: /validate-user-feedback
+  last_updated: 2025-11-19
+---
+
 # Validator Command Specification
 
 **Command**: `/validate-user-feedback`
 **Type**: Specialist task (validation iteration)
 **Context**: Isolated task (launched by orchestrator)
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

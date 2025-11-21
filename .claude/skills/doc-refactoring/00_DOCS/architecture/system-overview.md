@@ -1,8 +1,14 @@
-# Documentation Refactoring System - System Overview
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, architecture, system-design]
+  tldr: "High-level system architecture for doc-refactoring skill with hierarchical orchestration, specialist commands, and progressive disclosure patterns"
+  dependencies: [../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - System Overview
 
 ## Purpose
 

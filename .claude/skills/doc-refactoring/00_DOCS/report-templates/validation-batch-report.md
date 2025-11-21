@@ -1,3 +1,14 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, templates, validation-batch-report]
+  tldr: "Template for post-refactoring validation reports - validates batches of 5-10 files for cross-references, contradictions, frontmatter, markdown syntax"
+  dependencies: [../../SKILL.md]
+  used_by: /validate-doc-batch
+  last_updated: 2025-11-19
+---
+
 # Validation Batch Report Template
 
 This template is used by `/validate-doc-batch` command to create post-refactoring validation reports for batches of 5-10 files.

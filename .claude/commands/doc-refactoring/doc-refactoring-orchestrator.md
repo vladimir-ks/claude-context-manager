@@ -29,6 +29,25 @@ Execute a 10-phase workflow that transforms documentation from bloated, inconsis
 
 ---
 
+## Progressive Loading
+
+**At session start, load**:
+1. `doc-refactoring/SKILL.md` - Workflow overview, agent positioning, documentation quality principles
+2. `doc-refactoring/references/orchestrator-workflow.md` - Git integration, session management, error handling patterns
+
+**Per-phase manual loading**:
+- Phase 3: `manuals/investigate-doc.md` before briefing investigators
+- Phase 5: `manuals/consolidate-reports.md` before briefing consolidator
+- Phase 7: `manuals/validate-user-feedback.md` before briefing validator
+- Phase 8: `manuals/refactor-doc.md` before briefing refactorers
+- Phase 9: `manuals/validate-doc-batch.md` before briefing batch validators
+
+**Optional references** (if troubleshooting):
+- Architecture docs in `00_DOCS/architecture/` (only if debugging complex issues)
+- Command specs in `00_DOCS/specifications/` (only if manual insufficient)
+
+---
+
 ## 10-Phase Workflow
 
 ### Phase 1: Pre-Flight Checks

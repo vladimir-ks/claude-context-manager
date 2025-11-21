@@ -1,3 +1,7 @@
+---
+description: Analyze individual documentation file for bloat, contradictions, gaps, and dependencies as Solutions Architect + Technical Writer
+---
+
 # Investigate Documentation File
 
 **Purpose**: Analyze individual documentation file for bloat, contradictions, gaps, and dependencies. Act as Solutions Architect + Technical Writer.
@@ -55,6 +59,33 @@ The orchestrator will provide:
 
 **Report Format**: Use template from doc-refactoring/report-templates/investigation-report.md
 ```
+
+---
+
+## Briefing Validation
+
+**Before executing, validate you received**:
+- ✓ Target file path
+- ✓ Session directory path
+- ✓ Foundational documents list
+- ✓ Other files in batch (for cross-reference discovery)
+
+**If briefing incomplete**: Return error JSON with missing fields.
+
+---
+
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `doc-refactoring/SKILL.md` if you need:
+- Workflow context (understanding where investigation fits in process)
+- How your report feeds consolidator and refactorer
+- Documentation quality principles (bloat patterns, contradiction types)
+
+**Optional Reference Load**:
+- `contradiction-detection.md` - If uncertain about contradiction patterns
+- `dependency-management.md` - If uncertain about dependency discovery patterns
 
 ---
 

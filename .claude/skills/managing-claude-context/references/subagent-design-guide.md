@@ -553,3 +553,159 @@ When designing an agent prompt, ensure it includes:
 - [ ] Error handling that produces valid reports even on failure
 
 By following these principles, you create agents that are reliable, predictable, and perfect citizens in an orchestrated system.
+
+## 8. When Specialists Load the Skill
+
+### 8.1. General Pattern
+
+**Default**: Specialists receive complete briefing from orchestrator and execute based on command prompt. They do NOT load skill or manuals.
+
+**Exception**: Specialists SHOULD load skill when they need workflow understanding.
+
+### 8.2. When to Load SKILL.md
+
+Specialists should load skill when needing:
+
+1. **Workflow Understanding** - Comprehensive view of multi-phase process
+2. **Positioning Context** - Understanding which phase they're in, what comes before/after
+3. **Output Purpose** - How their results feed the next agent in pipeline
+4. **Input Rationale** - Why they received specific inputs (what process created them)
+
+### 8.3. Examples
+
+**Load Skill** ✅:
+- Architecture designer: Needs to see how design fits in overall workflow
+- Integration specialist: Needs to understand dependencies between components
+- Report consolidator: Needs to understand how individual reports relate to whole
+- Complex orchestrator: Building multi-phase system, needs complete process view
+
+**Don't Load Skill** ❌:
+- Simple validator: Just executes validation, doesn't need workflow context
+- Formatter: Just formats output, doesn't need process understanding
+- File editor: Single focused task, no upstream/downstream dependencies
+
+### 8.4. Implementation Pattern
+
+In command/agent prompt, specify optional loading:
+
+```markdown
+## Phase 1: Context Loading (Optional)
+
+**Optional**: Load [skill-name] skill if you need to understand:
+- Your position in the [X]-phase workflow
+- How your output will be used by subsequent agents
+- Why you received these specific inputs
+
+**Then**: Proceed to Phase 2 (Briefing Validation)
+```
+
+**Progressive**: Agent starts minimal, loads skill only if workflow context helps their execution.
+
+### 8.5. Manuals vs Skill
+
+**Manuals** (for orchestrators):
+- Teach orchestrator HOW to brief specialist
+- Rarely loaded by specialists
+- Exception: In managing-claude-context, create/edit-command agent may read manual to understand command structure
+
+**Skill** (for workflow understanding):
+- Framework, philosophy, process overview
+- Loaded by orchestrator always (to coordinate)
+- Loaded by specialist optionally (for workflow context)
+
+## 9. References: Creation Guidelines
+
+### 9.1. The 2+ Agent Rule (CRITICAL)
+
+**Create reference ONLY if**:
+- Information used by 2 or more different agents, OR
+- Information needed by orchestrator + 1 specialist
+
+**Do NOT create reference if**:
+- Only 1 agent needs it → Put in command/agent prompt
+- It's agent-specific guidance → Put in command/agent prompt
+- It's orchestrator-specific → Put in manual
+
+**Rationale**: References add loading overhead. Only justify if shared across multiple agents.
+
+### 9.2. Examples of Good vs Bad References
+
+**✅ Good References** (shared knowledge):
+- Dependency discovery algorithm (used by investigator + refactorer)
+- Report format standards (used by all report-generating agents)
+- Contradiction detection patterns (used by investigator + validator)
+- User comment interpretation (used by validator + refactorer)
+
+**❌ Bad References** (agent-specific):
+- "How to investigate files" → Goes in /investigate-doc command
+- "How to brief investigators" → Goes in manual for orchestrator
+- "Investigation report template" → Goes in command or separate template file
+- "Consolidation logic" → Only consolidator needs it, goes in command
+
+### 9.3. Reference Structure
+
+**Content**:
+- Shared patterns/algorithms
+- Common decision trees
+- Reusable procedures
+- **Spartan tone** - Maximum clarity, minimum words
+- NOT comprehensive guides (those are in command prompts)
+
+**Format**:
+```markdown
+---
+metadata:
+  used_by: [/command-a, /command-b, /agent-c]
+  tldr: "One-sentence description"
+---
+
+# Reference Name
+
+**Load this if**: [Specific scenario when needed]
+
+## [Concise Section 1]
+[Spartan content - algorithm, decision tree, pattern]
+
+## [Concise Section 2]
+[More patterns]
+```
+
+**Length**: Aim for 50-150 lines. If longer, split or move to command prompts.
+
+### 9.4. Progressive Loading Pattern
+
+References enable true progressive disclosure:
+
+1. **Agent starts** with just briefing
+2. **If encounters X** → Loads reference-for-X.md
+3. **Completes task** with loaded knowledge
+
+**Example** (refactorer agent):
+```
+Start: Receive files to refactor
+→ If handling dependencies: Load references/dependency-management.md
+→ If processing user comments: Load references/user-comment-interpretation.md
+→ Complete refactoring with loaded context
+```
+
+### 9.5. Skill vs References Distinction
+
+**When skill serves orchestrator + specialists**:
+
+**SKILL.md contains**:
+- Workflow overview (all agents need this)
+- Process diagrams (shared understanding)
+- Agent positioning (how agents interact)
+- Shared principles (rules ALL agents follow)
+
+**References contain**:
+- Specialized algorithms (only some agents need)
+- Detailed procedures (load when executing specific task)
+- Edge case handling (load when uncertain)
+- Technical patterns (domain-specific knowledge)
+
+**Decision**: If all agents benefit from reading it → SKILL.md. If only 2-3 agents need it → Reference.
+
+---
+
+**End of Guide**

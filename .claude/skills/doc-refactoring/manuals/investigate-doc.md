@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, investigator]
+  tldr: "Briefing guide for investigate-doc command - provides templates, parallel execution patterns, and handling instructions for orchestrator"
+  dependencies: [../SKILL.md]
+  for_command: /investigate-doc
+  audience: "AI orchestrators loading this manual to brief investigator tasks"
+  last_updated: 2025-11-19
+---
+
 # Investigate-Doc Command Manual
+
+**Audience**: For AI orchestrators. This manual teaches you how to brief `/investigate-doc` specialist tasks.
+
+**Note**: Specialists may optionally load the skill for workflow context but execute primarily from your briefing.
 
 ## Overview
 

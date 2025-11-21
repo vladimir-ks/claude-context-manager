@@ -1,8 +1,14 @@
-# Documentation Refactoring System - Dependency Graph Planning
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, dependency-analysis, wave-planning]
+  tldr: "Algorithm and strategy for building file dependency graphs and planning refactoring waves based on investigator-discovered dependencies"
+  dependencies: [system-overview.md, ../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - Dependency Graph Planning
 
 ## Purpose
 

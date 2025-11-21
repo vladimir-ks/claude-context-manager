@@ -1,3 +1,14 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, templates, investigation-report]
+  tldr: "Template for investigation reports created by /investigate-doc command - includes bloat analysis, contradictions, dependencies, questions for user"
+  dependencies: [../../SKILL.md]
+  used_by: /investigate-doc
+  last_updated: 2025-11-19
+---
+
 # Investigation Report Template
 
 This template is used by `/investigate-doc` command to create detailed investigation reports for individual files.

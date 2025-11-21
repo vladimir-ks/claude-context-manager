@@ -348,7 +348,93 @@ The detailed instructions for how to use each of the commands listed above are l
 - **`manuals/create-edit-claude-md.md`**
 - **`manuals/setup-mcp-integration.md`**
 
-### 5.4. Architectural References
+### 5.4. References Strategy
+
+#### The 2+ Agent Rule (CRITICAL)
+
+**Create reference ONLY if:**
+- Information used by 2 or more different agents/commands, OR
+- Information needed by orchestrator + 1 specialist
+
+**Do NOT create reference if:**
+- Only 1 agent needs it → Put in command/agent prompt
+- Agent-specific guidance → Put in command/agent prompt
+- Orchestrator-specific → Put in manual
+
+**Rationale:** References add loading overhead. Only justify if shared across multiple agents.
+
+#### When to Create References
+
+**Valid scenarios:**
+1. **Shared Domain Knowledge** - Multiple agents need same background (e.g., "API authentication patterns" used by investigator + implementer + reviewer)
+2. **Cross-Agent Procedures** - Process used by different agents (e.g., "Report formatting guidelines" used by all agents)
+3. **Complex Algorithms** - Detailed logic too long for command prompts but needed by 2+ agents (e.g., "Dependency resolution algorithm" used by planner + implementer)
+
+**Invalid scenarios:**
+1. **Agent-Specific Instructions** - Only one agent needs it (put in agent prompt)
+2. **Orchestrator-Only Guidance** - How to use an agent (put in manual)
+3. **Simple Procedures** - Can be explained in 2-3 sentences (put inline)
+
+#### Reference Structure (Spartan Tone)
+
+References should be CONCISE and ACTION-ORIENTED:
+
+**Template:**
+```markdown
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [relevant-modules]
+  tldr: "One-sentence summary"
+  used_by: [agent1, agent2, command1]
+---
+
+# Reference Title
+
+## Core Concept
+[2-3 sentences explaining WHAT this is]
+
+## When to Use
+- Scenario 1
+- Scenario 2
+
+## How to Apply
+1. Step 1 (action-oriented)
+2. Step 2 (action-oriented)
+
+## Common Issues
+- Issue: [brief description] → Solution: [brief action]
+```
+
+**Tone Requirements:**
+- Maximum clarity, minimum words
+- Action verbs ("Check", "Validate", "Flag")
+- Bullet points over paragraphs
+- Examples over explanations
+- NO bloat, NO redundancy
+
+#### Progressive Loading Pattern
+
+**Always-Loaded (Minimal):**
+- SKILL.md (framework + router)
+- Manuals (orchestrator reads before delegating)
+
+**Load On-Demand (References):**
+- Specialists load references when:
+  1. Encountering uncertainty (edge cases)
+  2. Needing specialized algorithms
+  3. Requiring shared domain knowledge
+  4. Validating complex patterns
+
+**Example Flow:**
+1. Orchestrator loads skill + manual
+2. Orchestrator briefs specialist
+3. Specialist executes
+4. IF specialist uncertain → Load specific reference
+5. Specialist completes with reference guidance
+
+### 5.5. Architectural References
 
 The following documents contain the core principles and philosophies that underpin this entire context engineering framework. An agent should load these on-demand to inform its work.
 
@@ -363,7 +449,7 @@ The following documents contain the core principles and philosophies that underp
 - **`references/parallel-execution.md`** - Guide to understanding and implementing parallel execution patterns for orchestrators.
 - **`references/mcp-server-context.md`**: Architectures for advanced tool isolation and context efficiency with MCP.
 
-#### 5.4.1. Context Architecture Series
+#### 5.5.1. Context Architecture Series
 
 This series of documents provides a deep dive into the `context-architecture` command's workflow.
 
@@ -377,7 +463,7 @@ This series of documents provides a deep dive into the `context-architecture` co
 - **`references/context-architecture-deliverables-phase3.md`**: List of deliverables for the specifications phase.
 - **`references/context-architecture-deliverables-phase4.md`**: List of deliverables for the validation phase.
 
-### 5.5. Scalability: Engineered for Maximum Speed
+### 5.6. Scalability: Engineered for Maximum Speed
 
 - **Core Principle**: Launch as many parallel agents as the task allows. Optimize for speed and throughput, not cost. The primary goal of planning and agent engineering is effective collision avoidance to enable this parallelism.
 - **Execution Strategy**:
@@ -413,6 +499,64 @@ For comprehensive guidelines on what to include in each layer, see `references/c
 - **Skill `references/*.md` (Detailed Guides)**: These provide the deep, procedural knowledge (e.g., `how-to-prompt-commands.md`, `report-contracts.md`). They are loaded on-demand via progressive disclosure.
 - **Subagent (`.claude/agents/*.md`)**: Contains minimal YAML frontmatter for discovery and a detailed system prompt that serves as the agent's complete operating charter.
 - **Orchestration Manuals (`orchestrating-subagents/manuals/*.md`)**: Reside in the `orchestrating-subagents` skill. These manuals teach the orchestrator **how to delegate** to a specific agent for task execution, while the agent's system prompt teaches it **how to execute**. This separation is critical to avoid context duplication. Manuals for *creating* artifacts, however, reside within this skill.
+
+#### 6.2.1. SKILL.md Structure Guidelines
+
+SKILL.md files must serve multiple audiences: orchestrators (coordination), specialists (workflow understanding), and human users (documentation). Structure must balance comprehensiveness with scannability.
+
+**Core Sections (Required):**
+
+1. **Frontmatter** - YAML metadata with status, version, modules, tldr, dependencies, audience
+2. **Philosophy & Principles** - High-level framework (1-2 sections)
+3. **Workflow Overview** - Complete process with Mermaid diagram (if complex)
+4. **Agent Positioning** - Where each specialist fits in the workflow
+5. **Core Commands/Operations** - What tools/commands are available
+6. **References Directory** - List of on-demand knowledge (with descriptions)
+
+**Multi-Audience Writing:**
+
+- **For Orchestrators**: Scannable section headers, high-level workflow overview, clear command catalog, minimal deep-dive content in main file
+- **For Specialists**: Workflow context (what comes before/after their work), agent positioning (where they fit), output purpose (how their work feeds next agent), optional references for edge cases
+- **For Humans**: Point to QUICK_START.md in frontmatter `audience` field, keep SKILL.md technical and AI-focused
+
+**When to Add Mermaid Diagrams:**
+
+**Required for:**
+- Multi-phase workflows (3+ sequential phases)
+- Complex orchestration patterns (waves, dependencies)
+- Agent interaction flows (multiple agents communicating)
+
+**Diagram Types:**
+- **Sequence diagrams**: Agent-to-agent workflows, orchestrator delegation patterns, report passing between phases
+- **Flowcharts**: Decision trees, conditional branching, state transitions
+
+**Diagram Guidelines:**
+- High-level only (no implementation details)
+- Vertical orientation (TB/TD)
+- Concise labels (3-5 words max)
+
+**Agent Positioning Section:**
+
+Include a section that helps specialists understand workflow context. Shows which phase they execute in, what inputs they receive (and where from), what outputs they produce (and where to), and what comes before/after their work.
+
+**Example:**
+```markdown
+## Agent Positioning
+
+**Phase 3: Investigation** - `/investigate-doc` specialist
+- Receives: File path, foundational docs references
+- Executes: Deep content analysis, bloat detection
+- Produces: Investigation report
+- Feeds: Consolidator (Phase 5)
+
+**Phase 5: Consolidation** - `/consolidate-reports` specialist
+- Receives: All investigation reports
+- Executes: Aggregation, summarization
+- Produces: Consolidated report (v1)
+- Feeds: User review, then validator (Phase 7)
+```
+
+This positioning helps specialists: understand workflow context without reading entire skill, know what quality/format their inputs will be, format outputs appropriately for downstream consumers, and optionally load skill when needing deeper workflow understanding.
 
 ### 6.3. Manual-Driven Progressive Disclosure
 

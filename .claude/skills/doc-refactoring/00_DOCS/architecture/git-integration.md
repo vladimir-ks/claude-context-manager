@@ -1,8 +1,14 @@
-# Documentation Refactoring System - Git Integration
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, git-workflow, version-control]
+  tldr: "Git workflow specification for documentation refactoring including branching strategy, commit patterns, diff generation, and rollback procedures"
+  dependencies: [system-overview.md, ../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - Git Integration
 
 ## Purpose
 

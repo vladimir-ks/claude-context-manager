@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, consistency-validator, command-spec]
+  tldr: "Specification for validate-doc-batch command - post-refactoring validation of 5-10 files for cross-references, contradictions, frontmatter, and markdown syntax"
+  dependencies: [../../manuals/validate-doc-batch.md, ../../SKILL.md]
+  command: /validate-doc-batch
+  last_updated: 2025-11-19
+---
+
 # Consistency Validator Command Specification
 
 **Command**: `/validate-doc-batch`
 **Type**: Specialist task (post-refactoring validation)
 **Context**: Isolated task (launched by orchestrator)
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

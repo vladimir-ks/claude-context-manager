@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, consolidator, command-spec]
+  tldr: "Specification for consolidate-reports command - aggregates investigation reports, deduplicates cross-cutting questions, creates user-facing summary"
+  dependencies: [../../manuals/consolidate-reports.md, ../../SKILL.md]
+  command: /consolidate-reports
+  last_updated: 2025-11-19
+---
+
 # Consolidator Command Specification
 
 **Command**: `/consolidate-reports`
 **Type**: Specialist task (report aggregation)
 **Context**: Isolated task (launched by orchestrator)
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

@@ -1,3 +1,14 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, templates, final-session-report]
+  tldr: "Template for final session report - complete summary with git commands, metrics, validation results, and user decision options"
+  dependencies: [../../SKILL.md]
+  used_by: /doc-refactoring-orchestrator
+  last_updated: 2025-11-19
+---
+
 # Final Session Report Template
 
 This template is used by the orchestrator to create the final session report after all refactoring and validation is complete.

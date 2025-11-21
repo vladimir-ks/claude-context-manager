@@ -1,3 +1,7 @@
+---
+description: Aggregate all investigation reports into a single user-friendly summary with deduplication and prioritization of questions
+---
+
 # Consolidate Investigation Reports
 
 **Purpose**: Aggregate all investigation reports into a single user-friendly summary with deduplication and prioritization.
@@ -99,6 +103,31 @@ The orchestrator will provide the complete briefing in the Task prompt parameter
 
 **Report Format**: Use template from doc-refactoring/report-templates/consolidated-report.md
 ```
+
+---
+
+## Briefing Validation
+
+**Before executing, validate you received**:
+- ✓ Session directory path
+- ✓ Investigation reports list
+- ✓ Total reports count
+- ✓ Version number
+
+**If briefing incomplete**: Return error JSON with missing fields.
+
+---
+
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `doc-refactoring/SKILL.md` if you need:
+- Workflow context (understanding validation iteration loop)
+- How your consolidated report feeds user review and validator
+- Documentation quality principles (question categorization patterns)
+
+**Optional Reference Load**: None typically needed (consolidation is straightforward aggregation).
 
 ---
 

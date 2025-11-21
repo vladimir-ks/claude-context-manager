@@ -1,3 +1,14 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, templates, consolidated-report]
+  tldr: "Template for consolidated summaries - aggregates investigation reports, deduplicates questions, iterative versioning (v1, v2, v3)"
+  dependencies: [../../SKILL.md]
+  used_by: [/consolidate-reports, /validate-user-feedback]
+  last_updated: 2025-11-19
+---
+
 # Consolidated Summary Report Template
 
 This template is used by `/consolidate-reports` and `/validate-user-feedback` commands to create consolidated summaries for user review.

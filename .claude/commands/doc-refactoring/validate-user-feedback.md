@@ -1,3 +1,7 @@
+---
+description: Validate user comments for contradictions and completeness, create iterative follow-up reports (v2, v3) if issues found
+---
+
 # Validate User Feedback
 
 **Purpose**: Validate user comments from consolidated summary and investigation reports, detect contradictions, create follow-up reports if issues found.
@@ -60,6 +64,33 @@ The orchestrator will provide:
 
 **Report Format**: Use template from doc-refactoring/report-templates/consolidated-report.md
 ```
+
+---
+
+## Briefing Validation
+
+**Before executing, validate you received**:
+- ✓ Consolidated summary path (with user comments)
+- ✓ Investigation reports list
+- ✓ Session directory path
+- ✓ Foundational documents list
+- ✓ Current version number
+
+**If briefing incomplete**: Return error JSON with missing fields.
+
+---
+
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `doc-refactoring/SKILL.md` if you need:
+- Workflow context (understanding validation iteration loop pattern)
+- How your validation feeds refactoring or creates new consolidated version
+- Documentation quality principles (contradiction resolution patterns)
+
+**Optional Reference Load**:
+- `user-comment-interpretation.md` - Parsing user comment syntax, handling ambiguous instructions
 
 ---
 

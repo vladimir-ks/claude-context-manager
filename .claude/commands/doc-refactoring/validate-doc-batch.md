@@ -1,3 +1,7 @@
+---
+description: Post-refactoring validation of 5-10 files for cross-references, contradictions, frontmatter integrity, and markdown syntax
+---
+
 # Validate Documentation Batch
 
 **Purpose**: Post-refactoring validation of documentation batch (5-10 files) for cross-references, contradictions, frontmatter integrity, and markdown syntax.
@@ -64,6 +68,33 @@ The orchestrator will provide:
 
 **Report Format**: Use template from doc-refactoring/report-templates/validation-batch-report.md
 ```
+
+---
+
+## Briefing Validation
+
+**Before executing, validate you received**:
+- ✓ Batch files list (5-10 refactored files)
+- ✓ Session directory path
+- ✓ Foundational documents list
+- ✓ All refactored files in session (for cross-reference validation)
+- ✓ Batch ID
+
+**If briefing incomplete**: Return error JSON with missing fields.
+
+---
+
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `doc-refactoring/SKILL.md` if you need:
+- Workflow context (understanding post-refactoring validation requirements)
+- Issue prioritization patterns (critical/high/medium/low)
+- Documentation quality principles (validation patterns)
+
+**Optional Reference Load**:
+- `contradiction-detection.md` - Detecting new contradictions introduced during refactoring
 
 ---
 

@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, refactor, command-spec]
+  tldr: "Specification for refactor-doc command - applies user-approved changes to 1-3 files, removes bloat, resolves contradictions, updates cross-references"
+  dependencies: [../../manuals/refactor-doc.md, ../../SKILL.md]
+  command: /refactor-doc
+  last_updated: 2025-11-19
+---
+
 # Refactor Command Specification
 
 **Command**: `/refactor-doc`
 **Type**: Specialist task (document refactoring)
 **Context**: Isolated task (launched by orchestrator)
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

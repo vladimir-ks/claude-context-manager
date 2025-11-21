@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, validator]
+  tldr: "Briefing guide for validate-user-feedback command - validates user comments for contradictions, creates iterative versions (v2, v3) if issues found"
+  dependencies: [../SKILL.md]
+  for_command: /validate-user-feedback
+  audience: "AI orchestrators loading this manual to brief the validator task"
+  last_updated: 2025-11-19
+---
+
 # Validate-User-Feedback Command Manual
+
+**Audience**: For AI orchestrators. This manual teaches you how to brief `/validate-user-feedback` specialist tasks.
+
+**Note**: Specialists may optionally load the skill for workflow context but execute primarily from your briefing.
 
 ## Overview
 

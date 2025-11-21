@@ -1,3 +1,13 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, user-guide]
+  tldr: "Comprehensive user guide for the doc-refactoring skill with workflows, examples, troubleshooting, and best practices"
+  dependencies: [SKILL.md]
+  audience: "Human users (Product Owners, Project Managers, Developers) using the doc-refactoring skill"
+---
+
 # Documentation Refactoring - Quick Start Guide
 
 **For Users:** This guide shows you how to use the doc-refactoring skill to systematically review, analyze, and refactor your project documentation.

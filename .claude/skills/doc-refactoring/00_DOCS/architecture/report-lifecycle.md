@@ -1,8 +1,14 @@
-# Documentation Refactoring System - Report Lifecycle
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, reporting, lifecycle-management]
+  tldr: "Complete lifecycle specification of reports from creation through consumption, iteration, and archiving for all report types in the system"
+  dependencies: [system-overview.md, ../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - Report Lifecycle
 
 ## Purpose
 

@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, refactor]
+  tldr: "Briefing guide for refactor-doc command - applies user-approved changes to 1-3 files per bundle, wave-based execution, dependency-aware"
+  dependencies: [../SKILL.md]
+  for_command: /refactor-doc
+  audience: "AI orchestrators loading this manual to brief refactorer tasks"
+  last_updated: 2025-11-19
+---
+
 # Refactor-Doc Command Manual
+
+**Audience**: For AI orchestrators. This manual teaches you how to brief `/refactor-doc` specialist tasks.
+
+**Note**: Specialists may optionally load the skill for workflow context but execute primarily from your briefing.
 
 ## Overview
 

@@ -1,3 +1,7 @@
+---
+description: Apply user-approved refactoring changes to 1-3 documentation files - remove bloat, resolve contradictions, update cross-references
+---
+
 # Refactor Documentation Files
 
 **Purpose**: Apply approved refactoring changes to 1-3 documentation files based on investigation recommendations and user decisions.
@@ -73,6 +77,34 @@ The orchestrator will provide:
 
 **Report Format**: N/A (no report file, just JSON response)
 ```
+
+---
+
+## Briefing Validation
+
+**Before executing, validate you received**:
+- ✓ Files to refactor list (1-3 files)
+- ✓ Consolidated summaries (all versions)
+- ✓ Investigation reports for assigned files
+- ✓ Session directory path
+- ✓ Wave number
+
+**If briefing incomplete**: Return error JSON with missing fields.
+
+---
+
+## Progressive Loading
+
+**Default**: Execute from briefing only (all information provided).
+
+**Optional Skill Load**: Load `doc-refactoring/SKILL.md` if you need:
+- Workflow context (understanding wave-based execution pattern)
+- How dependency graph determines refactoring order
+- Documentation quality principles (cross-reference management, bloat patterns)
+
+**Optional Reference Load**:
+- `dependency-management.md` - Updating cross-references when dependencies change
+- `user-comment-interpretation.md` - Parsing user instructions and applying changes
 
 ---
 

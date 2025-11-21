@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, consolidator]
+  tldr: "Briefing guide for consolidate-reports command - aggregates investigation reports, deduplicates cross-cutting questions, creates user-facing summary"
+  dependencies: [../SKILL.md]
+  for_command: /consolidate-reports
+  audience: "AI orchestrators loading this manual to brief the consolidator task"
+  last_updated: 2025-11-19
+---
+
 # Consolidate-Reports Command Manual
+
+**Audience**: For AI orchestrators. This manual teaches you how to brief `/consolidate-reports` specialist tasks.
+
+**Note**: Specialists may optionally load the skill for workflow context but execute primarily from your briefing.
 
 ## Overview
 

@@ -1,4 +1,20 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, manuals, batch-validator]
+  tldr: "Briefing guide for validate-doc-batch command - post-refactoring validation of 5-10 files per batch, parallel execution"
+  dependencies: [../SKILL.md]
+  for_command: /validate-doc-batch
+  audience: "AI orchestrators loading this manual to brief batch validator tasks"
+  last_updated: 2025-11-19
+---
+
 # Validate-Doc-Batch Command Manual
+
+**Audience**: For AI orchestrators. This manual teaches you how to brief `/validate-doc-batch` specialist tasks.
+
+**Note**: Specialists may optionally load the skill for workflow context but execute primarily from your briefing.
 
 ## Overview
 

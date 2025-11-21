@@ -1,10 +1,19 @@
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, orchestrator, command-spec]
+  tldr: "Specification for orchestrator command - main entry point coordinating all 10 phases from pre-flight to finalization in main chat context"
+  dependencies: [../../manuals/orchestrator-command.md, ../../SKILL.md]
+  command: /doc-refactoring-orchestrator
+  last_updated: 2025-11-19
+---
+
 # Orchestrator Command Specification
 
 **Command**: `/doc-refactoring-orchestrator`
 **Type**: Main entry point (user-facing slash command)
 **Context**: Runs in main chat
-**Version**: 1.0
-**Last Updated**: 2025-11-19
 
 ## Purpose
 

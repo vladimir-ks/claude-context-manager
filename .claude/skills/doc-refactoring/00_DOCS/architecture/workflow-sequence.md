@@ -1,8 +1,14 @@
-# Documentation Refactoring System - Workflow Sequence
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, workflow, orchestration]
+  tldr: "Detailed workflow sequences with mermaid diagrams for the complete 10-phase documentation refactoring process"
+  dependencies: [system-overview.md, ../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - Workflow Sequence
 
 ## Overview
 

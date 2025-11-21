@@ -1,8 +1,14 @@
-# Documentation Refactoring System - Session State Tracking
+---
+metadata:
+  status: APPROVED
+  version: 1.0
+  modules: [doc-refactoring, session-management, restart-capability]
+  tldr: "Session state tracking mechanism enabling restart capability, progress monitoring, and complete audit trails via session_state.json and refactoring_plan.json"
+  dependencies: [system-overview.md, ../../SKILL.md]
+  last_updated: 2025-11-19
+---
 
-**Version**: 1.0
-**Status**: Specification
-**Last Updated**: 2025-11-19
+# Documentation Refactoring System - Session State Tracking
 
 ## Purpose
 
