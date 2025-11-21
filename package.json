@@ -88,7 +88,7 @@
   },
   "dependencies": {
     "@inquirer/checkbox": "^3.0.1",
-    "@inquirer/confirm": "^4.0.1",
+    "@inquirer/confirm": "^6.0.1",
     "@inquirer/select": "^3.0.1",
     "@inquirer/input": "^3.0.1"
   },
