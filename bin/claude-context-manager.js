@@ -20,6 +20,7 @@ const statusCmd = require('../src/commands/status');
 const initCmd = require('../src/commands/init');
 const searchCmd = require('../src/commands/search');
 const updateCmd = require('../src/commands/update');
+const updateCheckCmd = require('../src/commands/update-check');
 const removeCmd = require('../src/commands/remove');
 const uninstallCmd = require('../src/commands/uninstall');
 const restoreCmd = require('../src/commands/restore');
@@ -28,7 +29,7 @@ const activateCmd = require('../src/commands/activate');
 const feedbackCmd = require('../src/commands/feedback');
 const notificationsCmd = require('../src/commands/notifications');
 
-const VERSION = '0.3.8';
+const VERSION = '0.4.0';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
 const _CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
@@ -70,6 +71,7 @@ function showHelp() {
   console.log('  install, i            Install artifact(s) - interactive mode available');
   console.log('  uninstall, un         Uninstall artifact(s) - interactive mode available');
   console.log('  update, up            Update installed artifacts');
+  console.log('  update-check          Check for artifact version updates');
   console.log('  restore               Restore artifact from backup - interactive mode');
   console.log('  cleanup               Manage and clean up old backups - interactive mode');
   console.log('  status, st            Show installation status');
@@ -254,6 +256,10 @@ async function main() {
       case 'update':
       case 'up':
         await updateCmd.update(commandArgs);
+        break;
+
+      case 'update-check':
+        await updateCheckCmd.main(commandArgs);
         break;
 
       case 'status':

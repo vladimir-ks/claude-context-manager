@@ -77,6 +77,12 @@ jobs:
           npm run test:coverage
           echo "✅ Coverage meets requirements"
 
+      - name: Check artifact checksums
+        run: |
+          echo "Checking artifact checksums..."
+          node scripts/check-artifact-changes.js
+          echo "✅ All artifact checksums match"
+
       - name: Summary
         run: |
           echo "✅ Development validation passed!"

@@ -220,7 +220,43 @@ When working in this repository, AI agents should:
 
 **Note:** `staging` branch exists for future 3-stage workflow but is currently dormant.
 
-### Commit Guidelines
+### ⚠️ CRITICAL: Commit Management Protocol
+
+**DO NOT create git commits directly using `git commit` commands.**
+
+**ALWAYS use `/ccm-change-logger` command to handle commits.**
+
+**Why:**
+
+- Enforces consistent commit message format
+- Automatically updates CHANGELOG.md with user-focused content
+- Delegates artifact versioning to `/ccm-artifact-package-manager`
+- Creates logical semantic commits grouped by purpose
+- Maintains proper separation between detailed commits and concise changelog
+
+**Workflow:**
+
+```
+1. Complete your work (edits, new files, etc.)
+2. DO NOT run git commit
+3. Invoke: /ccm-change-logger
+4. The command will:
+   - Detect and categorize all changes
+   - Create logical commits with detailed messages
+   - Update CHANGELOG.md with concise user-focused content
+   - Coordinate with artifact package manager if needed
+   - Push to dev branch
+```
+
+**Exception:** Only create manual commits if:
+
+- `/ccm-change-logger` command fails or is unavailable
+- Emergency hotfix requiring immediate commit
+- User explicitly requests manual commit
+
+In these cases, follow the commit guidelines below.
+
+### Commit Guidelines (for manual commits only)
 
 **Format:**
 
@@ -254,25 +290,13 @@ cross-reference checking, content validation, and integration tests.
 Files changed: 1 file
 ```
 
-### When to Commit
-
-- After completing a logical unit of work
-- After validating changes manually
-- Before switching to different task
-- When artifact creation/update is complete
-
-### When to Push
-
-- After each commit (keep remote in sync)
-- Before ending work session
-- After completing major milestones
-
 ### Best Practices
 
 - Read files before editing
 - Test changes before committing
-- Update CHANGELOG.md for significant changes
-- Update ARTIFACT_CATALOG.md when adding artifacts
+- Use `/ccm-change-logger` for all commits (enforced)
+- Never bypass the change logger unless exception applies
+- Update ARTIFACT_CATALOG.md when adding artifacts manually (if not using artifact manager)
 
 ## Using the managing-claude-context Skill
 

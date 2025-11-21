@@ -260,6 +260,53 @@ async function interactiveUninstall() {
       }
     }
 
+    // Check for backups and offer to remove them
+    if (uninstalledCount > 0) {
+      console.log('');
+      const artifactNames = uninstallPlan.map(plan => plan.name);
+      const backupCounts = backupManager.listBackupsForArtifacts(artifactNames);
+
+      // Filter artifacts that have backups
+      const artifactsWithBackups = artifactNames.filter(name => backupCounts[name] > 0);
+
+      if (artifactsWithBackups.length > 0) {
+        logger.log('Backups found for uninstalled artifacts:\n', 'yellow');
+        artifactsWithBackups.forEach(name => {
+          const count = backupCounts[name];
+          logger.log(`  • ${name}: ${count} backup(s)`, 'cyan');
+        });
+        console.log('');
+
+        const removeBackups = await menu.confirmAction(
+          'Would you also like to remove these backups?',
+          false
+        );
+
+        if (removeBackups) {
+          console.log('');
+          logger.log('Removing backups...\n', 'yellow');
+
+          const removeResults = backupManager.removeBackupsForArtifacts(artifactsWithBackups);
+
+          if (removeResults.removed.length > 0) {
+            logger.success(`✓ Removed backups for ${removeResults.removed.length} artifact(s)`);
+          }
+
+          if (removeResults.failed.length > 0) {
+            logger.warn(
+              `⚠ Failed to remove backups for ${removeResults.failed.length} artifact(s)`
+            );
+            removeResults.failed.forEach(failure => {
+              logger.warn(`  • ${failure.artifact}: ${failure.error}`);
+            });
+          }
+        } else {
+          logger.info('Backups retained in ~/.claude-context-manager/backups/');
+        }
+        console.log('');
+      }
+    }
+
     // Show completion summary
     console.log('');
     logger.log('═══════════════════════════════════════════════════════', 'cyan');
@@ -267,7 +314,6 @@ async function interactiveUninstall() {
     if (uninstalledCount > 0) {
       logger.log('✓ Uninstall Complete!', 'green');
       logger.log(`  ${uninstalledCount} artifact(s) removed successfully`, 'green');
-      logger.info('  Backups created in ~/.claude-context-manager/backups/');
     }
 
     if (failedCount > 0) {
