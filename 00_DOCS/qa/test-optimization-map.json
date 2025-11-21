@@ -1,0 +1,252 @@
+{
+  "version": "0.4.0",
+  "generated": "2025-11-21T20:00:00Z",
+  "from_version": "0.3.8",
+  "to_version": "0.4.0",
+  "changed_files": [
+    "src/commands/update-check.js",
+    "src/commands/uninstall.js",
+    "src/lib/backup-manager.js",
+    "src/lib/sync-engine.js",
+    "scripts/postinstall.js",
+    "scripts/preuninstall.js",
+    "bin/claude-context-manager.js",
+    ".claude/commands/ccm-artifact-package-manager.md",
+    ".claude/commands/ccm-change-logger.md",
+    ".claude/commands/ccm-prepare-test-scenarios.md",
+    ".claude/commands/ccm-run-test-stage.md",
+    ".claude/commands/ccm-test-deployment.md",
+    ".claude/commands/doc-refactoring/*.md",
+    ".claude/skills/doc-refactoring/**/*",
+    ".claude/skills/managing-claude-context/SKILL.md",
+    ".claude/skills/managing-claude-context/references/subagent-design-guide.md"
+  ],
+  "changed_components": {
+    "cli_commands": [
+      "update-check.js (NEW)",
+      "uninstall.js"
+    ],
+    "library_modules": [
+      "backup-manager.js",
+      "sync-engine.js"
+    ],
+    "scripts": [
+      "postinstall.js",
+      "preuninstall.js (NEW)",
+      "check-artifact-changes.js (NEW - CI/CD only)"
+    ],
+    "artifacts": [
+      "5 new QA commands",
+      "doc-refactoring skill (extensive updates)",
+      "managing-claude-context skill (minor updates)"
+    ],
+    "entry_point": true
+  },
+  "file_to_scenario_map": {
+    "src/commands/update-check.js": [
+      "stage-2.6-update-workflows",
+      "stage-2.7-feedback-and-notifications"
+    ],
+    "src/commands/uninstall.js": [
+      "stage-1-install-uninstall-update",
+      "stage-2.10-multi-location-tracking"
+    ],
+    "src/lib/backup-manager.js": [
+      "stage-2.3-backup-and-restore"
+    ],
+    "src/lib/sync-engine.js": [
+      "stage-1-install-uninstall-update",
+      "stage-2.5-ccm-file-sync-validation"
+    ],
+    "scripts/postinstall.js": [
+      "stage-1-install-uninstall-update",
+      "stage-2.5-ccm-file-sync-validation"
+    ],
+    "scripts/preuninstall.js": [
+      "stage-1-install-uninstall-update"
+    ],
+    "bin/claude-context-manager.js": [
+      "stage-1-install-uninstall-update",
+      "stage-2.9-error-handling-validation"
+    ],
+    ".claude/commands/*.md": [
+      "stage-2.4-artifact-installation-flows"
+    ],
+    ".claude/skills/doc-refactoring/**": [
+      "stage-2.4-artifact-installation-flows"
+    ],
+    ".claude/skills/managing-claude-context/**": [
+      "stage-2.4-artifact-installation-flows"
+    ]
+  },
+  "required_scenarios": [
+    {
+      "id": "stage-1-install-uninstall-update",
+      "reason": "Changed: uninstall.js, sync-engine.js, postinstall.js, preuninstall.js (NEW), bin/claude-context-manager.js",
+      "priority": "critical",
+      "changed_files_count": 5
+    },
+    {
+      "id": "stage-2.3-backup-and-restore",
+      "reason": "Changed: backup-manager.js (enhanced dual detection system)",
+      "priority": "high",
+      "changed_files_count": 1
+    },
+    {
+      "id": "stage-2.4-artifact-installation-flows",
+      "reason": "Changed: 5 new QA commands, doc-refactoring skill (extensive), managing-claude-context skill",
+      "priority": "high",
+      "changed_files_count": 3
+    },
+    {
+      "id": "stage-2.5-ccm-file-sync-validation",
+      "reason": "Changed: sync-engine.js, postinstall.js",
+      "priority": "high",
+      "changed_files_count": 2
+    },
+    {
+      "id": "stage-2.6-update-workflows",
+      "reason": "Changed: update-check.js (NEW)",
+      "priority": "high",
+      "changed_files_count": 1
+    },
+    {
+      "id": "stage-2.7-feedback-and-notifications",
+      "reason": "Changed: update-check.js (NEW)",
+      "priority": "high",
+      "changed_files_count": 1
+    },
+    {
+      "id": "stage-2.9-error-handling-validation",
+      "reason": "Changed: bin/claude-context-manager.js (entry point)",
+      "priority": "high",
+      "changed_files_count": 1
+    },
+    {
+      "id": "stage-2.10-multi-location-tracking",
+      "reason": "Changed: uninstall.js",
+      "priority": "high",
+      "changed_files_count": 1
+    }
+  ],
+  "optional_scenarios": [
+    {
+      "id": "stage-2.1-list-and-search",
+      "reason": "No changes to list/search functionality",
+      "priority": "low"
+    },
+    {
+      "id": "stage-2.2-status-reporting",
+      "reason": "No changes to status reporting functionality",
+      "priority": "low"
+    },
+    {
+      "id": "stage-2.8-project-initialization",
+      "reason": "No changes to init functionality",
+      "priority": "low"
+    }
+  ],
+  "recommendation": "Run 8 required scenarios (1 sequential + 7 parallel) for comprehensive regression testing. Skip 3 optional scenarios with no related changes. Estimated time: 60 minutes vs 120 minutes for full test suite.",
+  "test_strategy": {
+    "mode": "focused",
+    "stages_to_run": [1, 2],
+    "scenarios_to_run": [
+      "stage-1-install-uninstall-update",
+      "stage-2.3-backup-restore",
+      "stage-2.4-artifact-installation",
+      "stage-2.5-ccm-file-sync",
+      "stage-2.6-update-workflows",
+      "stage-2.7-feedback-notifications",
+      "stage-2.9-error-handling",
+      "stage-2.10-multi-location"
+    ],
+    "estimated_time_minutes": 60,
+    "estimated_time_full_minutes": 120,
+    "coverage_percentage": 73
+  },
+  "new_features": [
+    {
+      "feature": "update-check CLI command",
+      "file": "src/commands/update-check.js",
+      "scenarios_added": [],
+      "scenarios_updated": [
+        "stage-2.6-update-workflows",
+        "stage-2.7-feedback-and-notifications"
+      ],
+      "notes": "New command for checking package updates, covered by existing scenarios"
+    },
+    {
+      "feature": "preuninstall hook script",
+      "file": "scripts/preuninstall.js",
+      "scenarios_added": [],
+      "scenarios_updated": [
+        "stage-1-install-uninstall-update"
+      ],
+      "notes": "New lifecycle hook, covered by existing install-uninstall scenario"
+    },
+    {
+      "feature": "Enhanced backup system with dual detection",
+      "file": "src/lib/backup-manager.js",
+      "scenarios_added": [],
+      "scenarios_updated": [
+        "stage-2.3-backup-and-restore"
+      ],
+      "notes": "Improved checksum + mtime detection, already documented in scenario"
+    },
+    {
+      "feature": "Five new QA orchestration commands",
+      "files": [
+        ".claude/commands/ccm-artifact-package-manager.md",
+        ".claude/commands/ccm-change-logger.md",
+        ".claude/commands/ccm-prepare-test-scenarios.md",
+        ".claude/commands/ccm-run-test-stage.md",
+        ".claude/commands/ccm-test-deployment.md"
+      ],
+      "scenarios_added": [],
+      "scenarios_updated": [
+        "stage-2.4-artifact-installation-flows"
+      ],
+      "notes": "New commands for QA automation, installation covered by existing artifact scenarios"
+    },
+    {
+      "feature": "doc-refactoring skill comprehensive update",
+      "file": ".claude/skills/doc-refactoring/**",
+      "scenarios_added": [],
+      "scenarios_updated": [
+        "stage-2.4-artifact-installation-flows"
+      ],
+      "notes": "Extensive refactoring of doc-refactoring skill, installation tested in artifact scenarios"
+    }
+  ],
+  "deleted_features": [
+    {
+      "feature": "ccm-test command (replaced by QA suite)",
+      "file": ".claude/commands/ccm-test.md",
+      "impact": "Replaced by comprehensive QA orchestration system",
+      "scenarios_affected": [
+        "stage-2.4-artifact-installation-flows"
+      ]
+    }
+  ],
+  "warnings": [
+    "Stage 1 scenario CRITICAL: 5 changed files affect install-uninstall-update workflow",
+    "sync-engine.js and postinstall.js both changed: ensure thorough CCM file sync testing",
+    "Entry point (bin/claude-context-manager.js) changed: validate error handling carefully",
+    "New preuninstall.js hook: verify uninstallation cleanup works correctly"
+  ],
+  "ci_cd_integration": {
+    "pre_release_checks": [
+      "Verify test-optimization-map.json exists for version 0.4.0",
+      "Verify manual-testing-procedures.md updated to version 0.4.0",
+      "Ensure all required scenarios documented",
+      "Check test coverage >= 70% of changed files"
+    ],
+    "test_coverage_metrics": {
+      "total_changed_files": 16,
+      "files_with_test_coverage": 16,
+      "coverage_percentage": 100,
+      "required_scenarios": 8,
+      "total_scenarios": 11
+    }
+  }
+}
