@@ -94,6 +94,12 @@ Improved development workflow ensures higher quality releases:
 3. Check details: `ccm update-check`
 4. Apply updates: `ccm update --all --global`
 
+### Documentation
+
+**Commit Management Protocol** - CLAUDE.md now enforces use of `/ccm-change-logger` command for all commits. AI agents must use the automated workflow instead of manual `git commit` commands. This ensures consistent formatting, automatic CHANGELOG.md updates, and proper artifact versioning coordination.
+
+**Archive Date Corrections** - Fixed date typos in CHANGELOG-ARCHIVE/CHANGELOG-0.3.x.md (January → November for 0.3.0, 0.2.2, 0.2.1, 0.2.0 releases).
+
 ### Technical Details
 
 **New Files:**
