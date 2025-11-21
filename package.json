@@ -157,7 +157,7 @@
     "prepublishOnly": "chmod +x bin/* scripts/*.js scripts/logging/* scripts/background/*"
   },
   "dependencies": {
-    "@inquirer/checkbox": "^3.0.1",
+    "@inquirer/checkbox": "^5.0.1",
     "@inquirer/confirm": "^4.0.1",
     "@inquirer/select": "^3.0.1",
     "@inquirer/input": "^3.0.1"
