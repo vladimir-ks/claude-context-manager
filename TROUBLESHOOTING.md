@@ -23,10 +23,13 @@ Common issues and solutions for Claude Context Manager.
 **Common Causes:**
 
 1. **Permission denied:**
+
    ```bash
    Error: EACCES: permission denied
    ```
+
    **Solution:**
+
    ```bash
    # Option 1: Use sudo (not recommended)
    sudo npm install -g @vladimir-ks/claude-context-manager
@@ -41,6 +44,7 @@ Common issues and solutions for Claude Context Manager.
 
 2. **Network timeout:**
    **Solution:**
+
    ```bash
    npm install -g @vladimir-ks/claude-context-manager --timeout=60000
    ```
@@ -57,6 +61,7 @@ Common issues and solutions for Claude Context Manager.
 **Symptom:** Installation completes but CCM doesn't work
 
 **Solution:**
+
 ```bash
 # Re-run postinstall manually
 node ~/.npm-global/lib/node_modules/@vladimir-ks/claude-context-manager/scripts/postinstall.js
@@ -69,11 +74,13 @@ node ~/.npm-global/lib/node_modules/@vladimir-ks/claude-context-manager/scripts/
 ### Cannot Write to ~/.claude/
 
 **Symptom:**
+
 ```
 ✗ Error: Permission denied: write access not available
 ```
 
 **Solution:**
+
 ```bash
 # Check current permissions
 ls -la ~/.claude
@@ -88,11 +95,13 @@ chmod -R 755 ~/.claude
 ### Cannot Create Backup
 
 **Symptom:**
+
 ```
 ✗ Failed to create backup: EACCES
 ```
 
 **Solution:**
+
 ```bash
 # Check backup directory permissions
 ls -la ~/.claude-context-manager/backups/
@@ -108,6 +117,7 @@ chmod 755 ~/.claude-context-manager/backups/
 ### Timeout Connecting to GitHub
 
 **Symptom:**
+
 ```
 ✗ Network error: Request timeout (10s)
 ```
@@ -115,6 +125,7 @@ chmod 755 ~/.claude-context-manager/backups/
 **Solutions:**
 
 1. **Check internet connection:**
+
    ```bash
    curl -I https://api.github.com
    ```
@@ -129,11 +140,13 @@ chmod 755 ~/.claude-context-manager/backups/
 ### GitHub API Rate Limit
 
 **Symptom:**
+
 ```
 ✗ GitHub API error: rate limit exceeded
 ```
 
 **Solution:**
+
 - Wait 1 hour for rate limit reset
 - Activate premium license for higher limits: `ccm activate YOUR_KEY`
 - Use authenticated requests (automatic with premium)
@@ -145,6 +158,7 @@ chmod 755 ~/.claude-context-manager/backups/
 ### Checksum Mismatch
 
 **Symptom:**
+
 ```
 ⚠ Modified: Yes (checksum mismatch)
 ```
@@ -158,6 +172,7 @@ chmod 755 ~/.claude-context-manager/backups/
    - Your version won't be auto-updated
 
 2. **Restore original:**
+
    ```bash
    ccm restore --skill managing-claude-context --global
    ```
@@ -170,6 +185,7 @@ chmod 755 ~/.claude-context-manager/backups/
 ### File Locked
 
 **Symptom:**
+
 ```
 ✗ Failed to write file: EBUSY: resource busy or locked
 ```
@@ -178,6 +194,7 @@ chmod 755 ~/.claude-context-manager/backups/
 
 1. **Close Claude Code** (may have files open)
 2. **Check for other processes:**
+
    ```bash
    # macOS/Linux
    lsof ~/.claude/skills/managing-claude-context/SKILL.md
@@ -185,16 +202,19 @@ chmod 755 ~/.claude-context-manager/backups/
    # Windows
    handle ~/.claude/skills/managing-claude-context/SKILL.md
    ```
+
 3. **Retry operation**
 
 ### Registry Corruption
 
 **Symptom:**
+
 ```
 ✗ Failed to read registry: Unexpected token
 ```
 
 **Solution:**
+
 ```bash
 # Backup corrupted registry
 cp ~/.claude-context-manager/registry.json ~/.claude-context-manager/registry.json.backup
@@ -257,6 +277,7 @@ ls -la ~/.claude-context-manager/logs/
 **Cause:** GitHub API request exceeded 10-second timeout
 
 **Solutions:**
+
 - Check internet connection
 - Retry operation
 - Check firewall settings
@@ -266,6 +287,7 @@ ls -la ~/.claude-context-manager/logs/
 **Cause:** Not enough disk space for installation
 
 **Solution:**
+
 ```bash
 # Check available space
 df -h ~/.claude
@@ -279,6 +301,7 @@ ccm cleanup --global
 **Cause:** Token is expired or invalid
 
 **Solution:**
+
 ```bash
 # Generate new token at: https://github.com/settings/tokens
 # Required scopes: repo

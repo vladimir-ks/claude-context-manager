@@ -9,10 +9,10 @@
 
 /**
  * Validate license key with API (STUB)
- * @param {string} key - License key
+ * @param {string} _key - License key
  * @returns {Promise<Object>} { valid: false, message: '...' }
  */
-async function validateLicenseKey(key) {
+async function validateLicenseKey(_key) {
   // v0.2.0: Stub implementation
   // v0.3.0+: Will make actual HTTP request
 
@@ -25,16 +25,17 @@ async function validateLicenseKey(key) {
 
 /**
  * Download premium artifact (STUB)
- * @param {string} artifactName - Artifact to download
+ * @param {string} _artifactName - Artifact to download
  * @returns {Promise<Object>} { success: false, message: '...' }
  */
-async function downloadPremiumArtifact(artifactName) {
+async function downloadPremiumArtifact(_artifactName) {
   // v0.2.0: Stub implementation
   // v0.3.0+: Will download from premium server
 
   return {
     success: false,
-    message: 'Premium downloads coming Q1 2025.\n\nThis artifact is currently unavailable in the free tier.\nUpgrade to premium for access: $9/month\n\nContact: vlad@vladks.com'
+    message:
+      'Premium downloads coming Q1 2025.\n\nThis artifact is currently unavailable in the free tier.\nUpgrade to premium for access: $9/month\n\nContact: vlad@vladks.com'
   };
 }
 

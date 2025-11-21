@@ -16,8 +16,8 @@ const crypto = require('crypto');
 const os = require('os');
 
 const registry = require('./registry');
-const fileOps = require('../utils/file-ops');
-const logger = require('../utils/logger');
+const _fileOps = require('../utils/file-ops');
+const _logger = require('../utils/logger');
 const backupManager = require('./backup-manager');
 
 /**
@@ -42,7 +42,8 @@ function getPackageFiles() {
     return [];
   }
 
-  return fs.readdirSync(packageDir)
+  return fs
+    .readdirSync(packageDir)
     .filter(f => f.endsWith('.md'))
     .sort();
 }
@@ -79,13 +80,13 @@ function extractUserContent(claudeMdContent) {
       // Look back to see if previous non-empty line is a CCM reference
       for (let j = i - 1; j >= 0; j--) {
         const prevLine = lines[j].trim();
-        if (prevLine === '') continue;  // Skip empty lines
+        if (prevLine === '') continue; // Skip empty lines
 
         if (prevLine.startsWith('@./ccm')) {
           lastSeparatorIdx = i;
           break;
         }
-        break;  // Non-CCM line, this separator is not part of header
+        break; // Non-CCM line, this separator is not part of header
       }
     }
   }
@@ -212,16 +213,12 @@ function syncCCMFiles(target = 'global') {
         // File changed - Update
         try {
           // Create smart backup (only if file was modified by user)
-          const backupResult = backupManager.createSmartBackup(
-            destPath,
-            target,
-            {
-              installedAt: registryEntry.installed_at,
-              registryChecksum: registryEntry.checksum,
-              reason: 'pre_update',
-              version: 'current'
-            }
-          );
+          const backupResult = backupManager.createSmartBackup(destPath, target, {
+            installedAt: registryEntry.installed_at,
+            registryChecksum: registryEntry.checksum,
+            reason: 'pre_update',
+            version: 'current'
+          });
 
           // Copy new version
           fs.copyFileSync(sourcePath, destPath);
@@ -253,8 +250,8 @@ function syncCCMFiles(target = 'global') {
   }
 
   // 2. Remove files that are in registry but not in package
-  const filesToRemove = installation.ccm_managed_files.filter(entry =>
-    !packageFileSet.has(entry.path)
+  const filesToRemove = installation.ccm_managed_files.filter(
+    entry => !packageFileSet.has(entry.path)
   );
 
   for (const entry of filesToRemove) {
@@ -329,9 +326,7 @@ function regenerateCLAUDEMdHeader(target = 'global') {
   const claudeMdPath = path.join(targetLocation, 'CLAUDE.md');
 
   // Get current CCM managed files from registry (sorted)
-  const ccmFiles = (installation.ccm_managed_files || [])
-    .map(f => f.path)
-    .sort();
+  const ccmFiles = (installation.ccm_managed_files || []).map(f => f.path).sort();
 
   // Generate new header
   const newHeader = generateCLAUDEMdHeader(ccmFiles);
@@ -348,16 +343,12 @@ function regenerateCLAUDEMdHeader(target = 'global') {
     // Create smart backup if CLAUDE.md exists
     try {
       const claudeMdEntry = installation.ccm_managed_files.find(f => f.path === 'CLAUDE.md');
-      const backupResult = backupManager.createSmartBackup(
-        claudeMdPath,
-        target,
-        {
-          installedAt: claudeMdEntry ? claudeMdEntry.installed_at : new Date(0).toISOString(),
-          registryChecksum: claudeMdEntry ? claudeMdEntry.checksum : null,
-          reason: 'pre_header_regeneration',
-          version: 'current'
-        }
-      );
+      const backupResult = backupManager.createSmartBackup(claudeMdPath, target, {
+        installedAt: claudeMdEntry ? claudeMdEntry.installed_at : new Date(0).toISOString(),
+        registryChecksum: claudeMdEntry ? claudeMdEntry.checksum : null,
+        reason: 'pre_header_regeneration',
+        version: 'current'
+      });
 
       if (backupResult.created) {
         const backupFileName = path.basename(backupResult.backupPath);

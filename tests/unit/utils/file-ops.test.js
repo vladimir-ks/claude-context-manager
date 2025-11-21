@@ -64,7 +64,6 @@ try {
   fs.rmSync(testDir, { recursive: true });
 
   console.log('\n✓ All file-ops.js tests passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
   // Clean up on error

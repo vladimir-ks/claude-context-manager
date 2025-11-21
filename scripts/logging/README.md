@@ -11,6 +11,7 @@ Simple session logging for AI commands and agents.
 ## Purpose
 
 Track AI agent execution sessions with minimal overhead:
+
 - Start: Automatic via pre-execution
 - Progress: Optional checkpoints
 - End: Final report with certainty scoring
@@ -25,6 +26,7 @@ cd scripts/logging
 This copies scripts to `~/bin/` and makes them executable.
 
 **Verify installation:**
+
 ```bash
 which ai-log-start  # Should show: /Users/username/bin/ai-log-start
 ```
@@ -36,6 +38,7 @@ which ai-log-start  # Should show: /Users/username/bin/ai-log-start
 ### ai-log-start
 
 **Usage:**
+
 ```bash
 ai-log-start "task-summary" "detailed-instructions"
 ```
@@ -43,6 +46,7 @@ ai-log-start "task-summary" "detailed-instructions"
 **Creates:** `_HHMM-{task-summary}.json` in current directory
 
 **Example:**
+
 ```bash
 ai-log-start "CSV analyzer" "Create skill for analyzing CSV files with Medium complexity"
 ```
@@ -54,18 +58,22 @@ ai-log-start "CSV analyzer" "Create skill for analyzing CSV files with Medium co
 ### ai-log-progress
 
 **Usage:**
+
 ```bash
 ai-log-progress '{"tldr":"Progress update","certainty":75}'
 ```
 
 **Required fields:**
+
 - `tldr`: Brief progress description
 - `certainty`: 0-100 confidence level
 
 **Optional fields:**
+
 - Any additional data (e.g., `specs_quality`, `tests_passed`, etc.)
 
 **Example:**
+
 ```bash
 ai-log-progress '{"tldr":"Generated SKILL.md structure","certainty":60,"files_created":3}'
 ```
@@ -75,25 +83,30 @@ ai-log-progress '{"tldr":"Generated SKILL.md structure","certainty":60,"files_cr
 ### ai-log-end
 
 **Usage:**
+
 ```bash
 ai-log-end '{"status":"completed","tldr":"Task summary","certainty":95,"next_steps":["action1"]}'
 ```
 
 **Required fields:**
+
 - `status`: "completed" | "failed" | "partial"
 - `tldr`: One-sentence summary of what was accomplished
 - `certainty`: 0-100 confidence in completeness
 
 **Optional fields:**
+
 - `next_steps`: Array of follow-up actions
 - Any additional metadata
 
 **Example:**
+
 ```bash
 ai-log-end '{"status":"completed","tldr":"Created csv-analyzer skill","certainty":95,"next_steps":["Add examples","Test with sample data"]}'
 ```
 
 **Actions:**
+
 1. Updates session file with end data
 2. Moves to `.log/MMDD_HHMM-{tldr}.json`
 3. Returns certainty-based message
@@ -128,7 +141,7 @@ ai-log-end '{"status":"completed","tldr":"Auth system implemented","certainty":9
 
 Commands use pre-execution to automatically start sessions:
 
-```markdown
+````markdown
 ---
 description: Create a new skill
 argument-hint: "task-summary" "detailed-instructions"
@@ -148,10 +161,13 @@ argument-hint: "task-summary" "detailed-instructions"
 [Command instructions...]
 
 When complete, call:
+
 ```bash
 ai-log-end '{"status":"completed","tldr":"Summary","certainty":95}'
 ```
-```
+````
+
+````
 
 ---
 
@@ -177,7 +193,7 @@ Located in working directory while session is active:
     }
   ]
 }
-```
+````
 
 ### Completed Session (`.log/MMDD_HHMM-tldr.json`)
 
@@ -206,18 +222,21 @@ Moved to `.log/` directory when session ends:
 `ai-log-end` returns different messages based on certainty:
 
 **< 70% - Low Certainty:**
+
 ```
 ⚠️  Low certainty (65%). Review recommended.
    Consider running validation or additional testing.
 ```
 
 **70-89% - Medium Certainty:**
+
 ```
 ✓ Certainty: 85%. Task completed.
    Validation suggested for production use.
 ```
 
 **≥ 90% - High Certainty:**
+
 ```
 ✓✓ High certainty: 95%. Task completed successfully.
 ```
@@ -233,6 +252,7 @@ Moved to `.log/` directory when session ends:
    - Arg 2: Detailed instructions (for context)
 
 2. **Pre-execution pattern:**
+
    ```markdown
    !`ai-log-start $ARGUMENTS`
    ```
@@ -245,6 +265,7 @@ Moved to `.log/` directory when session ends:
 ### For Agents
 
 1. **Find session file early:**
+
    ```bash
    ls _*.json  # Your session file
    ```
@@ -271,6 +292,7 @@ Moved to `.log/` directory when session ends:
 ## Dependencies
 
 **Required:**
+
 - `jq` - JSON processor
   ```bash
   brew install jq  # macOS
@@ -305,6 +327,7 @@ _HHMM-task.json        # Active session (in working directory)
 **Problem:** `ai-log-start: command not found`
 
 **Solution:**
+
 1. Check PATH: `echo $PATH | grep $HOME/bin`
 2. If missing, add to `~/.zshrc`: `export PATH="$HOME/bin:$PATH"`
 3. Reload: `source ~/.zshrc`
@@ -314,6 +337,7 @@ _HHMM-task.json        # Active session (in working directory)
 **Problem:** `jq not installed` warnings
 
 **Solution:**
+
 ```bash
 brew install jq  # macOS
 apt-get install jq  # Linux
@@ -324,6 +348,7 @@ apt-get install jq  # Linux
 **Problem:** Session file not found
 
 **Solution:**
+
 - Check you're in the same directory where session started
 - Look for `_*.json` files: `ls _*.json`
 - If file is missing, session may have already ended (check `.log/`)
@@ -339,6 +364,7 @@ Test the system with the `/test-logging` command:
 ```
 
 This will:
+
 1. Create session file
 2. Test progress logging
 3. Test end logging
@@ -349,6 +375,7 @@ This will:
 ## Version History
 
 **1.0.0** - Initial release
+
 - Basic start/progress/end logging
 - Pre-execution integration
 - Certainty-based responses

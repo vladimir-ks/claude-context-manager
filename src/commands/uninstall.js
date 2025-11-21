@@ -23,9 +23,9 @@ const backupManager = require('../lib/backup-manager');
  */
 function parseFlags(args) {
   const flags = {
-    type: null,        // 'skill', 'command', 'package'
-    name: null,        // artifact name
-    target: null,      // 'global', project path, or 'all'
+    type: null, // 'skill', 'command', 'package'
+    name: null, // artifact name
+    target: null, // 'global', project path, or 'all'
     hasFlags: false
   };
 
@@ -97,9 +97,10 @@ async function interactiveUninstall() {
     const installedMap = new Map(); // artifact name -> locations[]
 
     targetLocations.forEach(location => {
-      const artifacts = location === 'global'
-        ? registry.getGlobalArtifacts()
-        : registry.getProjectArtifacts(location);
+      const artifacts =
+        location === 'global'
+          ? registry.getGlobalArtifacts()
+          : registry.getProjectArtifacts(location);
 
       artifacts.forEach(art => {
         if (!installedMap.has(art.name)) {
@@ -137,7 +138,10 @@ async function interactiveUninstall() {
       const artifactInfo = installedMap.get(artifactName);
 
       if (artifactInfo.locations.length > 1) {
-        logger.log(`\nArtifact '${artifactName}' is installed in ${artifactInfo.locations.length} locations`, 'bright');
+        logger.log(
+          `\nArtifact '${artifactName}' is installed in ${artifactInfo.locations.length} locations`,
+          'bright'
+        );
         logger.log('Select locations to remove from:\n', 'bright');
 
         const selectedLocations = await menu.selectLocations(artifactName, artifactInfo.locations);
@@ -230,15 +234,10 @@ async function interactiveUninstall() {
           // Create backup before removing
           try {
             const artifact = registry.getArtifact(location, plan.name);
-            backupManager.createBackup(
-              artifactPath,
-              plan.name,
-              location,
-              {
-                backup_reason: 'pre_uninstall',
-                version_before: artifact ? artifact.version : 'unknown'
-              }
-            );
+            backupManager.createBackup(artifactPath, plan.name, location, {
+              backup_reason: 'pre_uninstall',
+              version_before: artifact ? artifact.version : 'unknown'
+            });
           } catch (backupError) {
             logger.warn(`${locationLabel}: Backup failed, continuing...`);
           }
@@ -254,7 +253,6 @@ async function interactiveUninstall() {
 
           logger.success(`${locationLabel}: ✓ Removed`);
           uninstalledCount++;
-
         } catch (error) {
           logger.error(`${locationLabel}: ✗ ${error.message}`);
           failedCount++;
@@ -267,7 +265,7 @@ async function interactiveUninstall() {
     logger.log('═══════════════════════════════════════════════════════', 'cyan');
 
     if (uninstalledCount > 0) {
-      logger.log(`✓ Uninstall Complete!`, 'green');
+      logger.log('✓ Uninstall Complete!', 'green');
       logger.log(`  ${uninstalledCount} artifact(s) removed successfully`, 'green');
       logger.info('  Backups created in ~/.claude-context-manager/backups/');
     }
@@ -277,7 +275,6 @@ async function interactiveUninstall() {
     }
 
     console.log('');
-
   } catch (error) {
     if (error.name === 'ExitPromptError') {
       logger.warn('\nUninstall cancelled by user.');
@@ -335,7 +332,10 @@ async function flagBasedUninstall(flags) {
       targetLocations = [flags.target];
     }
 
-    logger.log(`\nUninstalling ${flags.name} from ${targetLocations.length} location(s):\n`, 'bright');
+    logger.log(
+      `\nUninstalling ${flags.name} from ${targetLocations.length} location(s):\n`,
+      'bright'
+    );
 
     let uninstalledCount = 0;
     let notFoundCount = 0;
@@ -376,15 +376,10 @@ async function flagBasedUninstall(flags) {
       try {
         // Create backup
         const artifact = registry.getArtifact(location, flags.name);
-        backupManager.createBackup(
-          artifactPath,
-          flags.name,
-          location,
-          {
-            backup_reason: 'pre_uninstall',
-            version_before: artifact ? artifact.version : 'unknown'
-          }
-        );
+        backupManager.createBackup(artifactPath, flags.name, location, {
+          backup_reason: 'pre_uninstall',
+          version_before: artifact ? artifact.version : 'unknown'
+        });
 
         // Remove artifact
         fs.rmSync(artifactPath, { recursive: true, force: true });
@@ -397,7 +392,6 @@ async function flagBasedUninstall(flags) {
 
         logger.success(`${locationLabel}: Removed`);
         uninstalledCount++;
-
       } catch (error) {
         logger.error(`${locationLabel}: ${error.message}`);
       }
@@ -414,7 +408,6 @@ async function flagBasedUninstall(flags) {
 
     logger.info('  Backups created in ~/.claude-context-manager/backups/');
     console.log('');
-
   } catch (error) {
     logger.error(`Uninstall failed: ${error.message}`);
     console.error(error);
@@ -437,7 +430,6 @@ async function uninstall(args) {
       // Flags provided - use flag-based mode
       await flagBasedUninstall(flags);
     }
-
   } catch (error) {
     if (error.name !== 'ExitPromptError') {
       logger.error(`Unexpected error: ${error.message}`);

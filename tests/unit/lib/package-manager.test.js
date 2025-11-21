@@ -95,7 +95,6 @@ try {
   fs.rmSync(testDir, { recursive: true });
 
   console.log('\n✓ All package-manager.js tests passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
   console.error(error.stack);

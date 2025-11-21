@@ -115,9 +115,11 @@ async function main() {
   // Failed tests detail
   if (failed > 0) {
     log('Failed tests:', 'red');
-    results.filter(r => !r.passed).forEach(r => {
-      log(`  - ${r.file}`, 'red');
-    });
+    results
+      .filter(r => !r.passed)
+      .forEach(r => {
+        log(`  - ${r.file}`, 'red');
+      });
     console.log('');
   }
 

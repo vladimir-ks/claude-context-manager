@@ -63,11 +63,7 @@ function saveLog(log) {
     fs.mkdirSync(HOME_DIR, { recursive: true, mode: 0o755 });
   }
 
-  fs.writeFileSync(
-    FEEDBACK_LOG_FILE,
-    JSON.stringify(log, null, 2),
-    { mode: 0o644 }
-  );
+  fs.writeFileSync(FEEDBACK_LOG_FILE, JSON.stringify(log, null, 2), { mode: 0o644 });
 }
 
 /**
@@ -76,7 +72,7 @@ function saveLog(log) {
  * @param {Object} log - Feedback log
  */
 function cleanupOldEntries(log) {
-  const cutoffDate = new Date(Date.now() - (LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000));
+  const cutoffDate = new Date(Date.now() - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000);
 
   log.submissions = log.submissions.filter(entry => {
     const entryDate = new Date(entry.timestamp);
@@ -203,7 +199,7 @@ function getStatistics() {
 
   // Submissions in last 7 days
   const last7Days = log.submissions.filter(s => {
-    return new Date(s.timestamp).getTime() >= (now - (7 * 24 * 60 * 60 * 1000));
+    return new Date(s.timestamp).getTime() >= now - 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   // Duplicate count

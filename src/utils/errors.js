@@ -145,7 +145,7 @@ function createError(code, title, options = {}) {
  * @returns {string} Formatted error message
  */
 function formatError(error, verbose = true) {
-  let output = [];
+  const output = [];
 
   // Header
   output.push(`\n${colors.red}${colors.bright}${error.code}: ${error.title}${colors.reset}\n`);
@@ -175,7 +175,9 @@ function formatError(error, verbose = true) {
   }
 
   // Feedback prompt
-  output.push(`\n${colors.dim}Need help? Run: ${colors.reset}${colors.cyan}ccm feedback "${error.title.toLowerCase()}"${colors.reset}`);
+  output.push(
+    `\n${colors.dim}Need help? Run: ${colors.reset}${colors.cyan}ccm feedback "${error.title.toLowerCase()}"${colors.reset}`
+  );
 
   return output.join('\n') + '\n';
 }
@@ -223,10 +225,8 @@ function logWarning(message) {
  * Common error builders (convenience functions)
  */
 const ErrorBuilders = {
-  artifactNotFound: (artifactName, location) => createError(
-    ERROR_CODES.ARTIFACT_NOT_FOUND,
-    'Artifact Not Found',
-    {
+  artifactNotFound: (artifactName, location) =>
+    createError(ERROR_CODES.ARTIFACT_NOT_FOUND, 'Artifact Not Found', {
       cause: `Artifact '${artifactName}' not found in registry`,
       location,
       context: `Searching for: ${artifactName}`,
@@ -235,15 +235,13 @@ const ErrorBuilders = {
         'Check artifact name spelling (case-sensitive)',
         "Try 'ccm update' to refresh package list"
       ],
-      aiNote: 'Artifact IDs are case-sensitive and must match registry exactly. Check ARTIFACT_CATALOG.md for valid IDs.',
+      aiNote:
+        'Artifact IDs are case-sensitive and must match registry exactly. Check ARTIFACT_CATALOG.md for valid IDs.',
       metadata: { artifactName }
-    }
-  ),
+    }),
 
-  installationFailed: (artifactName, reason, location) => createError(
-    ERROR_CODES.INSTALLATION_FAILED,
-    'Installation Failed',
-    {
+  installationFailed: (artifactName, reason, location) =>
+    createError(ERROR_CODES.INSTALLATION_FAILED, 'Installation Failed', {
       cause: reason,
       location,
       context: `Installing '${artifactName}'`,
@@ -253,15 +251,13 @@ const ErrorBuilders = {
         "Try 'ccm cleanup' to remove old backups",
         'Run with elevated permissions if needed'
       ],
-      aiNote: 'Installation failures often occur due to file system permissions. Check ~/.claude/ directory permissions.',
+      aiNote:
+        'Installation failures often occur due to file system permissions. Check ~/.claude/ directory permissions.',
       metadata: { artifactName, reason }
-    }
-  ),
+    }),
 
-  registryNotFound: (location) => createError(
-    ERROR_CODES.REGISTRY_NOT_FOUND,
-    'Registry Not Found',
-    {
+  registryNotFound: location =>
+    createError(ERROR_CODES.REGISTRY_NOT_FOUND, 'Registry Not Found', {
       cause: 'Registry file does not exist',
       location,
       context: 'Expected: ~/.claude-context-manager/registry.json',
@@ -270,26 +266,23 @@ const ErrorBuilders = {
         'Check postinstall script ran successfully',
         'Verify home directory permissions'
       ],
-      aiNote: 'Registry is created during postinstall. Missing registry indicates postinstall failure.',
+      aiNote:
+        'Registry is created during postinstall. Missing registry indicates postinstall failure.',
       metadata: {}
-    }
-  ),
+    }),
 
   fileOperationFailed: (operation, filePath, reason, location) => {
     // Explicit mapping to avoid dynamic lookup issues
     const FILE_OPERATION_CODES = {
-      'READ': ERROR_CODES.FILE_READ_FAILED,
-      'WRITE': ERROR_CODES.FILE_WRITE_FAILED,
-      'DELETE': ERROR_CODES.FILE_DELETE_FAILED,
-      'COPY': ERROR_CODES.FILE_COPY_FAILED
+      READ: ERROR_CODES.FILE_READ_FAILED,
+      WRITE: ERROR_CODES.FILE_WRITE_FAILED,
+      DELETE: ERROR_CODES.FILE_DELETE_FAILED,
+      COPY: ERROR_CODES.FILE_COPY_FAILED
     };
 
     const code = FILE_OPERATION_CODES[operation.toUpperCase()] || ERROR_CODES.FILE_READ_FAILED;
 
-    return createError(
-    code,
-    `File ${operation} Failed`,
-    {
+    return createError(code, `File ${operation} Failed`, {
       cause: reason,
       location,
       context: `File: ${filePath}`,
@@ -301,14 +294,11 @@ const ErrorBuilders = {
       ],
       aiNote: `File operation: ${operation}. Path: ${filePath}. Check file system permissions and disk space.`,
       metadata: { operation, filePath, reason }
-    }
-    );
+    });
   },
 
-  networkError: (operation, reason, location) => createError(
-    ERROR_CODES.NETWORK_ERROR,
-    'Network Error',
-    {
+  networkError: (operation, reason, location) =>
+    createError(ERROR_CODES.NETWORK_ERROR, 'Network Error', {
       cause: reason,
       location,
       context: `Operation: ${operation}`,
@@ -320,13 +310,10 @@ const ErrorBuilders = {
       ],
       aiNote: 'Network errors may be transient. Retry after checking connectivity.',
       metadata: { operation, reason }
-    }
-  ),
+    }),
 
-  rateLimitExceeded: (resource, limit, location) => createError(
-    ERROR_CODES.RATE_LIMIT_EXCEEDED,
-    'Rate Limit Exceeded',
-    {
+  rateLimitExceeded: (resource, limit, location) =>
+    createError(ERROR_CODES.RATE_LIMIT_EXCEEDED, 'Rate Limit Exceeded', {
       cause: `Too many requests to ${resource}`,
       location,
       context: `Limit: ${limit} requests`,
@@ -337,13 +324,10 @@ const ErrorBuilders = {
       ],
       aiNote: `Rate limiting protects against spam. Current limit: ${limit}. Implement exponential backoff.`,
       metadata: { resource, limit }
-    }
-  ),
+    }),
 
-  invalidArgument: (argumentName, value, location) => createError(
-    ERROR_CODES.INVALID_ARGUMENT,
-    'Invalid Argument',
-    {
+  invalidArgument: (argumentName, value, location) =>
+    createError(ERROR_CODES.INVALID_ARGUMENT, 'Invalid Argument', {
       cause: `Invalid value for argument '${argumentName}'`,
       location,
       context: `Received: ${value}`,
@@ -352,10 +336,9 @@ const ErrorBuilders = {
         'Check command syntax',
         'Verify argument value format'
       ],
-      aiNote: `Argument validation failed. Expected format may differ from provided value.`,
+      aiNote: 'Argument validation failed. Expected format may differ from provided value.',
       metadata: { argumentName, value }
-    }
-  )
+    })
 };
 
 module.exports = {

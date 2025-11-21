@@ -81,7 +81,6 @@ try {
   }
 
   console.log('\n✓ All catalog.js tests passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
   console.error(error.stack);

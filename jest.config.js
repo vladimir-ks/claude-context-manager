@@ -9,10 +9,7 @@ module.exports = {
   testEnvironment: 'node',
 
   // Test match patterns
-  testMatch: [
-    '**/tests/**/*.test.js',
-    '**/tests/**/*.spec.js'
-  ],
+  testMatch: ['**/tests/**/*.test.js', '**/tests/**/*.spec.js'],
 
   // Coverage directory
   coverageDirectory: 'coverage',

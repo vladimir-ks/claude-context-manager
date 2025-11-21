@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# User-specific global settings (not part of project)
+_cc-user-settings-global/
+
+# Test fixtures
+tests/fixtures/
+
+# Backups
+*.backup-*
+.trash/
+
+# Cache
+.cache/

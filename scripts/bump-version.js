@@ -133,10 +133,10 @@ function updateChangelog(newVersion) {
   changelog = changelog.replace(headerRegex, `# Changelog\n\n${newSection}`);
   fs.writeFileSync(changelogPath, changelog, 'utf8');
 
-  log(`  ✓ Added new section to CHANGELOG.md`, 'green');
+  log('  ✓ Added new section to CHANGELOG.md', 'green');
 }
 
-function createGitTag(newVersion, oldVersion) {
+function createGitTag(newVersion, _oldVersion) {
   try {
     // Check if there are uncommitted changes
     const status = execSync('git status --porcelain', { encoding: 'utf8' });
@@ -145,7 +145,9 @@ function createGitTag(newVersion, oldVersion) {
     }
 
     // Commit version changes
-    execSync('git add package.json bin/claude-context-manager.js CHANGELOG.md', { stdio: 'inherit' });
+    execSync('git add package.json bin/claude-context-manager.js CHANGELOG.md', {
+      stdio: 'inherit'
+    });
     execSync(`git commit -m "Update: Bump version to ${newVersion}"`, { stdio: 'inherit' });
 
     // Create git tag
@@ -153,7 +155,7 @@ function createGitTag(newVersion, oldVersion) {
 
     log(`  ✓ Created git commit and tag v${newVersion}`, 'green');
     log(`\n${colors.yellow}Remember to push:${colors.reset}`, 'bright');
-    log(`  git push origin dev`, 'blue');
+    log('  git push origin dev', 'blue');
     log(`  git push origin v${newVersion}`, 'blue');
   } catch (err) {
     error(`Git operation failed: ${err.message}`);

@@ -18,6 +18,7 @@ Automated CLI tool for selective installation of artifacts from this library int
 **Problem:** Currently, artifact installation is manual (copy commands). For repositories needing multiple artifacts, this becomes tedious and error-prone.
 
 **Solution:** Interactive CLI tool that:
+
 1. Lists available artifacts from this library
 2. Allows selective installation
 3. Handles dependencies automatically
@@ -61,6 +62,7 @@ Summary:
 ### Artifact Discovery
 
 **Reads ARTIFACT_CATALOG.md** from this library to:
+
 - List available artifacts
 - Show versions
 - Display descriptions
@@ -69,6 +71,7 @@ Summary:
 ### Dependency Resolution
 
 **Automatic handling:**
+
 - If claude-setup-master selected → Install skill-creator (dependency)
 - If circular dependencies → Warn user
 - If missing dependencies → Prompt to install
@@ -76,12 +79,14 @@ Summary:
 ### Installation Methods
 
 **Copy (Static):**
+
 - Copies artifact files to target repo
 - No ongoing connection to library
 - Target repo has independent copy
 - Updates require manual re-installation
 
 **Symlink (Dynamic):**
+
 - Creates symlink from target repo to library
 - Changes in library sync automatically
 - Useful for active development
@@ -90,6 +95,7 @@ Summary:
 ### Validation
 
 **Post-installation checks:**
+
 - Verify files copied/linked correctly
 - Check frontmatter validity (skills)
 - Confirm dependencies installed
@@ -112,6 +118,7 @@ Removing...
 ## Integration with claude-setup-master
 
 **Workflow:**
+
 1. User runs claude-install in target repo
 2. CLI reads ARTIFACT_CATALOG.md from library
 3. User selects artifacts
@@ -122,6 +129,7 @@ Removing...
 8. claude-setup-master validates installations
 
 **Benefits:**
+
 - Artifacts validated after installation
 - Ensures compatibility with target repo
 - Detects conflicts early
@@ -131,6 +139,7 @@ Removing...
 ### Discovery
 
 **Library Location:**
+
 - CLI needs path to this library
 - Options:
   - Environment variable: `CLAUDE_LIBRARY_PATH`
@@ -140,6 +149,7 @@ Removing...
 ### Implementation Language
 
 **Options:**
+
 - Python (portable, easy to maintain)
 - Bash (simple, no dependencies)
 - Node.js (if MCP integration needed)
@@ -164,6 +174,7 @@ scripts/
 ### Global Installation
 
 **Make CLI globally available:**
+
 ```bash
 # Install CLI tool globally
 pip install -e scripts/
@@ -176,11 +187,13 @@ claude-install
 ## Milestone Plan
 
 ### Milestone 1: Manual Process Documentation
+
 - [x] Document current manual installation (ARTIFACT_CATALOG.md)
 - [x] Create this placeholder README
 - [ ] User feedback on manual process pain points
 
 ### Milestone 2: Basic CLI (MVP)
+
 - [ ] Python CLI with interactive prompts
 - [ ] Read ARTIFACT_CATALOG.md
 - [ ] Copy-based installation only
@@ -188,18 +201,21 @@ claude-install
 - [ ] Basic validation
 
 ### Milestone 3: Enhanced Features
+
 - [ ] Symlink installation method
 - [ ] Automatic dependency resolution
 - [ ] Post-installation validation
 - [ ] Uninstall functionality
 
 ### Milestone 4: Integration
+
 - [ ] Integration with claude-setup-master
 - [ ] Advanced validation
 - [ ] Conflict detection
 - [ ] Update checking
 
 ### Milestone 5: Distribution
+
 - [ ] Global pip package
 - [ ] Documentation
 - [ ] Tests
@@ -227,6 +243,7 @@ cp -r /path/to/claude-skills-builder/.claude/skills/dependency/ .claude/skills/
 ## Feedback Welcome
 
 **If you're using this library:**
+
 - What artifacts do you install most?
 - What pain points in manual installation?
 - What features would be most valuable in CLI?

@@ -8,7 +8,7 @@
  */
 
 const fs = require('fs');
-const path = require('path');
+const _path = require('path');
 const readline = require('readline');
 const installCommand = require('./install');
 const logger = require('../utils/logger');
@@ -20,13 +20,13 @@ const config = require('../utils/config');
  * @returns {Promise<boolean>} True if yes, false if no
  */
 function promptUser(question) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
 
-    rl.question(question, (answer) => {
+    rl.question(question, answer => {
       rl.close();
       const normalized = answer.trim().toLowerCase();
       resolve(normalized === 'y' || normalized === 'yes' || normalized === '');
@@ -101,10 +101,7 @@ async function init(args) {
     logger.log(`Installing ${packageName} to project...\n`, 'bright');
 
     // Build args for install command
-    const installArgs = [
-      '--package', packageName,
-      '--project', projectPath
-    ];
+    const installArgs = ['--package', packageName, '--project', projectPath];
 
     // Call install command
     await installCommand.install(installArgs);
@@ -116,7 +113,6 @@ async function init(args) {
     console.log('  2. Try: /managing-claude-context:create-edit-skill');
     console.log('  3. Check: .claude/skills/managing-claude-context/QUICK_START.md');
     console.log('');
-
   } catch (error) {
     logger.error(`Project initialization failed: ${error.message}`);
 

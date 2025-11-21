@@ -4,10 +4,10 @@
 
 #### 1. Core Safety Directives
 
-  * **File Safety:** Never `rm`. Always `mv` to `.trash/`.
-  * **Doc Safety:** Never delete specs/docs. Suggest removals, ask first.
-  * **Cleanup:** On "clean up," ONLY refactor/deduplicate. Ask before any change that alters meaning.
-  * **Critical Content:** NEVER touch donation links, contact info, or support sections. Suggest changes only.
+- **File Safety:** Never `rm`. Always `mv` to `.trash/`.
+- **Doc Safety:** Never delete specs/docs. Suggest removals, ask first.
+- **Cleanup:** On "clean up," ONLY refactor/deduplicate. Ask before any change that alters meaning.
+- **Critical Content:** NEVER touch donation links, contact info, or support sections. Suggest changes only.
 
 #### 2. Frontmatter-Driven Collaboration
 
@@ -15,44 +15,43 @@ Your primary instructions are in the **YAML frontmatter** at the top of the file
 
 #### 3. Syntax
 
-  * **User:** `[[! ...user note... ]]`
-  * **AI:** `[{! ...AI suggestion... }]`
-  * (Multi-line comments using this syntax are valid)
+- **User:** `[[! ...user note... ]]`
+- **AI:** `[{! ...AI suggestion... }]`
+- (Multi-line comments using this syntax are valid)
 
 #### 4. Behavior (State-Based)
 
 Your behavior is strictly controlled by the `metadata.status` field in the frontmatter:
 
-  * **`status: draft`**
+- **`status: draft`**
+  - You MAY rewrite sections _if explicitly commanded_.
+  - For general "reviews," you MUST default to `[{! ... }]` comments.
 
-      * You MAY rewrite sections *if explicitly commanded*.
-      * For general "reviews," you MUST default to `[{! ... }]` comments.
-
-  * **`status: in-review`** or **`status: approved`**
-
-      * You are in **COMMENT-ONLY MODE**.
-      * You **MUST NOT** rewrite any text. Your *only* action is adding `[{! ... }]` suggestions.
+- **`status: in-review`** or **`status: approved`**
+  - You are in **COMMENT-ONLY MODE**.
+  - You **MUST NOT** rewrite any text. Your _only_ action is adding `[{! ... }]` suggestions.
 
 #### 5. State Change
 
-  * When you receive a file with `status: draft` that contains the user's first `[[! ... ]]` comment:
-    1.  Add your `[{! ... }]` suggestions as requested.
-    2.  **Update the frontmatter** from `status: draft` to `status: in-review`.
-    3.  Add a final comment: `[{! Note: First user review detected. I have updated the frontmatter status to 'in-review'. }]`
+- When you receive a file with `status: draft` that contains the user's first `[[! ... ]]` comment:
+  1.  Add your `[{! ... }]` suggestions as requested.
+  2.  **Update the frontmatter** from `status: draft` to `status: in-review`.
+  3.  Add a final comment: `[{! Note: First user review detected. I have updated the frontmatter status to 'in-review'. }]`
 
 #### 6. Finalization
 
-  * When I give the explicit command: **"Apply changes and clean."**
-    1.  You will make all approved edits based on `[[! ... ]]` replies.
-    2.  You will **remove all `[[! ... ]]` and `[{! ... }]` blocks** from the document body.
-    3.  You will **PRESERVE THE YAML FRONTMATTER BLOCK** intact and review and update/create existing metadata object.
+- When I give the explicit command: **"Apply changes and clean."**
+  1.  You will make all approved edits based on `[[! ... ]]` replies.
+  2.  You will **remove all `[[! ... ]]` and `[{! ... }]` blocks** from the document body.
+  3.  You will **PRESERVE THE YAML FRONTMATTER BLOCK** intact and review and update/create existing metadata object.
 
------
+---
 
 ### Document Starter Template
 
 **CRITICAL:** YAML frontmatter MUST be the **absolute first content** in every `.md` file. No headers, comments, or text before the opening `---`.
 Example:
+
 ```yaml
 ---
 { other document metadata can be here - can be anything - specific to document type in different cases! }

@@ -105,6 +105,7 @@ function sanitizeForGitHub(input, maxLength = 10000) {
   sanitized = sanitized.replace(/\0/g, '');
 
   // Remove control characters except newlines and tabs
+  // eslint-disable-next-line no-control-regex
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
   return sanitized.trim();
@@ -161,9 +162,9 @@ function isValidLocation(location) {
  */
 function getDefaultAllowedPaths() {
   return [
-    os.homedir(),  // User's home directory
-    path.join(__dirname, '..', '..'),  // Package installation directory
-    process.cwd()  // Current working directory
+    os.homedir(), // User's home directory
+    path.join(__dirname, '..', '..'), // Package installation directory
+    process.cwd() // Current working directory
   ];
 }
 

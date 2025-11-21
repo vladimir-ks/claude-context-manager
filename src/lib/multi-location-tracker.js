@@ -7,8 +7,8 @@
  */
 
 const registry = require('./registry');
-const fs = require('fs');
-const path = require('path');
+const _fs = require('fs');
+const _path = require('path');
 
 /**
  * Add installation location to artifact tracking
@@ -238,9 +238,9 @@ function getInstallationSummary() {
     });
   }
 
-  const multiLocationCount = Object.values(locationsMap)
-    .filter(locations => locations.length > 1)
-    .length;
+  const multiLocationCount = Object.values(locationsMap).filter(
+    locations => locations.length > 1
+  ).length;
 
   return {
     total_artifacts: artifactSet.size,

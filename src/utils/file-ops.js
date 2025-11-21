@@ -14,10 +14,10 @@ const { isValidFilePath } = require('./validators');
 /**
  * Check available disk space
  * @param {string} targetPath - Path to check
- * @param {number} requiredBytes - Bytes needed
+ * @param {number} _requiredBytes - Bytes needed
  * @returns {Object} { success: boolean, available: number, message: string }
  */
-function checkDiskSpace(targetPath, requiredBytes = 0) {
+function checkDiskSpace(targetPath, _requiredBytes = 0) {
   try {
     // Platform-specific disk space check
     if (process.platform === 'win32') {
@@ -139,7 +139,7 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
         }
         break;
 
-      case 'write':
+      case 'write': {
         // Check parent directory exists and is writable
         const parentDir = path.dirname(sourcePath);
         if (!fs.existsSync(parentDir)) {
@@ -157,6 +157,7 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
           }
         }
         break;
+      }
 
       case 'delete':
         if (!fs.existsSync(sourcePath)) {
@@ -170,7 +171,7 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
         break;
 
       case 'copy':
-      case 'move':
+      case 'move': {
         // Validate both source and target
         if (!targetPath) {
           errors.push('Target path required for copy/move operation');
@@ -203,7 +204,8 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
           }
 
           // Check disk space
-          const size = estimatedSize || (fs.existsSync(sourcePath) ? fs.statSync(sourcePath).size : 0);
+          const size =
+            estimatedSize || (fs.existsSync(sourcePath) ? fs.statSync(sourcePath).size : 0);
           const spaceCheck = checkDiskSpace(targetDir, size);
           if (!spaceCheck.success) {
             errors.push(spaceCheck.message);
@@ -216,6 +218,7 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
         }
 
         break;
+      }
 
       default:
         errors.push(`Unknown operation: ${operation}`);
@@ -226,7 +229,6 @@ function validateFileOperation(operation, sourcePath, targetPath = null, estimat
       errors,
       warnings
     };
-
   } catch (error) {
     return {
       valid: false,
@@ -255,7 +257,6 @@ function safeReadFile(filePath) {
 
     const data = fs.readFileSync(filePath, 'utf8');
     return { success: true, data, error: null };
-
   } catch (error) {
     return {
       success: false,
@@ -284,7 +285,6 @@ function safeWriteFile(filePath, data) {
 
     fs.writeFileSync(filePath, data, 'utf8');
     return { success: true, error: null };
-
   } catch (error) {
     return {
       success: false,
@@ -313,7 +313,6 @@ function safeCopyFile(sourcePath, targetPath) {
 
     fs.copyFileSync(sourcePath, targetPath);
     return { success: true, error: null, warnings: validation.warnings };
-
   } catch (error) {
     return {
       success: false,
@@ -357,7 +356,6 @@ function atomicWriteFile(filePath, data) {
     fs.renameSync(tempPath, filePath);
 
     return { success: true, error: null };
-
   } catch (error) {
     // Cleanup temp file on error
     if (tempPath && fs.existsSync(tempPath)) {
@@ -410,7 +408,6 @@ function atomicCopyFile(sourcePath, targetPath) {
     fs.renameSync(tempPath, targetPath);
 
     return { success: true, error: null, warnings: validation.warnings };
-
   } catch (error) {
     // Cleanup temp file on error
     if (tempPath && fs.existsSync(tempPath)) {
@@ -485,6 +482,103 @@ function copyDirectory(sourcePath, targetPath) {
   }
 }
 
+/**
+ * Calculate SHA256 checksum of a file
+ * @param {string} filePath - Path to file
+ * @returns {string|null} Checksum or null if file doesn't exist
+ */
+function calculateChecksum(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+
+  const crypto = require('crypto');
+  const content = fs.readFileSync(filePath, 'utf8');
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+/**
+ * Calculate SHA256 checksum of a directory (recursive)
+ * @param {string} dirPath - Path to directory
+ * @returns {string|null} Combined checksum or null if directory doesn't exist
+ */
+function calculateDirectoryChecksum(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    return null;
+  }
+
+  const crypto = require('crypto');
+  const hash = crypto.createHash('sha256');
+
+  function hashDirectory(currentPath) {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+
+    // Sort entries for consistent hashing
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name);
+
+      if (entry.isDirectory()) {
+        // Hash directory name and recurse
+        hash.update(entry.name + ':dir');
+        hashDirectory(fullPath);
+      } else if (entry.isFile()) {
+        // Hash file name and contents
+        hash.update(entry.name + ':file');
+        const content = fs.readFileSync(fullPath);
+        hash.update(content);
+      }
+    }
+  }
+
+  hashDirectory(dirPath);
+  return hash.digest('hex');
+}
+
+/**
+ * Validate file checksum matches expected value
+ * @param {string} filePath - Path to file
+ * @param {string} expectedChecksum - Expected checksum
+ * @returns {boolean} True if checksum matches
+ */
+function validateChecksum(filePath, expectedChecksum) {
+  const actualChecksum = calculateChecksum(filePath);
+  return actualChecksum === expectedChecksum;
+}
+
+/**
+ * Create timestamped backup of file or directory
+ * @param {string} sourcePath - Path to backup
+ * @param {string} backupDir - Backup directory
+ * @returns {string} Backup path
+ */
+function createBackup(sourcePath, backupDir) {
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Source path does not exist: ${sourcePath}`);
+  }
+
+  // Create backup directory if it doesn't exist
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir, { recursive: true, mode: 0o755 });
+  }
+
+  // Generate timestamp for backup
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const sourceName = path.basename(sourcePath);
+  const backupPath = path.join(backupDir, `${sourceName}.backup-${timestamp}`);
+
+  // Copy file or directory
+  const stats = fs.statSync(sourcePath);
+  if (stats.isDirectory()) {
+    copyDirectory(sourcePath, backupPath);
+  } else {
+    copyFile(sourcePath, backupPath);
+  }
+
+  return backupPath;
+}
+
 module.exports = {
   checkDiskSpace,
   checkPermissions,
@@ -496,5 +590,9 @@ module.exports = {
   atomicWriteFile,
   atomicCopyFile,
   copyFile,
-  copyDirectory
+  copyDirectory,
+  calculateChecksum,
+  calculateDirectoryChecksum,
+  validateChecksum,
+  createBackup
 };

@@ -8,19 +8,19 @@ console.log('\n=== Testing Inquirer.js Module Imports ===\n');
 
 try {
   console.log('Loading @inquirer/select...');
-  const select = require('@inquirer/select');
+  const _select = require('@inquirer/select');
   console.log('✓ @inquirer/select loaded successfully');
 
   console.log('Loading @inquirer/checkbox...');
-  const checkbox = require('@inquirer/checkbox');
+  const _checkbox = require('@inquirer/checkbox');
   console.log('✓ @inquirer/checkbox loaded successfully');
 
   console.log('Loading @inquirer/confirm...');
-  const confirm = require('@inquirer/confirm');
+  const _confirm = require('@inquirer/confirm');
   console.log('✓ @inquirer/confirm loaded successfully');
 
   console.log('Loading @inquirer/input...');
-  const input = require('@inquirer/input');
+  const _input = require('@inquirer/input');
   console.log('✓ @inquirer/input loaded successfully');
 
   console.log('\n=== All Inquirer.js modules loaded successfully! ===\n');

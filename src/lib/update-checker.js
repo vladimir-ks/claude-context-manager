@@ -54,11 +54,7 @@ function saveUpdateState(state) {
     fs.mkdirSync(HOME_DIR, { recursive: true, mode: 0o755 });
   }
 
-  fs.writeFileSync(
-    UPDATE_STATE_FILE,
-    JSON.stringify(state, null, 2),
-    { mode: 0o644 }
-  );
+  fs.writeFileSync(UPDATE_STATE_FILE, JSON.stringify(state, null, 2), { mode: 0o644 });
 }
 
 /**
@@ -88,10 +84,10 @@ function checkLatestVersion() {
       }
     };
 
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       let data = '';
 
-      res.on('data', (chunk) => {
+      res.on('data', chunk => {
         data += chunk;
       });
 
@@ -122,7 +118,7 @@ function checkLatestVersion() {
       });
     });
 
-    req.on('error', (error) => {
+    req.on('error', error => {
       reject(error);
     });
 
@@ -232,8 +228,10 @@ async function checkForUpdates() {
     if (updateAvailable) {
       // Check notification cooldown
       const now = Date.now();
-      const lastNotification = state.last_notification ? new Date(state.last_notification).getTime() : 0;
-      const cooldownExpired = (now - lastNotification) >= NOTIFICATION_COOLDOWN;
+      const lastNotification = state.last_notification
+        ? new Date(state.last_notification).getTime()
+        : 0;
+      const cooldownExpired = now - lastNotification >= NOTIFICATION_COOLDOWN;
 
       if (cooldownExpired) {
         // Show notification

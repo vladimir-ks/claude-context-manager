@@ -25,6 +25,7 @@ https://github.com/vladks/claude-context-manager/security/advisories/new
 Send an email to: **vlad@vladks.com**
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -33,6 +34,7 @@ Include:
 ### 3. CCM Feedback Command
 
 For urgent security issues, use the `--force` flag:
+
 ```bash
 ccm feedback "SECURITY: [description]" --force --include-system-info
 ```
@@ -85,23 +87,27 @@ When using Claude Context Manager:
 CCM includes the following security features:
 
 ### Input Validation
+
 - Path traversal protection (`src/utils/validators.js`)
 - Artifact name validation (alphanumeric, dash, underscore, dot only)
 - GitHub API input sanitization
 - File path allowlist checking
 
 ### File Operations
+
 - Disk space validation before writes
 - Permission checking before operations
 - Symlink resolution and validation
 - Atomic file operations (temp + rename pattern)
 
 ### Network Security
+
 - 10-second timeout on all HTTPS requests
 - GitHub API rate limit handling
 - Error retry with exponential backoff
 
 ### Data Protection
+
 - Automatic backups before modifications
 - Checksum verification (SHA256)
 - 90-day backup retention
@@ -127,5 +133,6 @@ We recognize security researchers who help make CCM safer:
 **Thank you for helping keep Claude Context Manager secure!**
 
 For non-security issues, please use:
+
 - **GitHub Issues:** https://github.com/vladks/claude-context-manager/issues
 - **Email:** vlad@vladks.com

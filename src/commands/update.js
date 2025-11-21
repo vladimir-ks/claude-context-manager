@@ -24,11 +24,11 @@ const logger = require('../utils/logger');
  */
 function parseFlags(args) {
   const flags = {
-    target: null,       // 'global' or project path
-    name: null,         // artifact name to update
-    type: null,         // 'skill', 'command', 'package'
-    all: false,         // update all installed artifacts
-    skipBackup: false   // skip backup creation
+    target: null, // 'global' or project path
+    name: null, // artifact name to update
+    type: null, // 'skill', 'command', 'package'
+    all: false, // update all installed artifacts
+    skipBackup: false // skip backup creation
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -64,7 +64,9 @@ function validateFlags(flags) {
   if (!flags.target) {
     logger.error('Missing target: use --global or --project <path>');
     console.log('');
-    logger.info('Usage: ccm update [--skill|--command|--package <name>] [--global|--project <path>] [--all] [--skip-backup]');
+    logger.info(
+      'Usage: ccm update [--skill|--command|--package <name>] [--global|--project <path>] [--all] [--skip-backup]'
+    );
     logger.info('Example: ccm update --skill managing-claude-context --global');
     logger.info('Example: ccm update --all --global');
     console.log('');
@@ -75,7 +77,9 @@ function validateFlags(flags) {
   if (!flags.all && !flags.name) {
     logger.error('Missing artifact name or --all flag');
     console.log('');
-    logger.info('Usage: ccm update [--skill|--command|--package <name>] [--global|--project <path>] [--all] [--skip-backup]');
+    logger.info(
+      'Usage: ccm update [--skill|--command|--package <name>] [--global|--project <path>] [--all] [--skip-backup]'
+    );
     logger.info('Example: ccm update --skill managing-claude-context --global');
     logger.info('Example: ccm update --all --global');
     console.log('');
@@ -101,8 +105,8 @@ function promptUser(question) {
     output: process.stdout
   });
 
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
+  return new Promise(resolve => {
+    rl.question(question, answer => {
       rl.close();
       const normalized = answer.trim().toLowerCase();
       resolve(normalized === 'y' || normalized === 'yes' || normalized === '');
@@ -132,7 +136,7 @@ function hasUpdate(installed, available) {
  * @returns {Promise<Object>} Update result
  */
 async function updateArtifact(artifact, target, flags) {
-  const cat = catalog.loadCatalog();
+  const _cat = catalog.loadCatalog();
   const available = catalog.getArtifact(artifact.type, artifact.name);
 
   if (!available) {
@@ -170,9 +174,8 @@ async function updateArtifact(artifact, target, flags) {
   }
 
   // Determine target path
-  const targetBase = target === 'global'
-    ? config.getGlobalClaudeDir()
-    : config.getProjectClaudeDir(target);
+  const targetBase =
+    target === 'global' ? config.getGlobalClaudeDir() : config.getProjectClaudeDir(target);
 
   let targetPath;
   if (artifact.type === 'skill') {
@@ -261,7 +264,7 @@ async function update(args) {
     }
 
     // Check for available updates
-    const cat = catalog.loadCatalog();
+    const _cat = catalog.loadCatalog();
     const updatesAvailable = [];
 
     for (const artifact of artifactsToUpdate) {
@@ -332,7 +335,6 @@ async function update(args) {
       logger.success('Update complete!');
       console.log('');
     }
-
   } catch (error) {
     logger.error(`Update failed: ${error.message}`);
     console.log('');

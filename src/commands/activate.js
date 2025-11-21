@@ -100,7 +100,6 @@ async function activate(args) {
     logger.success('Premium features are now available!');
     logger.info('Run "ccm list" to see all available artifacts');
     console.log('');
-
   } catch (error) {
     logger.error(`Activation failed: ${error.message}`);
     console.log('');

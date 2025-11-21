@@ -21,7 +21,7 @@ const logger = require('../utils/logger');
  */
 function parseFlags(args) {
   const flags = {
-    scope: 'all'    // 'global', 'project', 'all'
+    scope: 'all' // 'global', 'project', 'all'
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -102,13 +102,13 @@ async function status(args) {
 
           if (status.exists) {
             if (status.modified) {
-              logger.warn(`     Modified: Yes (checksum mismatch)`);
-              logger.warn(`     ⚠ Local changes detected - run 'ccm update --global' to sync`);
+              logger.warn('     Modified: Yes (checksum mismatch)');
+              logger.warn("     ⚠ Local changes detected - run 'ccm update --global' to sync");
             } else {
-              logger.info(`     Modified: No (checksum matches)`);
+              logger.info('     Modified: No (checksum matches)');
             }
           } else {
-            logger.error(`     ✗ Files not found at expected location`);
+            logger.error('     ✗ Files not found at expected location');
           }
 
           if (artifact.source_path) {
@@ -164,11 +164,7 @@ async function status(args) {
           } else {
             // Show artifacts
             artifacts.forEach(artifact => {
-              const artifactPath = path.join(
-                project.location,
-                `${artifact.type}s`,
-                artifact.name
-              );
+              const artifactPath = path.join(project.location, `${artifact.type}s`, artifact.name);
 
               const status = checkArtifactStatus(artifactPath, artifact);
 
@@ -177,12 +173,12 @@ async function status(args) {
 
               if (status.exists) {
                 if (status.modified) {
-                  logger.warn(`     Modified: Yes (checksum mismatch)`);
+                  logger.warn('     Modified: Yes (checksum mismatch)');
                 } else {
-                  logger.info(`     Modified: No`);
+                  logger.info('     Modified: No');
                 }
               } else {
-                logger.error(`     ✗ Files not found`);
+                logger.error('     ✗ Files not found');
               }
             });
 
@@ -213,7 +209,6 @@ async function status(args) {
       console.log(`  Projects: ${totalProject} installation(s)`);
       console.log('');
     }
-
   } catch (error) {
     logger.error(`Failed to retrieve status: ${error.message}`);
     console.log('');

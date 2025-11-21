@@ -143,13 +143,17 @@ async function selectArtifacts(availableArtifacts) {
   const commands = availableArtifacts.filter(a => a.type === 'command');
 
   const choices = [
-    ...skills.length > 0 ? [{ name: '─── Skills ───', value: 'separator-skills', disabled: true }] : [],
+    ...(skills.length > 0
+      ? [{ name: '─── Skills ───', value: 'separator-skills', disabled: true }]
+      : []),
     ...skills.map(a => ({
       name: `${a.name} - ${a.description}`,
       value: a.name,
       disabled: a.locked ? '🔒 Premium' : false
     })),
-    ...commands.length > 0 ? [{ name: '─── Commands ───', value: 'separator-commands', disabled: true }] : [],
+    ...(commands.length > 0
+      ? [{ name: '─── Commands ───', value: 'separator-commands', disabled: true }]
+      : []),
     ...commands.map(a => ({
       name: `${a.name} - ${a.description}`,
       value: a.name,
@@ -434,7 +438,9 @@ async function selectArtifactVersion(artifactName, versions) {
   const choices = sortedVersions.map((ver, index) => {
     const isLatest = index === 0;
     const releaseDate = ver.released ? new Date(ver.released).toLocaleDateString() : 'Unknown date';
-    const changelogPreview = ver.changelog ? ` - ${ver.changelog.substring(0, 50)}${ver.changelog.length > 50 ? '...' : ''}` : '';
+    const changelogPreview = ver.changelog
+      ? ` - ${ver.changelog.substring(0, 50)}${ver.changelog.length > 50 ? '...' : ''}`
+      : '';
 
     return {
       name: `v${ver.version}${isLatest ? ' (latest)' : ''} - ${releaseDate}${changelogPreview}`,

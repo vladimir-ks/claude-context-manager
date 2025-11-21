@@ -18,8 +18,8 @@ const logger = require('../utils/logger');
  */
 function parseFlags(args) {
   const flags = {
-    tier: 'all',    // 'free', 'premium', 'all'
-    type: 'all'     // 'skill', 'command', 'package', 'all'
+    tier: 'all', // 'free', 'premium', 'all'
+    type: 'all' // 'skill', 'command', 'package', 'all'
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -53,9 +53,9 @@ async function list(args) {
     const globalPackageNames = globalPackages.map(p => p.name);
 
     // Filter by tier and type
-    const skills = (flags.type === 'all' || flags.type === 'skill') ? cat.skills : [];
-    const commands = (flags.type === 'all' || flags.type === 'command') ? cat.commands : [];
-    const packages = (flags.type === 'all' || flags.type === 'package') ? cat.packages : [];
+    const skills = flags.type === 'all' || flags.type === 'skill' ? cat.skills : [];
+    const commands = flags.type === 'all' || flags.type === 'command' ? cat.commands : [];
+    const packages = flags.type === 'all' || flags.type === 'package' ? cat.packages : [];
 
     // Show free tier
     if (flags.tier === 'all' || flags.tier === 'free') {
@@ -70,7 +70,9 @@ async function list(args) {
         logger.log('Skills:', 'bright');
         freeSkills.forEach(skill => {
           const mark = globalInstalledNames.includes(skill.name) ? '✓' : ' ';
-          const installedText = globalInstalledNames.includes(skill.name) ? '[INSTALLED globally]' : '';
+          const installedText = globalInstalledNames.includes(skill.name)
+            ? '[INSTALLED globally]'
+            : '';
           const color = mark === '✓' ? 'green' : 'reset';
 
           logger.log(`  ${mark} ${skill.name} (v${skill.version}) ${installedText}`, color);
@@ -84,7 +86,9 @@ async function list(args) {
         logger.log('Commands:', 'bright');
         freeCommands.forEach(cmd => {
           const mark = globalInstalledNames.includes(cmd.name) ? '✓' : ' ';
-          const installedText = globalInstalledNames.includes(cmd.name) ? '[INSTALLED globally]' : '';
+          const installedText = globalInstalledNames.includes(cmd.name)
+            ? '[INSTALLED globally]'
+            : '';
           const color = mark === '✓' ? 'green' : 'reset';
 
           logger.log(`  ${mark} ${cmd.name} (v${cmd.version}) ${installedText}`, color);
@@ -126,9 +130,10 @@ async function list(args) {
         logger.log('Premium Artifacts:', 'bright');
 
         // Check if user has premium access
-        const hasLocked = premiumSkills.some(s => s.locked) ||
-                          premiumCommands.some(c => c.locked) ||
-                          premiumPackages.some(p => p.locked);
+        const hasLocked =
+          premiumSkills.some(s => s.locked) ||
+          premiumCommands.some(c => c.locked) ||
+          premiumPackages.some(p => p.locked);
 
         if (hasLocked) {
           logger.log('(Locked - Activate license with "ccm activate LICENSE_KEY")\n', 'dim');
@@ -142,7 +147,9 @@ async function list(args) {
               logger.log(`  🔒 ${skill.name} (v${skill.version})`, 'yellow');
             } else {
               const mark = globalInstalledNames.includes(skill.name) ? '✓' : ' ';
-              const installedText = globalInstalledNames.includes(skill.name) ? '[INSTALLED globally]' : '';
+              const installedText = globalInstalledNames.includes(skill.name)
+                ? '[INSTALLED globally]'
+                : '';
               const color = mark === '✓' ? 'green' : 'reset';
               logger.log(`  ${mark} ${skill.name} (v${skill.version}) ${installedText}`, color);
             }
@@ -159,7 +166,9 @@ async function list(args) {
               logger.log(`  🔒 ${cmd.name} (v${cmd.version})`, 'yellow');
             } else {
               const mark = globalInstalledNames.includes(cmd.name) ? '✓' : ' ';
-              const installedText = globalInstalledNames.includes(cmd.name) ? '[INSTALLED globally]' : '';
+              const installedText = globalInstalledNames.includes(cmd.name)
+                ? '[INSTALLED globally]'
+                : '';
               const color = mark === '✓' ? 'green' : 'reset';
               logger.log(`  ${mark} ${cmd.name} (v${cmd.version}) ${installedText}`, color);
             }
@@ -176,7 +185,9 @@ async function list(args) {
               logger.log(`  🔒 ${pkg.name} (v${pkg.version})`, 'yellow');
             } else {
               const mark = globalPackageNames.includes(pkg.name) ? '✓' : ' ';
-              const installedText = globalPackageNames.includes(pkg.name) ? '[INSTALLED globally]' : '';
+              const installedText = globalPackageNames.includes(pkg.name)
+                ? '[INSTALLED globally]'
+                : '';
               const color = mark === '✓' ? 'green' : 'reset';
               logger.log(`  ${mark} ${pkg.name} (v${pkg.version}) ${installedText}`, color);
             }
@@ -192,7 +203,6 @@ async function list(args) {
         }
       }
     }
-
   } catch (error) {
     logger.error(`Failed to load catalog: ${error.message}`);
     console.log('');

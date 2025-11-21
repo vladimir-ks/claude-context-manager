@@ -158,7 +158,6 @@ async function interactiveCleanup() {
       }
 
       console.log('');
-
     } else if (action === 'specific') {
       // Delete specific artifact backups
       const allArtifacts = backupManager.getAllBackupArtifacts();
@@ -178,7 +177,9 @@ async function interactiveCleanup() {
 
       logger.log(`Backups for ${artifactName}:\n`, 'bright');
       backups.forEach((backup, index) => {
-        const date = new Date(backup.timestamp.replace(/_/g, ':').replace(/-/g, '-')).toLocaleString();
+        const date = new Date(
+          backup.timestamp.replace(/_/g, ':').replace(/-/g, '-')
+        ).toLocaleString();
         const size = backup.size ? `${(backup.size / 1024).toFixed(1)}KB` : 'unknown';
         console.log(`  ${index + 1}. ${date} - v${backup.version} (${size})`);
       });
@@ -217,7 +218,6 @@ async function interactiveCleanup() {
       }
 
       console.log('');
-
     } else if (action === 'policy') {
       // Update retention policy
       const input = require('@inquirer/input').default;
@@ -231,7 +231,7 @@ async function interactiveCleanup() {
       const maxBackups = await input({
         message: 'Max backups per artifact (5-50):',
         default: currentConfig.max_backups_per_artifact.toString(),
-        validate: (value) => {
+        validate: value => {
           const num = parseInt(value);
           if (isNaN(num) || num < 5 || num > 50) {
             return 'Please enter a number between 5 and 50';
@@ -243,7 +243,7 @@ async function interactiveCleanup() {
       const maxAge = await input({
         message: 'Max age in days (7-365):',
         default: currentConfig.retention_days.toString(),
-        validate: (value) => {
+        validate: value => {
           const num = parseInt(value);
           if (isNaN(num) || num < 7 || num > 365) {
             return 'Please enter a number between 7 and 365';
@@ -267,7 +267,6 @@ async function interactiveCleanup() {
       console.log(`  Max age: ${maxAge} days`);
       console.log('');
     }
-
   } catch (error) {
     if (error.name === 'ExitPromptError') {
       logger.warn('\nCleanup cancelled by user.');
@@ -289,7 +288,10 @@ async function flagBasedCleanup(flags) {
 
     const backupConfig = registry.getBackupConfig();
 
-    logger.log(`\nCleaning up old backups${flags.artifact ? ` for ${flags.artifact}` : ''}:\n`, 'bright');
+    logger.log(
+      `\nCleaning up old backups${flags.artifact ? ` for ${flags.artifact}` : ''}:\n`,
+      'bright'
+    );
 
     if (flags.dryRun) {
       logger.warn('DRY RUN MODE - No files will be deleted\n');
@@ -317,7 +319,6 @@ async function flagBasedCleanup(flags) {
     }
 
     console.log('');
-
   } catch (error) {
     logger.error(`Cleanup failed: ${error.message}`);
     console.error(error);
@@ -340,7 +341,6 @@ async function cleanup(args) {
       // Flags provided - use flag-based mode
       await flagBasedCleanup(flags);
     }
-
   } catch (error) {
     if (error.name !== 'ExitPromptError') {
       logger.error(`Unexpected error: ${error.message}`);

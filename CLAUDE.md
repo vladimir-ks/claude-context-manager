@@ -26,6 +26,7 @@ This repository serves a **dual purpose**:
 ### Primary Development Tool
 
 The **`managing-claude-context` skill** is the cornerstone of this repository. This skill provides:
+
 - Framework for creating new skills, commands, and agents
 - Context engineering principles and patterns
 - Progressive disclosure architecture
@@ -36,6 +37,7 @@ The **`managing-claude-context` skill** is the cornerstone of this repository. T
 ### Repository Components
 
 This repository contains:
+
 1. **The `managing-claude-context` Skill** - Primary development tool (`.claude/skills/managing-claude-context/`)
 2. **Additional Skills** - Created using the primary skill, all are valid, version-controlled components
 3. **Commands** - Slash commands for specialized operations
@@ -52,6 +54,7 @@ This repository contains:
 2. **`master` branch** → Production releases, auto-publish to NPM
 
 **How it works:**
+
 - Push to `dev`: Validates package integrity, runs checks (ci-dev.yml)
 - Merge `dev` → `master`: Publishes production version to NPM, creates GitHub release (ci-production.yml)
 
@@ -84,6 +87,7 @@ When users run `npm install -g @vladimir-ks/claude-context-manager`, the postins
 **Implementation:** `src/lib/sync-engine.js` (full sync logic)
 
 **Safety features:**
+
 - Never deletes files (always moves to timestamped `.trash/`)
 - Creates backups before modifications (`.backup-{timestamp}`)
 - User CLAUDE.md content always preserved
@@ -180,21 +184,25 @@ When working in this repository, AI agents should:
 ## Key Guidelines
 
 ### Specifications Before Code
+
 - Never create code without approved specifications
 - Specifications must be accessible to non-technical stakeholders
 - Focus on "what" and "why" before "how"
 
 ### Zero-Redundancy Principle
+
 - Each piece of information appears in exactly one place
 - Use references and cross-links instead of duplication
 - Single source of truth for all concepts
 
 ### Progressive Disclosure
+
 - Load context only when needed
 - Minimize always-loaded content
 - Structure knowledge in layers (core → detailed → specialized)
 
 ### Research is SACRED
+
 - Never delete research materials
 - Preserve decision rationale and exploration notes
 - Research enables future improvements and debugging
@@ -215,6 +223,7 @@ When working in this repository, AI agents should:
 ### Commit Guidelines
 
 **Format:**
+
 ```
 Type: Brief description (50 chars max)
 
@@ -226,6 +235,7 @@ Files changed: X files
 ```
 
 **Types:**
+
 - `Add:` - New features or files
 - `Update:` - Modifications to existing features
 - `Fix:` - Bug fixes
@@ -234,6 +244,7 @@ Files changed: X files
 - `Test:` - Test-related changes
 
 **Example:**
+
 ```
 Add: Validation checklist for manual artifact testing
 
@@ -244,17 +255,20 @@ Files changed: 1 file
 ```
 
 ### When to Commit
+
 - After completing a logical unit of work
 - After validating changes manually
 - Before switching to different task
 - When artifact creation/update is complete
 
 ### When to Push
+
 - After each commit (keep remote in sync)
 - Before ending work session
 - After completing major milestones
 
 ### Best Practices
+
 - Read files before editing
 - Test changes before committing
 - Update CHANGELOG.md for significant changes
@@ -265,6 +279,7 @@ Files changed: 1 file
 ### Quick Start
 
 1. **Load the skill**:
+
    ```
    Use the Skill tool: skill: "managing-claude-context"
    ```
@@ -301,6 +316,7 @@ Files changed: 1 file
 The managing-claude-context skill and all created artifacts should be validated through LLM review rather than execution:
 
 **What to Review:**
+
 - **Consistency** - Check for contradictions across all files
 - **Redundancy** - Identify duplicate information
 - **Ambiguity** - Find unclear or vague instructions
@@ -309,6 +325,7 @@ The managing-claude-context skill and all created artifacts should be validated 
 - **Completeness** - Confirm all required sections present
 
 **How to Review:**
+
 1. Load skill without executing commands
 2. Read through all instructions sequentially
 3. Identify issues, inconsistencies, structural problems
@@ -316,11 +333,13 @@ The managing-claude-context skill and all created artifacts should be validated 
 5. Human reviews findings and decides on fixes
 
 **Tools:**
+
 - **Validation Checklist**: `.claude/skills/managing-claude-context/00_DOCS/validation-checklist.md`
 - **Integration Validation**: `.claude/skills/managing-claude-context/references/integration-validation.md`
 - **Testing Section**: `.claude/skills/managing-claude-context/QUICK_START.md`
 
 **Example Review Focus:**
+
 ```
 Review managing-claude-context skill for:
 - Are commands and references consistent?
@@ -359,6 +378,7 @@ claude-skills-builder-vladks/
 ### Documentation Map
 
 For complete navigation and detailed documentation index, see:
+
 - **[00_DOCS/INDEX.md](./00_DOCS/INDEX.md)** - Comprehensive documentation map
   - Quick start paths
   - Reading paths by goal
@@ -366,6 +386,7 @@ For complete navigation and detailed documentation index, see:
   - Navigation tips
 
 **Key Documentation:**
+
 - Start: `CLAUDE.md` (this file), `README.md`
 - Skill Guide: `.claude/skills/managing-claude-context/QUICK_START.md`
 - All Skills: `00_DOCS/SKILLS_OVERVIEW.md`
@@ -383,5 +404,6 @@ For complete navigation and detailed documentation index, see:
 ---
 
 **For detailed guidance on using the managing-claude-context skill, see:**
+
 - `.claude/skills/managing-claude-context/QUICK_START.md`
 - `.claude/skills/managing-claude-context/SKILL.md`

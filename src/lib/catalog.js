@@ -147,9 +147,8 @@ function loadCatalog() {
 
   // Check if user has premium license
   const cfg = config.readConfig();
-  const tier = cfg.license && cfg.license.key && cfg.license.tier !== 'free'
-    ? cfg.license.tier
-    : 'free';
+  const tier =
+    cfg.license && cfg.license.key && cfg.license.tier !== 'free' ? cfg.license.tier : 'free';
 
   return {
     skills: [...freeCatalog.skills, ...premiumCatalog.skills],
@@ -200,12 +199,11 @@ function searchArtifacts(query, options = {}) {
     const nameMatch = artifact.name.toLowerCase().includes(queryLower);
 
     // Match against description
-    const descMatch = artifact.description &&
-      artifact.description.toLowerCase().includes(queryLower);
+    const descMatch =
+      artifact.description && artifact.description.toLowerCase().includes(queryLower);
 
     // Match against category
-    const catMatch = artifact.category &&
-      artifact.category.toLowerCase().includes(queryLower);
+    const catMatch = artifact.category && artifact.category.toLowerCase().includes(queryLower);
 
     return nameMatch || descMatch || catMatch;
   });
@@ -249,8 +247,8 @@ function listByCategory(category) {
     ...(catalog.packages || []).map(p => ({ ...p, type: 'package' }))
   ];
 
-  return allArtifacts.filter(artifact =>
-    artifact.category && artifact.category.toLowerCase() === categoryLower
+  return allArtifacts.filter(
+    artifact => artifact.category && artifact.category.toLowerCase() === categoryLower
   );
 }
 

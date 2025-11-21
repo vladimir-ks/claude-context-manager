@@ -52,7 +52,9 @@ function showStatus() {
   console.log('');
 
   logger.log('Status:', 'bright');
-  console.log(`  ${status.enabled ? logger.colors.green + '✓ Enabled' : logger.colors.yellow + '✗ Disabled'}${logger.colors.reset}`);
+  console.log(
+    `  ${status.enabled ? logger.colors.green + '✓ Enabled' : logger.colors.yellow + '✗ Disabled'}${logger.colors.reset}`
+  );
   console.log('');
 
   if (status.current_version) {
@@ -60,8 +62,11 @@ function showStatus() {
     console.log(`  Current: ${logger.colors.cyan}${status.current_version}${logger.colors.reset}`);
 
     if (status.latest_version) {
-      const isUpToDate = updateChecker.compareVersions(status.current_version, status.latest_version) >= 0;
-      console.log(`  Latest:  ${logger.colors.cyan}${status.latest_version}${logger.colors.reset} ${isUpToDate ? logger.colors.green + '(up to date)' + logger.colors.reset : logger.colors.yellow + '(update available)' + logger.colors.reset}`);
+      const isUpToDate =
+        updateChecker.compareVersions(status.current_version, status.latest_version) >= 0;
+      console.log(
+        `  Latest:  ${logger.colors.cyan}${status.latest_version}${logger.colors.reset} ${isUpToDate ? logger.colors.green + '(up to date)' + logger.colors.reset : logger.colors.yellow + '(update available)' + logger.colors.reset}`
+      );
     }
     console.log('');
   }
@@ -126,8 +131,12 @@ async function notifications(args) {
       if (result.update_available) {
         logger.log('✓ Update Available', 'yellow');
         console.log('');
-        console.log(`  Current: ${logger.colors.cyan}${result.current_version}${logger.colors.reset}`);
-        console.log(`  Latest:  ${logger.colors.green}${result.latest_version}${logger.colors.reset}`);
+        console.log(
+          `  Current: ${logger.colors.cyan}${result.current_version}${logger.colors.reset}`
+        );
+        console.log(
+          `  Latest:  ${logger.colors.green}${result.latest_version}${logger.colors.reset}`
+        );
         console.log('');
         logger.log('To update:', 'bright');
         logger.log('  npm install -g @vladimir-ks/claude-context-manager@latest', 'cyan');
@@ -135,7 +144,9 @@ async function notifications(args) {
       } else if (result.checked) {
         logger.log('✓ Up to Date', 'green');
         console.log('');
-        console.log(`  Current version: ${logger.colors.cyan}${result.current_version}${logger.colors.reset}`);
+        console.log(
+          `  Current version: ${logger.colors.cyan}${result.current_version}${logger.colors.reset}`
+        );
         console.log('');
       } else {
         logger.log('✗ Check Failed', 'red');

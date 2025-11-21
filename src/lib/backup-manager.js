@@ -28,10 +28,7 @@ function getBackupDir(artifactName) {
  */
 function generateTimestamp() {
   const now = new Date();
-  return now.toISOString()
-    .replace(/:/g, '-')
-    .replace(/\..+/, '')
-    .replace('T', '_');
+  return now.toISOString().replace(/:/g, '-').replace(/\..+/, '').replace('T', '_');
 }
 
 /**
@@ -120,7 +117,7 @@ function createBackup(artifactPath, artifactName, sourceLocation, metadata = {})
 function calculateDirectorySize(dirPath) {
   let totalSize = 0;
 
-  const calculateSize = (p) => {
+  const calculateSize = p => {
     const stats = fs.statSync(p);
     if (stats.isDirectory()) {
       const files = fs.readdirSync(p);
@@ -144,7 +141,7 @@ function calculateDirectorySize(dirPath) {
 function countFiles(dirPath) {
   let count = 0;
 
-  const countFilesRecursive = (p) => {
+  const countFilesRecursive = p => {
     const stats = fs.statSync(p);
     if (stats.isDirectory()) {
       const files = fs.readdirSync(p);
@@ -340,7 +337,8 @@ function cleanupOldBackups(artifactName = null, retentionPolicy = null, dryRun =
             deleted.push({
               artifact: artifact,
               timestamp: backup.timestamp,
-              reason: index >= retentionPolicy.max_backups ? 'max_backups_exceeded' : 'max_age_exceeded'
+              reason:
+                index >= retentionPolicy.max_backups ? 'max_backups_exceeded' : 'max_age_exceeded'
             });
           } catch (error) {
             // Log but continue
@@ -351,7 +349,8 @@ function cleanupOldBackups(artifactName = null, retentionPolicy = null, dryRun =
           deleted.push({
             artifact: artifact,
             timestamp: backup.timestamp,
-            reason: index >= retentionPolicy.max_backups ? 'max_backups_exceeded' : 'max_age_exceeded'
+            reason:
+              index >= retentionPolicy.max_backups ? 'max_backups_exceeded' : 'max_age_exceeded'
           });
         }
       }
@@ -373,11 +372,10 @@ function getAllBackupArtifacts() {
     return [];
   }
 
-  const artifacts = fs.readdirSync(backupsDir)
-    .filter(name => {
-      const artifactPath = path.join(backupsDir, name);
-      return fs.statSync(artifactPath).isDirectory();
-    });
+  const artifacts = fs.readdirSync(backupsDir).filter(name => {
+    const artifactPath = path.join(backupsDir, name);
+    return fs.statSync(artifactPath).isDirectory();
+  });
 
   return artifacts;
 }
@@ -528,11 +526,7 @@ function createSmartBackup(filePath, location, metadata = {}) {
   const fileName = path.basename(filePath);
 
   // Smart detection: Only backup if modified
-  const isModified = isFileModified(
-    filePath,
-    metadata.installedAt,
-    metadata.registryChecksum
-  );
+  const isModified = isFileModified(filePath, metadata.installedAt, metadata.registryChecksum);
 
   if (!isModified) {
     return { created: false, reason: 'unchanged', fileName };
@@ -627,7 +621,10 @@ function cleanupOldCcmBackups(location, retentionDays = 90) {
           }
         }
 
-        deleted.push({ file, age_days: Math.floor((Date.now() - stats.mtime) / (1000 * 60 * 60 * 24)) });
+        deleted.push({
+          file,
+          age_days: Math.floor((Date.now() - stats.mtime) / (1000 * 60 * 60 * 24))
+        });
       } catch (error) {
         console.warn(`Failed to delete backup ${file}: ${error.message}`);
       }

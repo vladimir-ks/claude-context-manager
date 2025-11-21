@@ -30,7 +30,7 @@ function makeRequest(method, path, data = null) {
       method: method,
       headers: {
         'User-Agent': 'Claude-Context-Manager',
-        'Accept': 'application/vnd.github.v3+json'
+        Accept: 'application/vnd.github.v3+json'
       }
     };
 
@@ -40,10 +40,10 @@ function makeRequest(method, path, data = null) {
       options.headers['Content-Length'] = Buffer.byteLength(body);
     }
 
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       let responseBody = '';
 
-      res.on('data', (chunk) => {
+      res.on('data', chunk => {
         responseBody += chunk;
       });
 
@@ -54,7 +54,9 @@ function makeRequest(method, path, data = null) {
           if (res.statusCode >= 200 && res.statusCode < 300) {
             resolve(parsed);
           } else {
-            reject(new Error(`GitHub API error: ${res.statusCode} - ${parsed.message || responseBody}`));
+            reject(
+              new Error(`GitHub API error: ${res.statusCode} - ${parsed.message || responseBody}`)
+            );
           }
         } catch (error) {
           reject(new Error(`Failed to parse GitHub response: ${error.message}`));
@@ -62,7 +64,7 @@ function makeRequest(method, path, data = null) {
       });
     });
 
-    req.on('error', (error) => {
+    req.on('error', error => {
       reject(new Error(`Network error: ${error.message}`));
     });
 
@@ -88,11 +90,7 @@ function makeRequest(method, path, data = null) {
  * @returns {Promise<Array>} Matching issues
  */
 async function searchIssues(query, options = {}) {
-  const {
-    state = 'open',
-    labels = [],
-    limit = 10
-  } = options;
+  const { state = 'open', labels = [], limit = 10 } = options;
 
   // Build search query
   let searchQuery = `${query} repo:${REPO_OWNER}/${REPO_NAME}`;
@@ -126,11 +124,7 @@ async function searchIssues(query, options = {}) {
  * @returns {Promise<Object>} Created issue
  */
 async function createIssue(issue) {
-  const {
-    title,
-    body,
-    labels = ['user-feedback', 'needs-triage']
-  } = issue;
+  const { title, body, labels = ['user-feedback', 'needs-triage'] } = issue;
 
   if (!title || !body) {
     throw new Error('Issue title and body are required');
@@ -183,15 +177,39 @@ function extractKeywords(text) {
   cleaned = cleaned.toLowerCase();
 
   // Remove common words
-  const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'is', 'was', 'are', 'were', 'been', 'be', 'have', 'has', 'had', 'do', 'does', 'did'];
+  const stopWords = [
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'but',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'with',
+    'is',
+    'was',
+    'are',
+    'were',
+    'been',
+    'be',
+    'have',
+    'has',
+    'had',
+    'do',
+    'does',
+    'did'
+  ];
 
   // Extract words (alphanumeric + hyphens)
   const words = cleaned.match(/[\w-]+/g) || [];
 
   // Filter stop words and short words
-  const keywords = words.filter(word =>
-    word.length > 2 && !stopWords.includes(word)
-  );
+  const keywords = words.filter(word => word.length > 2 && !stopWords.includes(word));
 
   return [...new Set(keywords)]; // Remove duplicates
 }
@@ -224,9 +242,7 @@ function calculateSimilarity(text1, text2) {
  * @returns {Promise<Object|null>} Duplicate issue or null
  */
 async function findDuplicateIssue(message, options = {}) {
-  const {
-    similarityThreshold = 0.75
-  } = options;
+  const { similarityThreshold = 0.75 } = options;
 
   // Step 1: Check for error codes
   const errorCodes = extractErrorCodes(message);
@@ -307,8 +323,8 @@ function generateIssueBody(message, systemInfo = {}) {
 
   let body = `## User Feedback\n\n${message}\n\n`;
 
-  body += `---\n\n`;
-  body += `**Submitted via:** CCM Feedback System\n`;
+  body += '---\n\n';
+  body += '**Submitted via:** CCM Feedback System\n';
   body += `**CCM Version:** ${ccmVersion}\n`;
 
   if (includeSystemInfo) {
@@ -316,7 +332,8 @@ function generateIssueBody(message, systemInfo = {}) {
     body += `**Platform:** ${platform}\n`;
   }
 
-  body += `\n**Note:** This issue was automatically created from user feedback. Please triage and assign labels as needed.\n`;
+  body +=
+    '\n**Note:** This issue was automatically created from user feedback. Please triage and assign labels as needed.\n';
 
   return body;
 }

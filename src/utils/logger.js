@@ -38,7 +38,7 @@ const MAX_LOG_SIZE = 5 * 1024 * 1024; // 5MB per log file
  */
 function log(message, color = 'reset') {
   // Convert message to string if not already
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
 
   // Validate color, default to reset if invalid
   const selectedColor = colors[color] || colors.reset;
@@ -51,7 +51,7 @@ function log(message, color = 'reset') {
  * @param {string} message - Success message
  */
 function success(message) {
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
   log(`✓ ${msg}`, 'green');
 }
 
@@ -60,7 +60,7 @@ function success(message) {
  * @param {string} message - Error message
  */
 function error(message) {
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
   log(`✗ ${msg}`, 'red');
 }
 
@@ -69,7 +69,7 @@ function error(message) {
  * @param {string} message - Warning message
  */
 function warn(message) {
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
   log(`⚠ ${msg}`, 'yellow');
 }
 
@@ -78,7 +78,7 @@ function warn(message) {
  * @param {string} message - Info message
  */
 function info(message) {
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
   log(`ℹ ${msg}`, 'cyan');
 }
 
@@ -87,7 +87,7 @@ function info(message) {
  * @param {string} message - Progress message
  */
 function progress(message) {
-  const msg = message == null ? '' : String(message);
+  const msg = message === null ? '' : String(message);
   // Use process.stdout.write to avoid newline (allows clearLine to work)
   process.stdout.write(`${colors.dim}⏳ ${msg}${colors.reset}`);
 }
@@ -142,7 +142,6 @@ function debugLog(level, message, data = null) {
 
     // Append to log file
     fs.appendFileSync(logFile, logEntry, { mode: 0o644 });
-
   } catch (error) {
     // Silently ignore logging errors (don't break the app)
   }
@@ -171,7 +170,6 @@ function cleanupOldLogs() {
         fs.unlinkSync(filePath);
       }
     });
-
   } catch (error) {
     // Silently ignore cleanup errors
   }

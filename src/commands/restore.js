@@ -116,8 +116,12 @@ async function interactiveRestore() {
     console.log(`  Version: ${metadata.version_before}`);
     console.log(`  Created: ${new Date(metadata.backup_timestamp).toLocaleString()}`);
     console.log(`  Reason: ${metadata.backup_reason}`);
-    console.log(`  Source: ${metadata.source_location === 'global' ? 'Global (~/.claude)' : metadata.source_location}`);
-    console.log(`  Files: ${metadata.file_count}, Size: ${(metadata.total_size_bytes / 1024).toFixed(1)}KB`);
+    console.log(
+      `  Source: ${metadata.source_location === 'global' ? 'Global (~/.claude)' : metadata.source_location}`
+    );
+    console.log(
+      `  Files: ${metadata.file_count}, Size: ${(metadata.total_size_bytes / 1024).toFixed(1)}KB`
+    );
     console.log('');
 
     // Step 3: Select target location
@@ -126,7 +130,11 @@ async function interactiveRestore() {
     const restoreLocationChoices = [
       { name: 'Original location (from backup)', value: 'original' },
       { name: 'Global (~/.claude)', value: 'global' },
-      { name: 'Current project', value: 'project', disabled: !menu.isGitRepo() ? 'Not a git repository' : false }
+      {
+        name: 'Current project',
+        value: 'project',
+        disabled: !menu.isGitRepo() ? 'Not a git repository' : false
+      }
     ];
 
     const restoreChoice = await select({
@@ -190,7 +198,7 @@ async function interactiveRestore() {
     logger.clearLine();
 
     if (result.success) {
-      logger.success(`✓ Restore complete!`);
+      logger.success('✓ Restore complete!');
       console.log(`  Restored: ${metadata.artifact_name} v${result.version}`);
       console.log(`  Location: ${locationLabel}`);
       console.log('');
@@ -215,7 +223,6 @@ async function interactiveRestore() {
       logger.info('Restart Claude Code if currently running.');
       console.log('');
     }
-
   } catch (error) {
     if (error.name === 'ExitPromptError') {
       logger.warn('\nRestore cancelled by user.');
@@ -317,7 +324,7 @@ async function flagBasedRestore(flags) {
     logger.clearLine();
 
     if (result.success) {
-      logger.success(`✓ Restore complete!`);
+      logger.success('✓ Restore complete!');
       console.log(`  Restored: ${flags.artifactName} v${result.version}`);
       console.log(`  From: ${selectedBackup.timestamp}`);
       console.log('');
@@ -341,7 +348,6 @@ async function flagBasedRestore(flags) {
       logger.info('Registry updated with restored artifact.');
       console.log('');
     }
-
   } catch (error) {
     logger.error(`Restore failed: ${error.message}`);
     console.error(error);
@@ -364,7 +370,6 @@ async function restore(args) {
       // Flags provided - use flag-based mode
       await flagBasedRestore(flags);
     }
-
   } catch (error) {
     if (error.name !== 'ExitPromptError') {
       logger.error(`Unexpected error: ${error.message}`);

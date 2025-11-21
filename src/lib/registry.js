@@ -32,7 +32,7 @@ function migrateRegistry(registry) {
           const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
           registry.package_version = packageJson.version;
         } else {
-          registry.package_version = '0.3.3';  // Default
+          registry.package_version = '0.3.3'; // Default
         }
       } catch (error) {
         registry.package_version = '0.3.3';
@@ -82,16 +82,22 @@ function migrateRegistry(registry) {
     }
 
     // Migrate global artifacts to v0.3.0 schema
-    if (registry.installations && registry.installations.global && registry.installations.global.artifacts) {
-      registry.installations.global.artifacts = registry.installations.global.artifacts.map(artifact => {
-        return {
-          ...artifact,
-          updated_at: artifact.updated_at || null,
-          user_modified: artifact.user_modified || false,
-          modification_checksum: artifact.modification_checksum || null,
-          installed_locations: artifact.installed_locations || ['global']
-        };
-      });
+    if (
+      registry.installations &&
+      registry.installations.global &&
+      registry.installations.global.artifacts
+    ) {
+      registry.installations.global.artifacts = registry.installations.global.artifacts.map(
+        artifact => {
+          return {
+            ...artifact,
+            updated_at: artifact.updated_at || null,
+            user_modified: artifact.user_modified || false,
+            modification_checksum: artifact.modification_checksum || null,
+            installed_locations: artifact.installed_locations || ['global']
+          };
+        }
+      );
     }
 
     // Migrate project artifacts to v0.3.0 schema
@@ -132,7 +138,11 @@ function migrateRegistry(registry) {
     }
 
     // Migrate global packages
-    if (registry.installations && registry.installations.global && registry.installations.global.packages) {
+    if (
+      registry.installations &&
+      registry.installations.global &&
+      registry.installations.global.packages
+    ) {
       registry.installations.global.packages = registry.installations.global.packages.map(pkg => {
         return {
           ...pkg,
@@ -183,7 +193,7 @@ function getInstalledArtifacts(target) {
 
   // Find project in registry
   const project = registry.installations.projects.find(p => p.path === target);
-  return project ? (project.artifacts || []) : [];
+  return project ? project.artifacts || [] : [];
 }
 
 /**
@@ -200,7 +210,7 @@ function getInstalledPackages(target) {
 
   // Find project in registry
   const project = registry.installations.projects.find(p => p.path === target);
-  return project ? (project.packages || []) : [];
+  return project ? project.packages || [] : [];
 }
 
 /**
@@ -617,11 +627,13 @@ function getLastAutoUpdate() {
  */
 function getBackupConfig() {
   const registry = load();
-  return registry.backups || {
-    retention_days: 30,
-    max_backups_per_artifact: 5,
-    cleanup_schedule: 'weekly'
-  };
+  return (
+    registry.backups || {
+      retention_days: 30,
+      max_backups_per_artifact: 5,
+      cleanup_schedule: 'weekly'
+    }
+  );
 }
 
 /**

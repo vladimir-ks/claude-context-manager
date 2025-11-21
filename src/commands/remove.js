@@ -23,11 +23,11 @@ const logger = require('../utils/logger');
  */
 function parseFlags(args) {
   const flags = {
-    target: null,       // 'global' or project path
-    name: null,         // artifact name to remove
-    type: null,         // 'skill', 'command', 'package'
-    skipBackup: false,  // skip backup creation
-    force: false        // skip confirmation
+    target: null, // 'global' or project path
+    name: null, // artifact name to remove
+    type: null, // 'skill', 'command', 'package'
+    skipBackup: false, // skip backup creation
+    force: false // skip confirmation
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -63,7 +63,9 @@ function validateFlags(flags) {
   if (!flags.target) {
     logger.error('Missing target: use --global or --project <path>');
     console.log('');
-    logger.info('Usage: ccm remove [--skill|--command|--package <name>] [--global|--project <path>] [--skip-backup] [--force]');
+    logger.info(
+      'Usage: ccm remove [--skill|--command|--package <name>] [--global|--project <path>] [--skip-backup] [--force]'
+    );
     logger.info('Example: ccm remove --skill managing-claude-context --global');
     console.log('');
     process.exit(1);
@@ -73,7 +75,9 @@ function validateFlags(flags) {
   if (!flags.name) {
     logger.error('Missing artifact name');
     console.log('');
-    logger.info('Usage: ccm remove [--skill|--command|--package <name>] [--global|--project <path>] [--skip-backup] [--force]');
+    logger.info(
+      'Usage: ccm remove [--skill|--command|--package <name>] [--global|--project <path>] [--skip-backup] [--force]'
+    );
     logger.info('Example: ccm remove --skill managing-claude-context --global');
     console.log('');
     process.exit(1);
@@ -98,8 +102,8 @@ function promptUser(question) {
     output: process.stdout
   });
 
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
+  return new Promise(resolve => {
+    rl.question(question, answer => {
       rl.close();
       const normalized = answer.trim().toLowerCase();
       resolve(normalized === 'y' || normalized === 'yes');
@@ -118,9 +122,8 @@ async function removeArtifact(artifact, target, flags) {
   logger.log(`\nRemoving ${artifact.name} (${artifact.type})...`, 'bright');
 
   // Determine target path
-  const targetBase = target === 'global'
-    ? config.getGlobalClaudeDir()
-    : config.getProjectClaudeDir(target);
+  const targetBase =
+    target === 'global' ? config.getGlobalClaudeDir() : config.getProjectClaudeDir(target);
 
   let targetPath;
   if (artifact.type === 'skill') {
@@ -188,8 +191,8 @@ async function removePackage(pkg, target, flags) {
   const artifactsToRemove = [];
 
   for (const pkgArtifact of pkg.artifacts) {
-    const artifact = installed.find(a =>
-      a.name === pkgArtifact.name && a.type === pkgArtifact.type
+    const artifact = installed.find(
+      a => a.name === pkgArtifact.name && a.type === pkgArtifact.type
     );
     if (artifact) {
       artifactsToRemove.push(artifact);
@@ -286,7 +289,7 @@ async function remove(args) {
     }
 
     // Show artifact info
-    logger.log(`\nArtifact to remove:`, 'bright');
+    logger.log('\nArtifact to remove:', 'bright');
     logger.log(`  Name: ${artifact.name}`, 'reset');
     logger.log(`  Type: ${artifact.type}`, 'reset');
     logger.log(`  Version: ${artifact.version}`, 'reset');
@@ -315,7 +318,6 @@ async function remove(args) {
       console.log('');
       process.exit(1);
     }
-
   } catch (error) {
     logger.error(`Removal failed: ${error.message}`);
     console.log('');

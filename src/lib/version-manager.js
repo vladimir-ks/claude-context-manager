@@ -86,11 +86,7 @@ function saveVersionMetadata(metadata) {
 
   const metadataPath = getVersionMetadataPath(metadata.name, metadata.type);
 
-  fs.writeFileSync(
-    metadataPath,
-    JSON.stringify(metadata, null, 2),
-    { mode: 0o644 }
-  );
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), { mode: 0o644 });
 }
 
 /**
@@ -103,11 +99,7 @@ function saveVersionMetadata(metadata) {
  * @returns {Object} Archive result
  */
 function archiveVersion(artifactName, artifactType, version, options = {}) {
-  const {
-    changelog = '',
-    sourcePath = null,
-    forceCopy = false
-  } = options;
+  const { changelog = '', sourcePath = null, forceCopy = false } = options;
 
   // Load existing metadata
   const metadata = loadVersionMetadata(artifactName, artifactType);
@@ -261,7 +253,7 @@ function getLatestVersion(artifactName, artifactType) {
  */
 function compareVersions(v1, v2) {
   // Split version into numeric and pre-release parts
-  const parseVersion = (v) => {
+  const parseVersion = v => {
     const match = v.match(/^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/);
     if (!match) {
       // Invalid version format, treat as 0.0.0

@@ -45,6 +45,7 @@ tests/
 **Purpose:** Test individual modules in isolation
 
 **Coverage:**
+
 - ✅ `utils/config.test.js` - Config read/write, registry operations
 - ✅ `utils/file-ops.test.js` - File copy, checksums, backups
 - ✅ `lib/registry.test.js` - Installation tracking
@@ -52,6 +53,7 @@ tests/
 - ✅ `lib/package-manager.test.js` - Install/uninstall operations
 
 **Pattern:**
+
 ```javascript
 const module = require('../../../src/lib/module');
 
@@ -77,11 +79,13 @@ try {
 **Purpose:** Test multi-module workflows end-to-end
 
 **Coverage:**
+
 - ⏳ `install-workflow.test.js` - Full package installation
 - ⏳ `update-workflow.test.js` - Update with modification detection
 - ⏳ `init-workflow.test.js` - Project initialization
 
 **Pattern:**
+
 ```javascript
 // 1. Setup test environment
 // 2. Execute complete workflow
@@ -100,6 +104,7 @@ node tests/run-all.js
 ```
 
 Output:
+
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║  Claude Context Manager - Test Suite                      ║
@@ -146,6 +151,7 @@ node tests/unit/lib/package-manager.test.js
 ### Dependencies
 
 **Zero external dependencies** - All tests use Node.js built-ins:
+
 - `fs` - File system operations
 - `path` - Path manipulation
 - `child_process` - Test runner execution
@@ -153,6 +159,7 @@ node tests/unit/lib/package-manager.test.js
 ### Prerequisites
 
 **Before running tests:**
+
 1. Package must be installed (for home directory setup)
 2. Or run `npm install` locally to trigger postinstall
 3. Home directory must exist: `~/.claude-context-manager/`
@@ -189,7 +196,6 @@ try {
   // ... cleanup code
 
   console.log('\n✓ All <module>.js tests passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
   console.error(error.stack);
@@ -230,7 +236,6 @@ try {
   fs.rmSync(testDir, { recursive: true });
 
   console.log('\n✓ <workflow> test passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
 
@@ -248,11 +253,13 @@ try {
 ### Current Coverage
 
 **Utilities (2/3 modules):**
+
 - ✅ config.js - 100%
 - ✅ file-ops.js - 100%
 - ❌ logger.js - 0% (simple, low priority)
 
 **Libraries (3/5 modules):**
+
 - ✅ registry.js - 100%
 - ✅ catalog.js - 100%
 - ✅ package-manager.js - 100%
@@ -260,6 +267,7 @@ try {
 - ❌ api-client.js - 0% (stub only)
 
 **Commands (0/8 commands):**
+
 - ❌ All commands - 0% (integration tests needed)
 
 **Overall:** ~63% (5/8 non-stub modules)
@@ -267,11 +275,13 @@ try {
 ### Planned Coverage
 
 **v0.2.0 Release:**
+
 - ✅ All utility tests (except logger)
 - ✅ All library tests (except stubs)
 - ⏳ 3 integration tests (install, update, init)
 
 **v0.3.0+:**
+
 - Command-level unit tests
 - E2E tests with real CLI execution
 - Premium feature tests (license, api-client)
@@ -282,27 +292,32 @@ try {
 ### Common Issues
 
 **1. Home Directory Not Found**
+
 ```
 Error: Config file not found: ~/.claude-context-manager/config.json
 ```
 
 **Solution:** Run postinstall script
+
 ```bash
 node scripts/postinstall.js
 ```
 
 **2. Permission Denied**
+
 ```
 Error: EACCES: permission denied
 ```
 
 **Solution:** Check file permissions
+
 ```bash
 chmod 600 ~/.claude-context-manager/config.json
 chmod 644 ~/.claude-context-manager/registry.json
 ```
 
 **3. Module Not Found**
+
 ```
 Error: Cannot find module '../../../src/utils/config'
 ```
@@ -312,6 +327,7 @@ Error: Cannot find module '../../../src/utils/config'
 ### Verbose Output
 
 Add logging to tests:
+
 ```javascript
 console.log('Debug:', JSON.stringify(result, null, 2));
 ```
@@ -319,11 +335,13 @@ console.log('Debug:', JSON.stringify(result, null, 2));
 ## CI/CD Integration
 
 **GitHub Actions:**
+
 - Tests run on all pull requests
 - Must pass before merge to master
 - Auto-published to NPM on success
 
 **Workflow:** `.github/workflows/ci-production.yml`
+
 ```yaml
 - name: Run tests
   run: npm test
@@ -336,6 +354,7 @@ console.log('Debug:', JSON.stringify(result, null, 2));
 See: `00_DOCS/guides/ai-agent-cli-guide.md` (lines 2049-2278)
 
 **Manual Test Checklist:**
+
 1. Fresh npm install
 2. Home directory created
 3. All 8 CLI commands execute
@@ -346,6 +365,7 @@ See: `00_DOCS/guides/ai-agent-cli-guide.md` (lines 2049-2278)
 ## Contributing
 
 **Adding New Tests:**
+
 1. Follow template patterns above
 2. Place in appropriate directory (unit/integration)
 3. Update this README with coverage info
@@ -353,6 +373,7 @@ See: `00_DOCS/guides/ai-agent-cli-guide.md` (lines 2049-2278)
 5. Test should be self-contained (setup + cleanup)
 
 **Test Naming:**
+
 - Unit: `<module>.test.js`
 - Integration: `<workflow>.test.js`
 - E2E: `<scenario>.test.js`

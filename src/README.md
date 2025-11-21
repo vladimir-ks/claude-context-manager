@@ -5,6 +5,7 @@ This directory contains the CLI implementation for Claude Context Manager.
 ## Status: v2.0.0
 
 **Current Version (v2.0.0)**: Distribution setup and foundation
+
 - ✓ NPM package distribution
 - ✓ Claude Code plugin distribution
 - ✓ Home directory setup (`~/.claude-context-manager/`)
@@ -12,6 +13,7 @@ This directory contains the CLI implementation for Claude Context Manager.
 - ⏳ Full CLI implementation → Coming in v2.1.0
 
 **Next Version (v2.1.0)**: Full CLI implementation
+
 - Install command (artifacts → global/project)
 - Update command (with backup/restore)
 - List command (free + premium catalogs)
@@ -53,6 +55,7 @@ See `00_DOCS/specs/claude-context-manager-architecture.md` for complete architec
 ## Current Functionality (v2.0.0)
 
 **Works Now:**
+
 - `npm install -g @vladks/claude-context-manager` → Sets up home directory
 - `ccm --help` → Shows usage information
 - `ccm --version` → Shows version
@@ -60,6 +63,7 @@ See `00_DOCS/specs/claude-context-manager-architecture.md` for complete architec
 - Configuration and registry files initialized
 
 **Coming in v2.1.0:**
+
 - All CLI commands fully implemented
 - Artifact installation and management
 - Premium tier integration
@@ -70,6 +74,7 @@ See `00_DOCS/specs/claude-context-manager-architecture.md` for complete architec
 Until v2.1.0 is released, users can:
 
 1. **Use Claude Code Plugin**:
+
    ```
    /plugin install managing-claude-context@vladks
    ```

@@ -93,7 +93,6 @@ try {
   console.log('  ✓ Global artifacts after cleanup:', afterCleanup.length);
 
   console.log('\n✓ All registry.js tests passed!');
-
 } catch (error) {
   console.error('\n✗ Test failed:', error.message);
   console.error(error.stack);

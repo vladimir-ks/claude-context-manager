@@ -26,9 +26,9 @@ const backupManager = require('../lib/backup-manager');
  */
 function parseFlags(args) {
   const flags = {
-    type: null,        // 'skill', 'command', 'package'
-    name: null,        // artifact name
-    target: null,      // 'global' or project path
+    type: null, // 'skill', 'command', 'package'
+    name: null, // artifact name
+    target: null, // 'global' or project path
     hasFlags: false
   };
 
@@ -82,7 +82,7 @@ async function interactiveInstall() {
     logger.clearLine();
 
     let selectedItems = [];
-    let artifactsToInstall = [];
+    const artifactsToInstall = [];
 
     if (packageType === 'solutions') {
       // Get available packages
@@ -125,7 +125,6 @@ async function interactiveInstall() {
           }
         }
       }
-
     } else {
       // Individual artifacts
       const availableArtifacts = [];
@@ -234,15 +233,14 @@ async function interactiveInstall() {
       const locationLabel = location === 'global' ? 'Global (~/.claude)' : location;
       logger.log(`\nInstalling to: ${locationLabel}\n`, 'cyan');
 
-      const targetBase = location === 'global'
-        ? config.getGlobalClaudeDir()
-        : config.getProjectClaudeDir(location);
+      const targetBase =
+        location === 'global' ? config.getGlobalClaudeDir() : config.getProjectClaudeDir(location);
 
       for (const art of artifactsToInstall) {
         try {
           // Check if artifact exists and needs backup
-          const artifactConflict = conflicts.find(c =>
-            c.name === art.name && c.location === location
+          const artifactConflict = conflicts.find(
+            c => c.name === art.name && c.location === location
           );
 
           if (artifactConflict && backupChoice === 'backup') {
@@ -266,16 +264,11 @@ async function interactiveInstall() {
             if (artifactPath && fs.existsSync(artifactPath)) {
               logger.progress(`  Creating backup: ${art.name}...`);
 
-              backupManager.createBackup(
-                artifactPath,
-                art.name,
-                location,
-                {
-                  backup_reason: 'pre_install',
-                  version_before: artifactConflict.details.current_version,
-                  version_after: art.version
-                }
-              );
+              backupManager.createBackup(artifactPath, art.name, location, {
+                backup_reason: 'pre_install',
+                version_before: artifactConflict.details.current_version,
+                version_after: art.version
+              });
 
               logger.clearLine();
             }
@@ -332,7 +325,6 @@ async function interactiveInstall() {
 
             installedCount++;
           }
-
         } catch (error) {
           logger.clearLine();
           logger.error(`  ✗ ${art.name}: ${error.message}`);
@@ -346,7 +338,7 @@ async function interactiveInstall() {
     logger.log('═══════════════════════════════════════════════════════', 'cyan');
 
     if (installedCount > 0) {
-      logger.log(`✓ Installation Complete!`, 'green');
+      logger.log('✓ Installation Complete!', 'green');
       logger.log(`  ${installedCount} artifact(s) installed successfully`, 'green');
     }
 
@@ -358,7 +350,6 @@ async function interactiveInstall() {
     logger.info('Installed artifacts are now available in Claude Code.');
     logger.info('Restart Claude Code if currently running.');
     console.log('');
-
   } catch (error) {
     if (error.name === 'ExitPromptError') {
       // User cancelled with Ctrl+C
@@ -401,9 +392,10 @@ async function flagBasedInstall(flags) {
     }
 
     // Determine target paths
-    const targetBase = flags.target === 'global'
-      ? config.getGlobalClaudeDir()
-      : config.getProjectClaudeDir(flags.target);
+    const targetBase =
+      flags.target === 'global'
+        ? config.getGlobalClaudeDir()
+        : config.getProjectClaudeDir(flags.target);
 
     const targetLabel = flags.target === 'global' ? 'global' : 'project';
 
@@ -411,7 +403,7 @@ async function flagBasedInstall(flags) {
 
     // Load catalog
     logger.progress('Loading catalog...');
-    const cat = catalog.loadCatalog();
+    const _cat = catalog.loadCatalog();
 
     // Find artifact or package
     const artifact = catalog.getArtifact(flags.type, flags.name);
@@ -440,7 +432,7 @@ async function flagBasedInstall(flags) {
     let artifactsToInstall = [];
 
     if (flags.type === 'package') {
-      logger.info(`Package includes:`);
+      logger.info('Package includes:');
 
       // Read package definition if available
       if (artifact.definition_path) {
@@ -467,12 +459,14 @@ async function flagBasedInstall(flags) {
       console.log('');
     } else {
       // Single artifact
-      artifactsToInstall = [{
-        type: flags.type,
-        name: artifact.name,
-        source_path: artifact.source_path,
-        version: artifact.version
-      }];
+      artifactsToInstall = [
+        {
+          type: flags.type,
+          name: artifact.name,
+          source_path: artifact.source_path,
+          version: artifact.version
+        }
+      ];
     }
 
     // Check for conflicts
@@ -497,7 +491,12 @@ async function flagBasedInstall(flags) {
 
     for (const art of artifactsToInstall) {
       // Determine source path
-      const sourcePath = path.join(__dirname, '..', '..', art.source_path || `.claude/${art.type}s/${art.name}/`);
+      const sourcePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        art.source_path || `.claude/${art.type}s/${art.name}/`
+      );
 
       // Determine target path
       const targetPath = path.join(targetBase, `${art.type}s`, art.name);
@@ -553,13 +552,12 @@ async function flagBasedInstall(flags) {
     logger.info('Installed artifacts are now available in Claude Code.');
 
     if (targetLabel === 'project') {
-      logger.info(`Restart Claude Code if currently working in this project.`);
+      logger.info('Restart Claude Code if currently working in this project.');
     } else {
       logger.info('Restart Claude Code if currently running.');
     }
 
     console.log('');
-
   } catch (error) {
     logger.error(`Installation failed: ${error.message}`);
 
@@ -591,7 +589,6 @@ async function install(args) {
       // Flags provided - use flag-based mode
       await flagBasedInstall(flags);
     }
-
   } catch (error) {
     if (error.name !== 'ExitPromptError') {
       logger.error(`Unexpected error: ${error.message}`);

@@ -30,6 +30,7 @@ This catalog indexes all Claude Code artifacts available in this repository. All
 Master framework for creating Claude Code artifacts with systematic context engineering, progressive disclosure, and zero-redundancy principles.
 
 **Key Features:**
+
 - Framework for creating skills, commands, and agents
 - Context engineering principles and patterns
 - Progressive disclosure architecture
@@ -40,6 +41,7 @@ Master framework for creating Claude Code artifacts with systematic context engi
 **Size:** ~5,025 lines of references, 484-line SKILL.md
 
 **Documentation:**
+
 - `QUICK_START.md` - User-facing guide with examples
 - `SKILL.md` - Core philosophy and framework
 - `manuals/` - 7 command briefing guides
@@ -48,6 +50,7 @@ Master framework for creating Claude Code artifacts with systematic context engi
 - `research/` - Extensive research materials (~360KB)
 
 **Commands:** 7 specialized commands
+
 - `/managing-claude-context:create-edit-skill`
 - `/managing-claude-context:create-edit-command`
 - `/managing-claude-context:create-edit-agent`
@@ -57,6 +60,7 @@ Master framework for creating Claude Code artifacts with systematic context engi
 - `/managing-claude-context:setup-mcp-integration`
 
 **Deployment:**
+
 ```bash
 # Global (recommended for artifact development)
 cp -r .claude/skills/managing-claude-context/ ~/.claude/skills/
@@ -78,6 +82,7 @@ Load this skill when creating any new Claude Code artifact. See QUICK_START.md f
 Comprehensive Word document creation, editing, and analysis with support for tracked changes, comments, and formatting preservation.
 
 **Key Features:**
+
 - Create/edit .docx files
 - Handle tracked changes and comments
 - Preserve formatting
@@ -86,6 +91,7 @@ Comprehensive Word document creation, editing, and analysis with support for tra
 **Use When:** Working with Word documents
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/docx/ ~/.claude/skills/
 ```
@@ -101,6 +107,7 @@ cp -r .claude/skills/docx/ ~/.claude/skills/
 PDF manipulation toolkit for extracting text and tables, creating PDFs, merging/splitting documents, and handling forms.
 
 **Key Features:**
+
 - Extract text and tables
 - Create new PDFs
 - Merge/split documents
@@ -110,6 +117,7 @@ PDF manipulation toolkit for extracting text and tables, creating PDFs, merging/
 **Use When:** Working with PDF documents
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/pdf/ ~/.claude/skills/
 ```
@@ -125,6 +133,7 @@ cp -r .claude/skills/pdf/ ~/.claude/skills/
 Presentation creation, editing, and analysis for PowerPoint files.
 
 **Key Features:**
+
 - Create new presentations
 - Modify existing content
 - Work with layouts
@@ -133,6 +142,7 @@ Presentation creation, editing, and analysis for PowerPoint files.
 **Use When:** Working with PowerPoint presentations
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/pptx/ ~/.claude/skills/
 ```
@@ -148,6 +158,7 @@ cp -r .claude/skills/pptx/ ~/.claude/skills/
 Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization.
 
 **Key Features:**
+
 - Create/edit spreadsheets
 - Handle formulas and formatting
 - Data analysis and visualization
@@ -157,6 +168,7 @@ Comprehensive spreadsheet creation, editing, and analysis with support for formu
 **Use When:** Working with spreadsheets
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/xlsx/ ~/.claude/skills/
 ```
@@ -174,6 +186,7 @@ cp -r .claude/skills/xlsx/ ~/.claude/skills/
 Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services.
 
 **Key Features:**
+
 - MCP server development patterns
 - Python (FastMCP) and Node/TypeScript (MCP SDK) support
 - Integration best practices
@@ -182,6 +195,7 @@ Guide for creating high-quality MCP (Model Context Protocol) servers that enable
 **Use When:** Building MCP servers
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/mcp-builder/ ~/.claude/skills/
 ```
@@ -197,6 +211,7 @@ cp -r .claude/skills/mcp-builder/ ~/.claude/skills/
 Toolkit for interacting with and testing local web applications using Playwright.
 
 **Key Features:**
+
 - Frontend functionality verification
 - UI behavior debugging
 - Browser screenshots
@@ -206,6 +221,7 @@ Toolkit for interacting with and testing local web applications using Playwright
 **Use When:** Testing web applications
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/webapp-testing/ ~/.claude/skills/
 ```
@@ -221,6 +237,7 @@ cp -r .claude/skills/webapp-testing/ ~/.claude/skills/
 Guide for conducting Specification-Driven, Behavior-Driven, and Test-Driven Development.
 
 **Key Features:**
+
 - SDD principles and workflows
 - BDD scenario writing
 - TDD patterns
@@ -229,6 +246,7 @@ Guide for conducting Specification-Driven, Behavior-Driven, and Test-Driven Deve
 **Use When:** Setting up SDD/BDD/TDD workflows
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/specs-behaviour-test-driven-dev/ ~/.claude/skills/
 ```
@@ -246,6 +264,7 @@ cp -r .claude/skills/specs-behaviour-test-driven-dev/ ~/.claude/skills/
 Master playbook for implementing backlog tasks with sprint execution framework and specialist agent coordination.
 
 **Key Features:**
+
 - Multi-agent workflow patterns
 - Sprint execution framework
 - Manual of available specialist agents
@@ -254,6 +273,7 @@ Master playbook for implementing backlog tasks with sprint execution framework a
 **Use When:** Coordinating multiple agents or implementing sprints
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/orchestrating-subagents/ ~/.claude/skills/
 ```
@@ -269,6 +289,7 @@ cp -r .claude/skills/orchestrating-subagents/ ~/.claude/skills/
 Expert guide for organizing and optimizing repositories for human and AI context engineering.
 
 **Key Features:**
+
 - Repository structure optimization
 - Directory and document hierarchy
 - Structured development using AI
@@ -277,6 +298,7 @@ Expert guide for organizing and optimizing repositories for human and AI context
 **Use When:** Organizing or reorganizing repositories
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/repo-organizer/ ~/.claude/skills/
 ```
@@ -294,6 +316,7 @@ Planning and managing project backlogs.
 **Use When:** Managing project backlogs
 
 **Deployment:**
+
 ```bash
 cp -r .claude/skills/backlog-planning/ ~/.claude/skills/
 ```
@@ -323,6 +346,7 @@ Official skills provided by Anthropic for Claude Code.
 **Location:** `.claude/commands/managing-claude-context/`
 
 Commands for creating and managing Claude Code artifacts:
+
 - `context-architecture.md` - Design context architecture
 - `create-edit-agent.md` - Create/edit agents
 - `create-edit-claude-md.md` - Create/edit CLAUDE.md files
@@ -332,6 +356,7 @@ Commands for creating and managing Claude Code artifacts:
 - `setup-mcp-integration.md` - Setup MCP specialist teams
 
 **Subcommands** (operation modes):
+
 - `operation_modes/manage-context.md`
 - `operation_modes/modify-mode.md`
 - `operation_modes/full-build-mode.md`
@@ -405,6 +430,7 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 ```
 
 **Note:** This repository already has symlinks to global directories:
+
 - `_cc-skills-global/` → `~/.claude/skills/`
 - `_cc-commands-global/` → `~/.claude/commands/`
 - `_cc-agents-global/` → `~/.claude/agents/`
@@ -415,17 +441,20 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 ## Usage Patterns
 
 ### Global Deployment (Recommended For)
+
 - `managing-claude-context` - Use for all artifact development
 - `docx`, `pdf`, `pptx`, `xlsx` - Document processing in any project
 - `webapp-testing` - Web development projects
 - Other frequently-used skills
 
 ### Repo-Specific Deployment (Recommended For)
+
 - Domain-specific skills
 - Project-tailored commands
 - Experimental artifacts
 
 ### Symlink (Recommended For)
+
 - Active skill development
 - Testing changes across repos
 - Maintaining single source of truth
@@ -437,6 +466,7 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 **Recommended Workflow:**
 
 1. **Load Primary Skill:**
+
    ```
    Use Skill tool: "managing-claude-context"
    ```
@@ -467,6 +497,7 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 ## Quality Standards
 
 **Required for All Artifacts:**
+
 - Created using `managing-claude-context` skill
 - Complete documentation (SKILL.md, README, or manuals)
 - Proper frontmatter with metadata
@@ -480,10 +511,12 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 ## Artifact Dependency Map
 
 **Primary Dependencies:**
+
 - All skills depend on: None (self-contained)
 - All artifacts created with: `managing-claude-context` skill
 
 **Common Co-Dependencies:**
+
 - `orchestrating-subagents` + various skills for multi-agent workflows
 - `managing-claude-context` + `repo-organizer` for repository setup
 - `specs-behaviour-test-driven-dev` + other skills for development workflows
@@ -493,12 +526,14 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 ## Maintenance
 
 ### Keep Catalog Updated
+
 - Add new artifacts when created
 - Update versions when artifacts change
 - Mark deprecated artifacts
 - Remove obsolete entries
 
 ### Review Schedule
+
 - After each new artifact creation
 - Update this file immediately
 - Update CHANGELOG.md with changes
@@ -511,6 +546,7 @@ ln -s /path/to/claude-skills-builder-vladks/.claude/skills/[skill-name] /path/to
 **Planned Feature:** Automated CLI tool for selective artifact installation.
 
 **Vision:**
+
 ```bash
 # Run in target repo
 claude-install
@@ -538,16 +574,19 @@ Installing...
 ## Support
 
 **Getting Started:**
+
 - Read `CLAUDE.md` for repository context
 - Review `managing-claude-context/QUICK_START.md`
 - Check skill-specific documentation
 
 **Creating Artifacts:**
+
 - Load `managing-claude-context` skill
 - Use appropriate creation command
 - Follow SDD workflow (specs first)
 
 **Questions or Issues:**
+
 - Check artifact's own documentation
 - Review `00_DOCS/` for architecture context
 - See `managing-claude-context/references/` for deep knowledge

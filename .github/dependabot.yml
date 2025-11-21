@@ -4,36 +4,36 @@
 version: 2
 updates:
   # Enable version updates for npm
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
     open-pull-requests-limit: 10
 
     # Group minor and patch updates
     groups:
       development-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       production-dependencies:
-        dependency-type: "production"
+        dependency-type: 'production'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
 
     # Labels for PRs
     labels:
-      - "dependencies"
-      - "automated"
+      - 'dependencies'
+      - 'automated'
 
     # Commit message prefix
     commit-message:
-      prefix: "Update"
-      prefix-development: "Update(dev)"
+      prefix: 'Update'
+      prefix-development: 'Update(dev)'
 
     # Reviewers (optional - add GitHub usernames)
     # reviewers:
@@ -41,13 +41,13 @@ updates:
 
     # Security updates always get their own PR
     allow:
-      - dependency-type: "all"
+      - dependency-type: 'all'
 
   # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     labels:
-      - "github-actions"
-      - "automated"
+      - 'github-actions'
+      - 'automated'

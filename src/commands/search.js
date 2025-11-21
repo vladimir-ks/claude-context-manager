@@ -19,8 +19,8 @@ const logger = require('../utils/logger');
 function parseFlags(args) {
   const flags = {
     query: null,
-    tier: 'all',    // 'free', 'premium', 'all'
-    type: 'all'     // 'skill', 'command', 'package', 'all'
+    tier: 'all', // 'free', 'premium', 'all'
+    type: 'all' // 'skill', 'command', 'package', 'all'
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -51,7 +51,9 @@ async function search(args) {
     if (!flags.query) {
       logger.error('Missing search query');
       console.log('');
-      logger.info('Usage: ccm search <query> [--tier <free|premium|all>] [--type <skill|command|package|all>]');
+      logger.info(
+        'Usage: ccm search <query> [--tier <free|premium|all>] [--type <skill|command|package|all>]'
+      );
       logger.info('Example: ccm search pdf --type skill');
       console.log('');
       process.exit(1);
@@ -173,10 +175,11 @@ async function search(args) {
     }
 
     // Show install hint for uninstalled items
-    const hasUninstalled = results.some(r =>
-      !globalInstalledNames.includes(r.name) &&
-      !projectInstalledNames.includes(r.name) &&
-      !r.locked
+    const hasUninstalled = results.some(
+      r =>
+        !globalInstalledNames.includes(r.name) &&
+        !projectInstalledNames.includes(r.name) &&
+        !r.locked
     );
 
     if (hasUninstalled) {
@@ -185,7 +188,6 @@ async function search(args) {
       logger.info('  ccm install --package <name> --project');
       console.log('');
     }
-
   } catch (error) {
     logger.error(`Search failed: ${error.message}`);
     console.log('');

@@ -31,7 +31,11 @@ async function testMenus() {
       choices: [
         { name: 'core-essentials - Essential context engineering tools', value: 'core-essentials' },
         { name: 'doc-refactoring - Documentation refactoring system', value: 'doc-refactoring' },
-        { name: 'automation-kit - Task automation helpers', value: 'automation-kit', disabled: true }
+        {
+          name: 'automation-kit - Task automation helpers',
+          value: 'automation-kit',
+          disabled: true
+        }
       ]
     });
     console.log(`✓ Selected: ${packages.join(', ')}\n`);
@@ -46,7 +50,6 @@ async function testMenus() {
 
     console.log('=== All tests passed! ===\n');
     console.log('Inquirer.js is working correctly.');
-
   } catch (error) {
     if (error.message === 'User force closed the prompt with 0 null') {
       console.log('\n✓ Test cancelled by user (Ctrl+C)');

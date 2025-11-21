@@ -16,12 +16,14 @@ const config = require('../utils/config');
  * Install artifact to target location
  * @param {string} sourcePath - Source artifact path (in repository or cache)
  * @param {string} targetPath - Destination path (~/.claude/skills/... or project/.claude/skills/...)
- * @param {Object} metadata - Artifact metadata { name, type, version, ... }
+ * @param {Object} _metadata - Artifact metadata { name, type, version, ... }
  * @returns {Object} Installation result { success: true, checksum: '...', backup_path: '...' }
  */
-function installArtifact(sourcePath, targetPath, metadata) {
+function installArtifact(sourcePath, targetPath, _metadata) {
   if (!fs.existsSync(sourcePath)) {
-    throw new Error(`Source artifact not found: ${sourcePath}\n\nThis may mean:\n1. The artifact was removed from the package\n2. The package installation is corrupted\n\nTry reinstalling: npm install -g @vladimir-ks/claude-context-manager --force`);
+    throw new Error(
+      `Source artifact not found: ${sourcePath}\n\nThis may mean:\n1. The artifact was removed from the package\n2. The package installation is corrupted\n\nTry reinstalling: npm install -g @vladimir-ks/claude-context-manager --force`
+    );
   }
 
   let backupPath = null;
@@ -64,15 +66,18 @@ function installArtifact(sourcePath, targetPath, metadata) {
       checksum: checksum,
       backup_path: backupPath
     };
-
   } catch (error) {
     // If installation failed and we created a backup, consider restoring
     if (error.code === 'ENOSPC') {
-      throw new Error(`Insufficient disk space to install artifact\nSource: ${sourcePath}\nTarget: ${targetPath}\n\nFree up space and try again.`);
+      throw new Error(
+        `Insufficient disk space to install artifact\nSource: ${sourcePath}\nTarget: ${targetPath}\n\nFree up space and try again.`
+      );
     }
 
     if (error.code === 'EACCES') {
-      throw new Error(`Permission denied installing artifact\nTarget: ${targetPath}\n\nCheck directory permissions:\nls -la ${path.dirname(targetPath)}`);
+      throw new Error(
+        `Permission denied installing artifact\nTarget: ${targetPath}\n\nCheck directory permissions:\nls -la ${path.dirname(targetPath)}`
+      );
     }
 
     throw error;
@@ -98,7 +103,7 @@ function uninstallArtifact(targetPath, options = {}) {
     // Create backup if requested
     if (backup) {
       const backupDir = path.join(config.getHomeDir(), 'backups');
-      const artifactName = path.basename(targetPath);
+      const _artifactName = path.basename(targetPath);
       backupPath = fileOps.createBackup(targetPath, backupDir);
     }
 
@@ -109,10 +114,11 @@ function uninstallArtifact(targetPath, options = {}) {
       success: true,
       backup_path: backupPath
     };
-
   } catch (error) {
     if (error.code === 'EACCES') {
-      throw new Error(`Permission denied removing artifact\nTarget: ${targetPath}\n\nCheck directory permissions.`);
+      throw new Error(
+        `Permission denied removing artifact\nTarget: ${targetPath}\n\nCheck directory permissions.`
+      );
     }
 
     throw error;
@@ -122,10 +128,10 @@ function uninstallArtifact(targetPath, options = {}) {
 /**
  * Create backup of artifact before update
  * @param {string} artifactPath - Path to artifact
- * @param {string} artifactName - Artifact name (for backup directory naming)
+ * @param {string} _artifactName - Artifact name (for backup directory naming)
  * @returns {string} Backup directory path
  */
-function backupArtifact(artifactPath, artifactName) {
+function backupArtifact(artifactPath, _artifactName) {
   if (!fs.existsSync(artifactPath)) {
     throw new Error(`Artifact not found for backup: ${artifactPath}`);
   }
@@ -135,7 +141,9 @@ function backupArtifact(artifactPath, artifactName) {
     return fileOps.createBackup(artifactPath, backupDir);
   } catch (error) {
     if (error.code === 'ENOSPC') {
-      throw new Error(`Insufficient disk space for backup\nArtifact: ${artifactPath}\n\nFree up space and try again.`);
+      throw new Error(
+        `Insufficient disk space for backup\nArtifact: ${artifactPath}\n\nFree up space and try again.`
+      );
     }
 
     throw error;
@@ -179,7 +187,6 @@ function validateInstallation(targetPath, expectedChecksum) {
         message: 'Installation corrupted - checksum mismatch'
       };
     }
-
   } catch (error) {
     return {
       valid: false,

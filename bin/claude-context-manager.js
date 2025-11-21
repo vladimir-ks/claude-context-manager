@@ -30,7 +30,7 @@ const notificationsCmd = require('../src/commands/notifications');
 
 const VERSION = '0.3.7';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
-const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
+const _CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -142,7 +142,7 @@ function checkHomeDirectory() {
 }
 
 // Legacy function - kept for potential future use
-function notImplemented(cmd) {
+function _notImplemented(cmd) {
   log(`\n✗ Command "${cmd}" is not yet implemented`, 'yellow');
   console.log('');
   console.log('This command is planned for a future release.');
@@ -164,7 +164,7 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('\n✗ Uncaught Exception:');
   console.error(error);
   console.error('\nPlease report this issue at:');
@@ -297,7 +297,6 @@ async function main() {
 
     // Successful completion
     process.exit(0);
-
   } catch (error) {
     log('\n✗ Error:', 'yellow');
     console.error(error.message);
@@ -317,7 +316,7 @@ async function main() {
 }
 
 // Execute main function
-main().catch((error) => {
+main().catch(error => {
   console.error('\n✗ Fatal Error:');
   console.error(error);
   process.exit(1);

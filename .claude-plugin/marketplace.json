@@ -9,13 +9,7 @@
     "version": "0.1.0",
     "homepage": "https://github.com/vladks/claude-context-manager",
     "license": "MIT",
-    "keywords": [
-      "context-engineering",
-      "skills",
-      "commands",
-      "prompts",
-      "ai-context"
-    ],
+    "keywords": ["context-engineering", "skills", "commands", "prompts", "ai-context"],
     "pluginRoot": "./"
   },
   "plugins": [
@@ -24,22 +18,13 @@
       "description": "Master skill for AI context engineering - create skills, commands, agents, and manage context architecture",
       "source": "./",
       "strict": false,
-      "skills": [
-        "./.claude/skills/managing-claude-context"
-      ],
-      "commands": [
-        "./.claude/commands/managing-claude-context"
-      ],
+      "skills": ["./.claude/skills/managing-claude-context"],
+      "commands": ["./.claude/commands/managing-claude-context"],
       "metadata": {
         "tier": "free",
         "version": "0.1.0",
         "category": "development",
-        "tags": [
-          "context-engineering",
-          "skills",
-          "prompts",
-          "artifact-development"
-        ]
+        "tags": ["context-engineering", "skills", "prompts", "artifact-development"]
       }
     }
   ],

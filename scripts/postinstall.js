@@ -131,9 +131,7 @@ function createLibraryMetadata() {
         description: 'Managing-claude-context skill + essential commands',
         tier: 'free',
         category: 'development',
-        artifacts: [
-          { type: 'skill', name: 'managing-claude-context' }
-        ],
+        artifacts: [{ type: 'skill', name: 'managing-claude-context' }],
         definition_path: 'packages/core-essentials.json'
       },
       {
@@ -173,20 +171,11 @@ function createLibraryMetadata() {
     ]
   };
 
-  fs.writeFileSync(
-    path.join(freeDir, 'skills.json'),
-    JSON.stringify(freeSkills, null, 2)
-  );
+  fs.writeFileSync(path.join(freeDir, 'skills.json'), JSON.stringify(freeSkills, null, 2));
 
-  fs.writeFileSync(
-    path.join(freeDir, 'packages.json'),
-    JSON.stringify(freePackages, null, 2)
-  );
+  fs.writeFileSync(path.join(freeDir, 'packages.json'), JSON.stringify(freePackages, null, 2));
 
-  fs.writeFileSync(
-    path.join(premiumDir, 'skills.json'),
-    JSON.stringify(premiumSkills, null, 2)
-  );
+  fs.writeFileSync(path.join(premiumDir, 'skills.json'), JSON.stringify(premiumSkills, null, 2));
 }
 
 function installGlobalCommands() {
@@ -262,7 +251,10 @@ function syncClaudeAdditions() {
       log(`✓ Updated ${report.updated.length} CCM file(s): ${report.updated.join(', ')}`, 'green');
     }
     if (report.removed.length > 0) {
-      log(`✓ Removed ${report.removed.length} CCM file(s) to .trash: ${report.removed.join(', ')}`, 'green');
+      log(
+        `✓ Removed ${report.removed.length} CCM file(s) to .trash: ${report.removed.join(', ')}`,
+        'green'
+      );
     }
     if (report.unchanged.length > 0 && report.added.length === 0 && report.updated.length === 0) {
       log(`✓ CCM files up to date (${report.unchanged.length} file(s))`, 'green');
@@ -278,7 +270,6 @@ function syncClaudeAdditions() {
     // Always regenerate CLAUDE.md header
     syncEngine.regenerateCLAUDEMdHeader('global');
     log('✓ Regenerated CLAUDE.md header', 'green');
-
   } catch (error) {
     log(`⚠ Error syncing CCM files: ${error.message}`, 'yellow');
     console.error(error);
@@ -302,8 +293,9 @@ function autoUpdateArtifacts() {
     const currentVersion = packageJson.version;
 
     // If first install or no tracked artifacts, skip auto-update
-    const hasArtifacts = (reg.installations.global.artifacts && reg.installations.global.artifacts.length > 0) ||
-                         (reg.installations.projects && reg.installations.projects.length > 0);
+    const hasArtifacts =
+      (reg.installations.global.artifacts && reg.installations.global.artifacts.length > 0) ||
+      (reg.installations.projects && reg.installations.projects.length > 0);
 
     if (!hasArtifacts) {
       return; // Nothing to update
@@ -401,16 +393,11 @@ function autoUpdateArtifacts() {
             log(`${locationLabel}: Creating backup (user modified)...`, 'yellow');
 
             const artifact = registry.getArtifact(location, name);
-            backupManager.createBackup(
-              artifactPath,
-              name,
-              location,
-              {
-                backup_reason: 'auto_update_user_modified',
-                version_before: artifact ? artifact.version : 'unknown',
-                version_after: currentVersion
-              }
-            );
+            backupManager.createBackup(artifactPath, name, location, {
+              backup_reason: 'auto_update_user_modified',
+              version_before: artifact ? artifact.version : 'unknown',
+              version_after: currentVersion
+            });
 
             backedUpCount++;
           }
@@ -445,7 +432,6 @@ function autoUpdateArtifacts() {
 
           log(`${locationLabel}: ✓ Updated`, 'green');
           updatedCount++;
-
         } catch (error) {
           const locationLabel = location === 'global' ? '  Global (~/.claude)' : `  ${location}`;
           log(`${locationLabel}: ✗ ${error.message}`, 'red');
@@ -471,7 +457,6 @@ function autoUpdateArtifacts() {
       log(`  ${skippedCount} location(s) skipped`, 'yellow');
     }
     console.log('');
-
   } catch (error) {
     log(`⚠ Auto-update failed: ${error.message}`, 'yellow');
     console.error(error);
@@ -535,8 +520,8 @@ function validatePath(filePath, description) {
   const homeDir = os.homedir();
   const allowedDirs = [
     homeDir,
-    path.join(__dirname, '..'),  // Package directory
-    path.dirname(process.execPath)  // Node directory
+    path.join(__dirname, '..'), // Package directory
+    path.dirname(process.execPath) // Node directory
   ];
 
   if (!validators.isValidFilePath(filePath, allowedDirs)) {
@@ -570,7 +555,7 @@ function rollbackInstallation(createdPaths) {
 
 // Main execution
 async function main() {
-  const createdPaths = [];  // Track created files/dirs for rollback
+  const createdPaths = []; // Track created files/dirs for rollback
 
   try {
     log('\nSetting up Claude Context Manager...', 'bright');
@@ -685,7 +670,6 @@ async function main() {
     }
 
     process.exit(0);
-
   } catch (error) {
     log('\n✗ Error during setup:', 'red');
     console.error(error.message);
@@ -707,7 +691,7 @@ async function main() {
 }
 
 // Execute main function
-main().catch((error) => {
+main().catch(error => {
   console.error('\n✗ Fatal postinstall error:');
   console.error(error);
   process.exit(1);

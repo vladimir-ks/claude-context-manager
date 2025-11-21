@@ -59,19 +59,23 @@ Thank you for your interest in supporting this project! Your contributions help 
 #### Crypto Donations
 
 **EVM Networks (BSC / Polygon)**
+
 - **Networks:** BSC (BEP20) or MATIC Polygon POS
 - **Address:** `0x016721e858ee6abcd5f686ec4dea2c45f7527ea9`
 
 **TON Network**
+
 - **Network:** TON
 - **Address:** `EQD5mxRgCuRNLxKxeOjG6r14iSroLF5FtomPnet-sgP5xNJb`
 - **Memo:** `171965852`
 
 **Tron Network**
+
 - **Network:** TRC20
 - **Address:** `TGGS6QxBoybi4Suon3vgePsG5dJhyRahW8`
 
 **Bitcoin Network**
+
 - **Network:** Bitcoin
 - **Address:** `13MzKYZSHFUDP7N3ubgKyAMd6JYueWjS7B`
 
@@ -80,6 +84,7 @@ Thank you for your interest in supporting this project! Your contributions help 
 Access professional-grade skills, commands, and agents with a premium subscription:
 
 **Tiers:**
+
 - **Premium Individual** - $9/month
   - All premium skills, commands, and agents
   - Priority support
@@ -105,6 +110,7 @@ For early access or enterprise inquiries, contact: vlad@vladks.com
 Available for hire for custom Claude Code development:
 
 #### Consulting & Training
+
 - **Hourly Consulting** - $150-300/hour
   - Claude Code integration strategy
   - Context engineering best practices
@@ -118,6 +124,7 @@ Available for hire for custom Claude Code development:
   - Ongoing support during implementation
 
 #### Custom Development
+
 - **Custom Skills & Commands** - Project-based pricing
   - Tailored to your specific workflow
   - Full documentation and support
@@ -129,6 +136,7 @@ Available for hire for custom Claude Code development:
   - Priority updates and support
 
 #### Enterprise Solutions
+
 - **Complete Integration** - Custom quotes
   - End-to-end Claude Code setup
   - Custom artifact library for your organization
@@ -138,6 +146,7 @@ Available for hire for custom Claude Code development:
 **Contact:** vlad@vladks.com
 
 Please include:
+
 - Brief description of your needs
 - Team size (for training/licenses)
 - Timeline and budget expectations
@@ -147,6 +156,7 @@ Please include:
 ## Questions?
 
 Feel free to:
+
 - Open a discussion in [GitHub Discussions](../../discussions)
 - Submit an issue for bugs or feature requests
 - Email: vlad@vladks.com

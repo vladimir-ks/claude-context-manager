@@ -24,7 +24,10 @@ const platform = os.platform();
 function installMacOS() {
   const homeDir = os.homedir();
   const launchAgentsDir = path.join(homeDir, 'Library', 'LaunchAgents');
-  const plistPath = path.join(launchAgentsDir, 'com.vladks.claude-context-manager.update-checker.plist');
+  const plistPath = path.join(
+    launchAgentsDir,
+    'com.vladks.claude-context-manager.update-checker.plist'
+  );
 
   // Ensure LaunchAgents directory exists
   if (!fs.existsSync(launchAgentsDir)) {

@@ -75,7 +75,9 @@ function showStatus() {
   console.log('');
 
   logger.log('Rate Limit:', 'bright');
-  console.log(`  Current: ${colors.cyan}${rateLimit.current}${colors.reset}/${rateLimit.limit} submissions`);
+  console.log(
+    `  Current: ${colors.cyan}${rateLimit.current}${colors.reset}/${rateLimit.limit} submissions`
+  );
   console.log(`  Remaining: ${colors.green}${rateLimit.remaining}${colors.reset} submissions`);
 
   if (rateLimit.resets_at) {
@@ -135,10 +137,7 @@ function listSubmissions() {
  * @param {Object} options - Submission options
  */
 async function submitFeedback(message, options = {}) {
-  const {
-    includeSystemInfo = false,
-    force = false
-  } = options;
+  const { includeSystemInfo = false, force = false } = options;
 
   // Validate message is not empty
   if (!message || !message.trim()) {
@@ -166,13 +165,15 @@ async function submitFeedback(message, options = {}) {
     console.log('Please wait before submitting more feedback.');
     console.log('');
     if (rateLimit.resets_at) {
-      console.log(`Window resets: ${colors.yellow}${rateLimit.resets_at.toLocaleString()}${colors.reset}`);
+      console.log(
+        `Window resets: ${colors.yellow}${rateLimit.resets_at.toLocaleString()}${colors.reset}`
+      );
     } else {
       console.log('Window will reset in 24 hours from first submission');
     }
     console.log('');
     logger.log('For critical issues, use:', 'bright');
-    logger.log(`  ccm feedback "message" --force`, 'cyan');
+    logger.log('  ccm feedback "message" --force', 'cyan');
     console.log('');
     return;
   }
@@ -200,12 +201,14 @@ async function submitFeedback(message, options = {}) {
     // Duplicate found
     logger.log('✓ Similar Issue Found', 'yellow');
     console.log('');
-    console.log(`Your feedback matches an existing issue:`);
+    console.log('Your feedback matches an existing issue:');
     console.log('');
     console.log(`  ${colors.bright}Issue #${duplicate.number}:${colors.reset} ${duplicate.title}`);
     console.log(`  ${colors.blue}${duplicate.url}${colors.reset}`);
     console.log('');
-    console.log(`Match type: ${colors.cyan}${duplicate.match_type}${colors.reset} (similarity: ${Math.round(duplicate.similarity * 100)}%)`);
+    console.log(
+      `Match type: ${colors.cyan}${duplicate.match_type}${colors.reset} (similarity: ${Math.round(duplicate.similarity * 100)}%)`
+    );
     console.log('');
     console.log('The issue is currently being investigated.');
     console.log('Add your experience to the discussion if it differs.');
@@ -267,7 +270,6 @@ async function submitFeedback(message, options = {}) {
       issue_url: issue.url,
       was_duplicate: false
     });
-
   } catch (error) {
     logger.clearLine();
     logger.log('✗ Failed to Submit Feedback', 'red');

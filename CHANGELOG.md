@@ -12,12 +12,14 @@ and this repository adheres to [Semantic Versioning](https://semver.org/spec/v0.
 Critical bug fixes and production readiness improvements. System review identified 75 issues; this release addresses all critical, high, and selected medium priority items.
 
 ### Fixed
+
 - Critical async/await bug in CLI - all 13 command handlers not awaited (race conditions, silent failures)
 - Missing global error handlers for unhandled rejections and exceptions
 - Postinstall script had no error handling or rollback capability
 - Missing input validation (path traversal, injection risks)
 
 ### Added
+
 - **src/utils/validators.js** - Input validation (artifact names, paths, types, locations)
 - **src/utils/file-ops.js** - Safe file operations with disk space, permission, and symlink checks
 - Network timeout protection (10s) on all HTTPS requests
@@ -26,6 +28,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Graceful shutdown handlers (SIGINT/SIGTERM) with 2s cleanup window
 
 ### Changed
+
 - README.md - Updated to v0.3.6 with "What's New" section
 - All CLI commands now properly use async/await
 - Postinstall script validates paths and rolls back on failure
@@ -34,6 +37,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Fixed (Post-Review)
 
 **Critical production blockers found in code review:**
+
 - **CRITICAL:** Missing file-ops.js exports (copyFile, copyDirectory) - would crash NPM install
 - **HIGH:** gracefulShutdown memory leak - beforeExit handler registered on every call
 - **HIGH:** Atomic operation race condition - removed unnecessary existence checks (TOCTOU)
@@ -52,6 +56,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Added
 
 **Smart Backup System:**
+
 - `.ccm-backup/` directory in installation root for centralized backups
 - Compact timestamp format: `YYMMDD-hh-mm-{filename}.md` (sortable, readable)
 - Smart detection: only backup files actually modified by user
@@ -63,6 +68,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Integration: `src/lib/backup-manager.js`, `src/lib/sync-engine.js`
 
 **AI-Friendly Error System:**
+
 - `src/utils/errors.js` - Structured error messages with codes
 - Error codes: CCM_ERR_001 through CCM_ERR_099
   - 001-019: Installation errors
@@ -79,6 +85,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Feedback integration in all error messages
 
 **Feedback System:**
+
 - `.claude/skills/ccm-feedback/` - Intelligent feedback skill
 - `src/commands/feedback.js` - CLI command for feedback submission
 - `src/lib/github-api.js` - GitHub REST API integration
@@ -102,6 +109,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Submission history tracking
 
 **Artifact Version Management:**
+
 - `src/lib/version-manager.js` - Independent artifact versioning
 - Archive structure: `archive-packages/{type}s/{artifact}/v{version}/`
 - Version metadata tracking:
@@ -118,6 +126,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Changed
 
 **Backup System:**
+
 - Replaced inline `.backup-{timestamp}` files with centralized `.ccm-backup/`
 - CCM file backups now use smart detection
 - CLAUDE.md backups only created if file modified
@@ -131,6 +140,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   ```
 
 **Help Output:**
+
 - Added `feedback` command to help text
 - Updated examples to include feedback usage
 
@@ -145,6 +155,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Technical Details
 
 **Smart Backup Detection:**
+
 - Compare checksum: current file vs registry checksum
 - Compare modification date: file mtime vs install timestamp
 - Only backup if both checks indicate modification
@@ -155,6 +166,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - File size, checksums
 
 **Error System Integration:**
+
 - Ready for integration across all commands
 - Error builders for common scenarios:
   - `artifactNotFound()`
@@ -166,6 +178,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - JSON export for AI parsing: `formatErrorForAI()`
 
 **Feedback Duplicate Detection:**
+
 1. Extract error codes (CCM_ERR_XXX) from message
 2. Search GitHub issues for exact error code match
 3. If no match, extract keywords (normalized, stop words removed)
@@ -175,6 +188,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 7. Otherwise → Create new issue
 
 **Version Management:**
+
 - Checksum calculation: recursive for directories
 - Semantic version comparison (major.minor.patch + pre-release support)
 - Archive retention: indefinite (manual cleanup)
@@ -182,6 +196,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Interactive version selection UI in install command
 
 **Background Update Checker:**
+
 - Platform-specific service installation (macOS LaunchAgent, Linux systemd/cron, Windows Task Scheduler)
 - Automatic NPM registry check every 8 hours
 - System notifications once per 24h if update available
@@ -189,6 +204,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Secure command execution (no injection vulnerabilities)
 
 **Social Media Publishing:**
+
 - GitHub Actions webhook integration
 - Configurable via N8N_WEBHOOK_URL secret
 - Payload includes `is_alpha` flag for alpha vs production differentiation
@@ -197,6 +213,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Bug Fixes
 
 **Critical Fixes:**
+
 - **Error system**: Added input validation to prevent invalid error codes
 - **Feedback system**: Added missing `logger.clearLine()` method (would crash on feedback submission)
 - **Backup system**: Fixed path construction to use `os.homedir()` directly (prevents path traversal issues)
@@ -205,6 +222,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - **Version manager**: Fixed pre-release version comparison (1.0.0-alpha now correctly < 1.0.0)
 
 **High Priority Fixes:**
+
 - **Feedback system**: Added empty message validation
 - **Feedback system**: Added null check for rate limit `resets_at` display
 - **Backup system**: Added try-catch error handling for file copy operations with cleanup
@@ -214,6 +232,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - **Version manager**: Added re-sort after version deletion (ensures latest version is correct)
 
 **Medium Priority Fixes:**
+
 - **Error system**: Fixed fileOperationFailed to use explicit mapping instead of dynamic lookup
 - **Error system**: Fixed color mixing in feedback prompt (reset before applying cyan)
 - **Update checker**: Added `notify-send` existence check before execution (Linux)
@@ -222,6 +241,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Impact
 
 **For Users:**
+
 - Backups no longer clutter installation directory
 - Only modified files backed up (saves disk space)
 - Clear error messages with actionable fixes
@@ -229,6 +249,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Protection against spam with rate limiting
 
 **For AI Agents:**
+
 - Structured error messages (parseable)
 - AI-specific hints in error output
 - Backup notices visible in console output
@@ -236,6 +257,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Feedback system integration in error flow
 
 **For Developers:**
+
 - Error system ready for command integration
 - Version management foundation for artifact evolution
 - GitHub API module for issue management
@@ -288,6 +310,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Added
 
 **Interactive Menu System:**
+
 - `src/lib/interactive-menu.js` - Complete interactive CLI using Inquirer.js
   - Smart context detection (git repo, current directory)
   - Multi-select prompts for packages and artifacts
@@ -297,6 +320,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - New dependencies: `@inquirer/select`, `@inquirer/checkbox`, `@inquirer/confirm`, `@inquirer/input`
 
 **Multi-Location Tracking:**
+
 - `src/lib/multi-location-tracker.js` - Track artifacts across multiple installations
   - Single artifact can be installed in global + multiple projects
   - Cross-reference tracking between locations
@@ -305,6 +329,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Installation summary and analysis
 
 **Backup Management:**
+
 - `src/lib/backup-manager.js` - Comprehensive backup/restore system
   - Timestamped backup directories with metadata
   - Retention policies (configurable: 30 days, 5 backups per artifact)
@@ -313,6 +338,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Backup statistics and analysis
 
 **Conflict Detection:**
+
 - `src/lib/conflict-detector.js` - User modification detection
   - SHA256 checksum calculation for files and directories
   - Detect user modifications by comparing checksums
@@ -321,6 +347,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Artifact integrity validation
 
 **New Commands:**
+
 - `src/commands/uninstall.js` - Remove artifacts with multi-location support
   - Interactive mode: Select artifacts and locations with menus
   - Multi-location selection for artifacts in multiple places
@@ -342,6 +369,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Retention policy configuration
 
 **Auto-Update System:**
+
 - `scripts/postinstall.js` - `autoUpdateArtifacts()` function
   - Detects package version changes
   - Finds all tracked installation locations
@@ -352,6 +380,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Changed
 
 **Registry Schema v0.3.0:**
+
 - `src/lib/registry.js` - New fields and migration logic
   - `last_auto_update`: Timestamp for tracking updates
   - `installed_locations[]`: Track all installation locations per artifact
@@ -363,6 +392,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - New functions: `addLocationToArtifact`, `removeLocationFromArtifact`, `getArtifactLocations`, `markArtifactModified`, `updateAutoUpdateTimestamp`, `getBackupConfig`, `updateBackupConfig`
 
 **Enhanced Install Command:**
+
 - `src/commands/install.js` - Complete redesign
   - **Interactive mode** (no flags): Guided 4-step installation
     1. Select package type (solutions vs individual)
@@ -376,6 +406,7 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Progress indicators and clear feedback
 
 **Distribution Fixes:**
+
 - `scripts/postinstall.js` - `installGlobalCommands()` rewritten
   - Fixed: Nested command directories not copied (bug)
   - Now copies `managing-claude-context/` and `doc-refactoring/` subdirectories recursively
@@ -383,12 +414,14 @@ Critical bug fixes and production readiness improvements. System review identifi
   - Tracks both flat commands and command groups
 
 **CLI Integration:**
+
 - `bin/claude-context-manager.js` - New commands registered
   - Added: `uninstall`, `restore`, `cleanup`
   - Updated help text with interactive mode indicators
   - Maintained backward compatibility
 
 **Library Metadata:**
+
 - `scripts/postinstall.js` - Added doc-refactoring skill to free tier
   - Now installable via `ccm install` command
   - Package definition: `packages/doc-refactoring.json`
@@ -409,6 +442,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Migration Notes
 
 **For Users:**
+
 - Run `npm install -g @vladimir-ks/claude-context-manager@latest` to upgrade
 - On first install after upgrade, auto-update will run and update all tracked artifacts
 - Backups will be created automatically for any user-modified artifacts
@@ -416,6 +450,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - Legacy flag-based commands still work for automation and scripts
 
 **For Developers:**
+
 - Registry v0.3.0 migration runs automatically on first `registry.load()`
 - New utility modules available: `interactive-menu`, `multi-location-tracker`, `conflict-detector`, `backup-manager`
 - Auto-update runs on every `npm install` (not on first install)
@@ -432,6 +467,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Changed
 
 **ccm-claude-md-prefix/ - File Renaming:**
+
 - Renamed to numbered format for ordered loading:
   - `ccm-DOCS-ORGANIZATION.md` → `ccm01-USER-SETTINGS.md`
   - `ccm-USER-SETTINGS.md` → `ccm02-DOCS-ORGANIZATION.md`
@@ -439,6 +475,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - New file: `ccm04-MERMAID-GUIDE.md` (diagrams guide for non-technical users)
 
 **CLAUDE.md - Repository Documentation:**
+
 - Updated "Repository Purpose" to reflect dual identity (NPM platform + development environment)
 - Added "CI/CD Pipeline" section documenting **simplified 2-stage workflow** (dev → master)
   - Note: Staging/alpha workflow exists but dormant during active development
@@ -451,6 +488,7 @@ Critical bug fixes and production readiness improvements. System review identifi
 - **Fixed confusion**: Clarified that staging is dormant, not part of active workflow
 
 **Sync Behavior:**
+
 - Old format files automatically moved to `.trash/` on install
 - New numbered files installed to `~/.claude/`
 - CLAUDE.md header regenerated with numbered file references
@@ -459,12 +497,14 @@ Critical bug fixes and production readiness improvements. System review identifi
 ### Documentation
 
 **What Changed:**
+
 - CLAUDE.md now documents both NPM platform capabilities AND development workflows
 - CI/CD pipeline fully explained (brief overview suitable for developers)
 - CCM file sync system documented with testing procedures
 - Git workflow clarified and reinforced
 
 **Impact:**
+
 - Users upgrading to 0.3.1 will see old CCM files replaced with numbered versions
 - CLAUDE.md header will reference numbered files (ccm01-, ccm02-, ccm03-, ccm04-)
 - Repository identity more accurately reflects production package status
@@ -480,6 +520,7 @@ Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modifi
 ### Added
 
 **New Module: src/lib/sync-engine.js**
+
 - `syncCCMFiles()` - Complete sync of CCM files (install new, update changed, remove deleted)
 - `regenerateCLAUDEMdHeader()` - Always regenerate CLAUDE.md header to match current files
 - `extractUserContent()` - Smart extraction of user content below CCM header
@@ -487,6 +528,7 @@ Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modifi
 - `calculateChecksum()` - SHA256 checksums for file integrity
 
 **Enhanced: src/lib/registry.js**
+
 - Registry schema upgraded from v0.1.0 to v0.2.0
 - Added `package_version` field to track package version
 - Added `ccm_managed_files` array to track individual CCM files
@@ -497,6 +539,7 @@ Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modifi
 ### Changed
 
 **scripts/postinstall.js:**
+
 - Replaced `installClaudeAdditions()` with `syncClaudeAdditions()`
 - Now uses sync engine for all CCM file operations
 - Always regenerates CLAUDE.md header (no more early-exit)
@@ -507,6 +550,7 @@ Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modifi
 ### Behavior
 
 **On every `npm install`:**
+
 1. Migrates registry if needed (v0.1.0 → v0.2.0)
 2. Syncs CCM files:
    - Installs new files from package
@@ -516,12 +560,14 @@ Files: 4 renamed/added (ccm-claude-md-prefix/), 1 modified (CLAUDE.md), 2 modifi
 4. Preserves user content in CLAUDE.md
 
 **File Operations:**
+
 - Install: Package → `~/.claude/` + registry tracking
 - Update: Backup → Overwrite → Update registry checksum
 - Remove: Move to `.trash/{timestamp}/` + Remove from registry
 - CLAUDE.md: Extract user content → Regenerate header → Prepend to user content
 
 **Safety:**
+
 - Never `rm` - always moves to timestamped trash
 - Always creates backups before modifications
 - User content in CLAUDE.md always preserved
@@ -539,12 +585,14 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 ### Added
 
 **ccm-claude-md-prefix/ directory:**
+
 - `c-CRITICAL-RULES.md` - Critical behavioral rules
 - `c-REPO-ORGANIZATION.md` - Repository organization guidelines
 - `c-USER-SETTINGS.md` - User profile and preferences
 - `c-WORKFLOW-ORCHESTRATION.md` - Workflow orchestration patterns
 
 **scripts/postinstall.js:**
+
 - `installClaudeAdditions()` function
 - Copies ccm-claude-md-prefix/ to ~/.claude/ccm-claude-md-prefix/
 - Dynamically generates @ references for all .md files
@@ -555,18 +603,22 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 ### Changed
 
 **CLAUDE.md:**
+
 - Added concise git branching rules at top
 - Enforces dev branch for all development
 - Prohibits direct development on master
 
 **package.json:**
+
 - Version: 0.2.1 → 0.2.2
 - Added `ccm-claude-md-prefix/` to files array
 
 **bin/claude-context-manager.js:**
+
 - Version: 0.2.1 → 0.2.2
 
 **.gitignore:**
+
 - Added `.claude-additions/` directory
 
 ### Files Changed
@@ -584,6 +636,7 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 ### Added
 
 **Commands (.claude/commands/):**
+
 - `ccm-bootstrap.md` - Comprehensive CCM CLI guide (~18KB, 750 lines)
   - Quick reference for all 8 commands
   - 6 common workflows (first-time setup, project init, update, etc.)
@@ -601,6 +654,7 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 ### Changed
 
 **scripts/postinstall.js:**
+
 - Renamed `installBootstrapCommand()` → `installGlobalCommands()`
 - Now installs ALL `.md` files from `.claude/commands/` to `~/.claude/commands/`
 - Enhanced to support multiple commands (not just bootstrap)
@@ -608,20 +662,24 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 - Creates `~/.claude/commands/` directory if doesn't exist
 
 **package.json:**
+
 - Version: 0.2.0 → 0.2.1
 - Updated `files` array: `.claude/commands/managing-claude-context/` → `.claude/commands/`
   - Now includes all commands in `.claude/commands/` (bootstrap + test + future)
 
 **bin/claude-context-manager.js:**
+
 - Version: 0.2.0 → 0.2.1
 
 **.claude/commands/ccm-bootstrap.md:**
+
 - Updated version references to 0.2.1
 - Added v0.2.1 to version history section
 
 ### Features
 
 **Bootstrap Command (`/ccm-bootstrap`):**
+
 - **Auto-installs globally** during `npm install -g @vladimir-ks/claude-context-manager`
 - **Auto-updates** when CCM package is updated
 - **Available in ANY project** (global command in `~/.claude/commands/`)
@@ -633,6 +691,7 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
   - Claude Code integration patterns
 
 **Enhanced Postinstall:**
+
 - Automatically installs all commands from package to global directory
 - Supports adding new commands without modifying postinstall script
 - Future-proof: any `.md` file in `.claude/commands/` auto-installs
@@ -640,6 +699,7 @@ Files: 3 new (sync-engine.js), 2 modified (registry.js, postinstall.js)
 ### Usage
 
 **For Users:**
+
 ```bash
 # Install or update CCM
 npm install -g @vladimir-ks/claude-context-manager
@@ -650,6 +710,7 @@ npm install -g @vladimir-ks/claude-context-manager
 ```
 
 **For AI (Claude Code):**
+
 ```
 When user asks about Claude Code artifact management:
 1. Load bootstrap: /ccm-bootstrap
@@ -660,12 +721,14 @@ When user asks about Claude Code artifact management:
 ### Testing
 
 **Test Command (`/ccm-test`):**
+
 - Verifies release workflow end-to-end
 - Confirms NPM publication
 - Validates auto-update mechanism
 - Tests postinstall execution
 
 **Local Testing:**
+
 ```bash
 npm link
 ls ~/.claude/commands/  # Should show ccm-bootstrap.md, ccm-test.md
@@ -695,11 +758,13 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Added
 
 **Core Utilities (src/utils/):**
+
 - `logger.js` - Colored console output with ANSI codes, progress indicators
 - `config.js` - Read/write config.json and registry.json, path helpers
 - `file-ops.js` - File operations, SHA256 checksums, backup creation
 
 **Library Modules (src/lib/):**
+
 - `registry.js` - Installation tracking (global + per-project)
 - `catalog.js` - Artifact metadata loading and search
 - `package-manager.js` - Install/uninstall with backup support
@@ -707,6 +772,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - `api-client.js` - Premium API client stub (full implementation in v0.3.0+)
 
 **Commands (src/commands/):**
+
 - `install.js` - Install artifacts and packages with conflict detection
 - `list.js` - List available artifacts, show installed status
 - `status.js` - Show installation status with checksum validation
@@ -717,9 +783,11 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - `activate.js` - Premium license activation stub
 
 **Package Definitions (packages/):**
+
 - `core-essentials.json` - Free tier package including managing-claude-context skill
 
 **Documentation:**
+
 - `00_DOCS/guides/ai-agent-cli-guide.md` - Comprehensive CLI specifications (1,000+ lines)
 - `.claude/commands/load-code-cli.md` - Development context command
 - README.md "For Developers" section - Development workflow and testing
@@ -727,29 +795,35 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Changed
 
 **bin/claude-context-manager.js:**
+
 - Updated from stub implementation to full command routing
 - Version bumped to 0.2.0
 - All commands now call actual implementations
 
 **scripts/postinstall.js:**
+
 - Updated artifact metadata with source paths
 - Added package definition references
 - Enhanced catalog generation
 
 **package.json:**
+
 - Version: 0.1.0 → 0.2.0
 
 ### CLI Commands (Fully Implemented)
 
 **Tier 1: Core Functionality**
+
 - `ccm list [--tier <free|premium>] [--type <skill|command|package>]` - List all available artifacts
 - `ccm install --skill|--command|--package <name> --global|--project [path]` - Install artifacts
 
 **Tier 2: Essential Management**
+
 - `ccm init [--package <name>] [--project <path>]` - Initialize project with artifacts
 - `ccm status [--global] [--project <path>]` - Show installation status
 
 **Tier 3: Advanced Operations**
+
 - `ccm search <query> [--tier <free|premium>] [--type <type>]` - Search catalog
 - `ccm update [--skill|--command|--package <name>] --global|--project [path] [--all]` - Update artifacts
 - `ccm remove --skill|--command|--package <name> --global|--project [path]` - Uninstall artifacts
@@ -758,6 +832,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Features
 
 **Installation System:**
+
 - Copy-based installation (not symlinks) for cross-platform compatibility
 - SHA256 checksum validation for integrity verification
 - Conflict detection with automatic backup creation
@@ -765,24 +840,28 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Package support (install multiple artifacts in one operation)
 
 **Registry Tracking:**
+
 - Tracks all installations in `~/.claude-context-manager/registry.json`
 - Separate tracking for artifacts and packages
 - Installation timestamps and checksums
 - Per-project and global installation records
 
 **Backup System:**
+
 - Timestamped backups before overwrites: `artifact-name.YYYY-MM-DD-HH-MM-SS.bak`
 - Stored in `~/.claude-context-manager/backups/`
 - Optional --skip-backup flag for all commands
 - Automatic backup on update and remove operations
 
 **Search & Discovery:**
+
 - Full-text search across artifact names, descriptions, and categories
 - Filter by tier (free/premium) and type (skill/command/package)
 - Shows installed status with checkmarks (✓)
 - Indicates locked premium items with lock icon (🔒)
 
 **Update System:**
+
 - Version comparison to detect available updates
 - Batch update with --all flag
 - Individual artifact updates
@@ -790,6 +869,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Interactive confirmation prompts
 
 **User Experience:**
+
 - Colored output with ANSI codes (green=success, yellow=warning, red=error)
 - Progress indicators (⏳) for long operations
 - Clear error messages with usage hints
@@ -799,6 +879,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Testing
 
 **Manual Testing Completed:**
+
 - All utilities tested with dedicated test scripts
 - All library modules tested and validated
 - All 8 commands tested end-to-end
@@ -808,6 +889,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Backup creation verified
 
 **Test Results:**
+
 - ✅ ccm list - Shows all artifacts correctly
 - ✅ ccm install - Installs packages and artifacts
 - ✅ ccm status - Shows installation status with checksums
@@ -820,23 +902,27 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Technical Details
 
 **Architecture:**
+
 - Modular design: utilities → libraries → commands → router
 - Separation of concerns (logging, config, file operations)
 - Reusable components across commands
 - Consistent error handling and user prompts
 
 **Dependencies:**
+
 - Zero external dependencies (uses only Node.js built-ins)
 - fs, path, os, crypto, readline modules
 - Works on Node.js 14+
 
 **File Operations:**
+
 - Recursive directory copying with permission preservation
 - Directory checksums via recursive file hashing
 - Safe file operations with error handling
 - Backup creation before destructive operations
 
 **Configuration:**
+
 - Config file: `~/.claude-context-manager/config.json`
 - Registry file: `~/.claude-context-manager/registry.json`
 - Secure permissions (0600 for sensitive files, 0755 for directories)
@@ -845,12 +931,14 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Premium Tier (Stubbed for Q1 2025)
 
 **Current Behavior:**
+
 - License validation always returns invalid
 - Premium artifacts shown as locked (🔒)
 - activate command shows "coming soon" message
 - Free tier fully functional
 
 **Full Implementation Planned:**
+
 - License validation API
 - Premium artifact downloads
 - Subscription management
@@ -863,12 +951,14 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Known Limitations
 
 **v0.2.0 does not include:**
+
 - Premium tier functionality (license validation, premium downloads)
 - init command not tested end-to-end in project context
 - No automated test suite (manual testing only)
 - No CI/CD auto-testing (only auto-publishing)
 
 **Planned for future releases:**
+
 - Automated test suite
 - Premium tier implementation
 - More package definitions
@@ -889,6 +979,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Added
 
 **Distribution Infrastructure:**
+
 - `package.json` - NPM package manifest for `@vladks/claude-context-manager`
 - `.gitattributes` - Export-ignore for symlinks and development files
 - `.claude-plugin/marketplace.json` - Claude Code plugin manifest
@@ -897,11 +988,13 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - `src/` directory structure - Placeholder for full CLI implementation (v0.2.0)
 
 **Documentation:**
+
 - `00_DOCS/specs/claude-context-manager-architecture.md` - Complete system architecture
 - `00_DOCS/specs/artifact-manager-system.md` - Installation system specification
 - `00_DOCS/strategy/distribution-monetization-strategy.md` - Business strategy
 
 **Monetization:**
+
 - Premium tier pricing structure ($9/month individual, $29/month team)
 - License validation architecture
 - Donation and professional services information in CONTRIBUTING.md
@@ -909,6 +1002,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Changed
 
 **README.md** - Complete rewrite:
+
 - Focus: Distributable platform vs development workspace
 - Installation methods: NPM, Claude Code plugin, manual
 - Feature comparison: Free vs Premium tiers
@@ -916,6 +1010,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Professional branding and documentation
 
 **CONTRIBUTING.md** - Expanded with:
+
 - Donation platforms (Buy Me a Coffee, PayPal, Patreon)
 - Crypto wallet addresses (BTC, ETH, BSC/Polygon, TON, Tron)
 - Premium subscription information
@@ -923,6 +1018,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - **SACRED directive** - Donation/contact info never to be deleted
 
 **package.json** - New NPM package configuration:
+
 - Scoped package: `@vladks/claude-context-manager`
 - Binary commands: `ccm`, `claude-context-manager`, `ai-log-*`
 - Funding links to donation platforms
@@ -931,22 +1027,26 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Distribution Methods
 
 **Primary: NPM Package**
+
 - Global CLI installation: `npm install -g @vladks/claude-context-manager`
 - Post-install creates `~/.claude-context-manager/` with config, registry, cache
 - Bundles free-tier artifacts (managing-claude-context skill)
 
 **Secondary: Claude Code Plugin**
+
 - Marketplace distribution via `.claude-plugin/marketplace.json`
 - Installation: `/plugin install managing-claude-context@vladks-marketplace`
 - Free-tier artifacts only
 
 **Tertiary: Manual Installation**
+
 - Clone repository and copy artifacts directly
 - Documented in README
 
 ### Home Directory Structure
 
 **Created on npm install:** `~/.claude-context-manager/`
+
 - `config.json` - Configuration, license key, preferences
 - `registry.json` - Installation tracking (global + projects)
 - `cache/` - Downloaded package storage
@@ -957,11 +1057,13 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### CLI Commands (Stub Implementation in v0.1.0)
 
 **Available in v0.1.0:**
+
 - `ccm --help` - Usage information
 - `ccm --version` - Version display
 - `ccm <command>` - Shows "coming in v0.2.0" message
 
 **Coming in v0.2.0:**
+
 - `ccm list` - List available artifacts (free + premium)
 - `ccm install` - Install artifacts globally or per-project
 - `ccm update` - Update installed artifacts with backup
@@ -974,12 +1076,14 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Symlink Exclusion
 
 **Development symlinks (excluded from distribution):**
+
 - `_cc-skills-global` → `~/.claude/skills/`
 - `_cc-commands-global` → `~/.claude/commands/`
 - `_cc-agents-global` → `~/.claude/agents/`
 - `_cc-user-settings-global` → `~/.claude/`
 
 **Exclusion layers:**
+
 - `.gitattributes` export-ignore - Excludes from GitHub releases, git archive
 - `package.json` files field - Whitelist approach, symlinks not listed
 - `.claude-plugin/marketplace.json` - Explicit paths only
@@ -987,12 +1091,14 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Premium Tier (Q1 2025 Launch)
 
 **Subscription Tiers:**
+
 - Free: Core essentials (managing-claude-context skill, basic commands)
 - Premium: $9/month (professional skills, priority support)
 - Team: $29/month (premium + collaboration, 5 users)
 - Enterprise: Custom (dedicated support, custom packages, SLA)
 
 **Premium Features:**
+
 - Advanced PDF processing with OCR
 - Enterprise automation workflows
 - Data analysis tools
@@ -1000,6 +1106,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Security audit agents
 
 **Technical Implementation:**
+
 - License validation API
 - Premium artifact server (private hosting)
 - Cached validation (24-hour TTL)
@@ -1008,6 +1115,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ### Breaking Changes
 
 **Repository Identity:**
+
 - Name change: `claude-skills-builder-vladks` → `claude-context-manager`
 - Purpose shift: Development tool → Distributable platform
 - Target audience: Developers creating artifacts → End users consuming artifacts
@@ -1023,6 +1131,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 **Context:** This was the intermediate reorganization before the v0.1.0 transformation.
 
 ### Added
+
 - `CLAUDE.md` at repository root - Repository context and development workflow
 - `LICENSE` - MIT License
 - `CONTRIBUTING.md` - Contribution guidelines
@@ -1030,19 +1139,23 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - `00_DOCS/guides/` directory structure
 
 ### Changed
+
 - **README.md** - Rewrite focusing on artifact development workflow
 - **ARTIFACT_CATALOG.md** - Updated with all 12 actual skills
 - Repository focus: from "artifact library" to "artifact development workspace"
 - Primary tool: `managing-claude-context` skill emphasized
 
 ### Fixed
+
 - **managing-claude-context skill** - 11 critical architecture issues resolved
 
 ### Moved
+
 - `ANALYSIS.md` → `.trash/analysis-2025-01-14.md`
 - `GLOBAL_CLAUDE_GUIDELINES.md` → `00_DOCS/guides/global-claude-guidelines-template.md`
 
 ### Removed
+
 - References to non-existent skills
 - Outdated artifact references
 
@@ -1051,6 +1164,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ## [1.0.0] - 2025-01-13
 
 ### Added
+
 - Initial repository structure
 - `managing-claude-context` skill (primary development framework)
 - 11 supporting skills (docx, pdf, pptx, xlsx, mcp-builder, etc.)
@@ -1058,6 +1172,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 - Research materials and documentation
 
 ### Established
+
 - Development workflow patterns
 - Progressive disclosure architecture
 - Zero-redundancy principle
@@ -1068,6 +1183,7 @@ cat ~/.claude/commands/ccm-bootstrap.md  # Verify content
 ## Future
 
 ### Planned
+
 - Validation checklist for manual testing
 - Skill overview document
 - CLI tool for artifact installation

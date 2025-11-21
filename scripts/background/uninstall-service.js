@@ -20,7 +20,12 @@ const platform = os.platform();
  */
 function uninstallMacOS() {
   const homeDir = os.homedir();
-  const plistPath = path.join(homeDir, 'Library', 'LaunchAgents', 'com.vladks.claude-context-manager.update-checker.plist');
+  const plistPath = path.join(
+    homeDir,
+    'Library',
+    'LaunchAgents',
+    'com.vladks.claude-context-manager.update-checker.plist'
+  );
 
   if (!fs.existsSync(plistPath)) {
     console.log('✓ LaunchAgent not installed');
@@ -97,9 +102,7 @@ function uninstallLinuxCron() {
     }
 
     // Remove entry
-    const lines = existingCron.split('\n').filter(line =>
-      !line.includes('update-checker.js')
-    );
+    const lines = existingCron.split('\n').filter(line => !line.includes('update-checker.js'));
 
     const newCron = lines.join('\n');
 
