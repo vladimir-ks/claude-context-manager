@@ -120,23 +120,62 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.package-version.outputs.version }}"
+          # Extract changelog entry for this version
+          CHANGELOG=$(awk "/## \[$VERSION\]/,/^## \[/" CHANGELOG.md | sed '$d')
+          # Escape for JSON
+          CHANGELOG_JSON=$(echo "$CHANGELOG" | jq -Rs .)
+          echo "content=$CHANGELOG_JSON" >> $GITHUB_OUTPUT
+
       - name: Notify external webhook (social media)
         if: steps.check-published.outputs.exists == 'false'
         continue-on-error: true
         run: |
           curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "event": "release",
-              "is_alpha": false,
-              "package": "@vladimir-ks/claude-context-manager",
-              "version": "${{ steps.package-version.outputs.version }}",
-              "npm_url": "https://www.npmjs.com/package/@vladimir-ks/claude-context-manager",
-              "github_url": "https://github.com/${{ github.repository }}",
-              "repository": "${{ github.repository }}",
-              "commit": "${{ github.sha }}",
-              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            }' || echo "⚠️  Webhook notification failed (non-fatal)"
+            -d @- <<EOF
+          {
+            "event": "release",
+            "is_alpha": false,
+            "package": "@vladimir-ks/claude-context-manager",
+            "version": "${{ steps.package-version.outputs.version }}",
+            "npm_url": "https://www.npmjs.com/package/@vladimir-ks/claude-context-manager",
+            "github_url": "https://github.com/${{ github.repository }}",
+            "release_notes_url": "https://github.com/${{ github.repository }}/releases/tag/v${{ steps.package-version.outputs.version }}",
+            "repository": "${{ github.repository }}",
+            "commit": "${{ github.sha }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "changelog": ${{ steps.changelog.outputs.content }},
+            "qa_instructions": {
+              "installation_test": "npm install -g @vladimir-ks/claude-context-manager@${{ steps.package-version.outputs.version }} && ccm version",
+              "core_commands": [
+                "ccm list - Verify artifact catalog loads",
+                "ccm status --global - Check global installation status",
+                "ccm install --skill managing-claude-context --global - Test skill installation",
+                "ccm notifications check - Verify update checker works"
+              ],
+              "verification_steps": [
+                "1. Install package globally from NPM",
+                "2. Run 'ccm version' - should show v${{ steps.package-version.outputs.version }}",
+                "3. Run 'ccm list' - should display free catalog",
+                "4. Test artifact installation with core-essentials package",
+                "5. Verify files sync correctly to ~/.claude/ directory",
+                "6. Check CLAUDE.md header generated properly"
+              ],
+              "regression_tests": [
+                "Backup functionality (ccm install should create backups)",
+                "Registry tracking (artifacts should be registered)",
+                "Multi-location support (global + project installations)",
+                "Update detection (user modifications should be detected)"
+              ],
+              "documentation": "https://github.com/${{ github.repository }}/blob/main/README.md"
+            }
+          }
+          EOF
+          echo "Webhook notification sent to N8N"
 
       - name: Summary
         run: |
