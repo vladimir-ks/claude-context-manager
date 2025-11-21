@@ -207,6 +207,12 @@ Impact:
 Files changed: N file(s)
 ```
 
+**CRITICAL: Commit vs Changelog Separation**
+- **Git commits** = Detailed for developers (include files, technical context, implementation)
+- **CHANGELOG.md** = Simple for users (only "Type: Summary" + "User Benefit" lines)
+- When generating changelog, extract ONLY the first 2 lines from commits
+- NEVER include "Technical Details:", "Impact:", or "Files changed:" in CHANGELOG.md
+
 **Example Commit Generation:**
 
 ```bash
@@ -313,30 +319,38 @@ else
 fi
 ```
 
-**New CHANGELOG Format (Concise):**
+**New CHANGELOG Format (Keep a Changelog Style):**
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
-### Brief Release Theme
+Brief 1-2 sentence release summary.
 
 ### Added
-- **Feature Name** - User benefit (1 sentence)
-  - Key capability 1
-  - Key capability 2
+- **Feature name** - What users can now do (single line, focus on capability)
 
 ### Changed
-- **What Changed** - User impact (1 sentence)
+- **What changed** - How it affects user workflow (single line)
 
 ### Fixed
-- **Bug Fixed** - Resolution (1 sentence)
+- **Problem fixed** - What's resolved for users (single line)
 
-### Technical Notes
-Brief implementation context if needed (2-3 sentences max).
+### Security
+- **Vulnerability type** - Protection added (single line)
 
-Implementation details: `git log vX.Y.Z-1..vX.Y.Z`
-Artifact changes: See ARTIFACT_CHANGELOG.md
+### Deprecated _(if applicable)_
+- **Feature being removed** - Timeline and migration path
+
+### Removed _(if applicable)_
+- **Deleted feature** - Why it was removed
 ```
+
+**Key principles (from keepachangelog.com):**
+- Changelogs are for humans, not machines
+- NO file lists, NO line counts, NO implementation details
+- Focus on WHAT users can do, not HOW it's implemented
+- Keep entries to single lines unless absolutely necessary
+- Use categories: Added, Changed, Fixed, Security, Deprecated, Removed
 
 **Generate Changelog Content:**
 

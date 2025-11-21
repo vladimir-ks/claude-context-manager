@@ -6,192 +6,48 @@ All notable changes to this project are documented here. For detailed version hi
 
 ## [0.4.0] - 2025-11-21
 
-### AI-Driven Artifact Version Management
+Major infrastructure release: Automated artifact version management with rollback capability, enhanced safety features, and critical security fixes.
 
-**Transform your artifact workflow with fully autonomous versioning, archive management, and update tracking.**
+### Added
+- **Artifact version tracking** - All skills and commands now track version history with automatic rollback support
+- **Update notifications** - See what changed in artifacts after package updates using `ccm update-check`
+- **Pre-uninstall safety** - Warns before removing package, offers to clean up all installed artifacts to prevent orphans
+- **Backup cleanup option** - Optionally remove old backups when uninstalling artifacts
 
-### What's New
+### Changed
+- **CLAUDE.md structure** - Added HTML comment markers to clearly separate CCM-managed content from your custom content
+- **Artifact versioning** - Now uses semantic versioning (patch/minor/major) based on change impact
+- **Release process** - Improved consistency with user-focused changelogs and automated validation
 
-#### Autonomous Version Management
+### Fixed
+- **False modification warnings** - Eliminated "Modified: Yes" warnings when you haven't changed artifacts
+- **Checksum drift** - CI/CD now catches artifact changes before release, ensuring checksums stay accurate
+- **Update detection** - Post-install correctly identifies when artifact versions have changed
 
-Never manually track artifact versions again. Intelligent automation handles everything:
-
-- **Analyzes changes intelligently** - Examines what changed to decide version bumps (patch/minor/major)
-- **Archives old versions automatically** - Preserves version history in organized structure
-- **Updates all tracking files** - Checksums, changelogs, and metadata stay in sync
-- **Prevents checksum mismatches** - No more false "Modified: Yes" warnings
-- **Zero user interaction** - Fully autonomous process
-
-**Decision Framework:**
-- **Patch:** Bug fixes, minor updates (<50 lines changed)
-- **Minor:** New features, enhancements (50-200 lines)
-- **Major:** Breaking changes (200+ lines or significant refactoring)
-
-#### Smart Artifact Updates
-
-Stay informed about artifact improvements:
-
-- **Update notifications** - See what changed after package updates (`npm update -g`)
-- **Detailed changelog** - ARTIFACT_CHANGELOG.md tracks every artifact version bump with rationale
-- **Check for updates** - New `ccm update-check` command shows what's changed between versions
-- **Version history** - Every artifact tracks previous versions with archive links
-- **Easy rollback** - Access old versions from archived packages
-
-#### CI/CD Safety
-
-Automated quality gates protect releases:
-
-- **Checksum validation** - CI blocks pushes if artifact checksums don't match package.json
-- **PR checks** - Pull requests to master validate version bumps, changelogs, and checksums
-- **Clear AI instructions** - Failure messages guide AI agents through resolution steps
-- **Archive system** - Old versions preserved in git-tagged archives for rollback
-
-#### Better Release Process
-
-Improved development workflow ensures higher quality releases:
-
-- **Consistent changelogs** - User-focused release notes in every version
-- **Semantic commits** - Clear git history with detailed rationale
-- **Automated validation** - CI/CD ensures nothing is missed before release
-
-#### Enhanced User Experience
-
-- **Pre-uninstall safety** - Warns before package removal, offers artifact cleanup options
-- **Backup cleanup** - Remove old backups when uninstalling artifacts
-- **HTML markers in CLAUDE.md** - Clear visual separation between CCM-managed and user content
-- **Better sync output** - Console shows exactly what changed during artifact sync
-
-### Security Fixes
-
-**Critical vulnerabilities resolved:**
-
-- **Path traversal protection** - Backup manager validates paths to prevent directory traversal attacks
-- **TOCTOU protection** - Pre-uninstall script validates symlinks before deletion
-- **Registry integrity** - Pre-uninstall now updates registry after artifact removal
-
-### How It Works
-
-**Development Workflow:**
-
-1. Modify artifact (skill/command)
-2. Push to dev branch
-3. CI detects checksum mismatch → blocks with instructions
-4. Automated process analyzes changes and updates versions
-5. Archives old version, updates all tracking files
-6. CI passes, ready to merge
-
-**Release Workflow:**
-
-1. Create PR to master
-2. PR check validates version bump, changelog, artifact checksums
-3. Merge triggers production release + NPM publish
-4. Webhook sends changelogs (main + artifacts) to N8N for social media
-
-**User Experience:**
-
-1. Update package: `npm update -g @vladimir-ks/claude-context-manager`
-2. Post-install shows: "Artifact Updates Available"
-3. Check details: `ccm update-check`
-4. Apply updates: `ccm update --all --global`
-
-### Documentation
-
-**Commit Management Protocol** - CLAUDE.md now enforces use of `/ccm-change-logger` command for all commits. AI agents must use the automated workflow instead of manual `git commit` commands. This ensures consistent formatting, automatic CHANGELOG.md updates, and proper artifact versioning coordination.
-
-**Archive Date Corrections** - Fixed date typos in CHANGELOG-ARCHIVE/CHANGELOG-0.3.x.md (January → November for 0.3.0, 0.2.2, 0.2.1, 0.2.0 releases).
-
-### Technical Details
-
-**New Files:**
-- `ARTIFACT_CHANGELOG.md` - Artifact-specific changelog (separate from main changelog)
-- `scripts/preuninstall.js` - NPM pre-uninstall hook with safety warnings (350 lines)
-- `src/commands/update-check.js` - CLI command for checking artifact updates (197 lines)
-- Internal automation: CI/CD workflows, checksum validators, and development commands for repository maintenance
-
-**Modified Files:**
-- `package.json` - Added artifacts section with checksums and version history
-- `.github/workflows/ci-dev.yml` - Added artifact checksum check step
-- `.github/workflows/ci-production.yml` - Added artifact changelog webhook integration
-- `scripts/postinstall.js` - Added artifact update notifications
-- `bin/claude-context-manager.js` - Added update-check command route
-- `src/lib/backup-manager.js` - Added bulk backup operations, path validation
-- `src/commands/uninstall.js` - Added backup cleanup prompt
-- `src/lib/sync-engine.js` - Added HTML markers for CLAUDE.md content boundary
-
-**Artifact Tracking:**
-
-All existing artifacts initialized with baseline checksums:
-- **Skills:** managing-claude-context (v2.0), ccm-feedback (v0.1.0)
-- **Commands:** ccm-artifact-package-manager, ccm-bootstrap, ccm-test, load-code-cli, test-logging (all v0.1.0)
-
-Each artifact tracked with:
-- Version number (semantic versioning)
-- SHA256 checksum
-- Last updated timestamp
-- History array (previous versions with git tags and archive paths)
-
-### Benefits
-
-**For Users:**
-- Always know what changed in artifacts between versions
-- Easily update artifacts with clear changelog excerpts
-- Rollback capability if updates cause issues
-- Protection from unintended artifact modifications
-
-**For AI Agents:**
-- Clear instructions when checksum validation fails
-- Structured JSON reports from artifact manager
-- Autonomous resolution of version management tasks
-- No manual tracking required
-
-**For Developers:**
-- Prevent checksum drift during development
-- Automated archive management
-- Transparent version history
-- CI/CD safety gates for quality control
+### Security
+- **Path traversal vulnerability** - Backup system now validates all paths to prevent directory traversal attacks
+- **TOCTOU race condition** - Added symlink validation before file deletion to prevent time-of-check attacks
+- **Registry corruption** - Pre-uninstall hook now properly updates registry after removing artifacts
 
 ---
 
 ## Previous Releases
 
-### v0.3.x Series: Production Hardening (Nov 2025)
+### v0.3.x Series (Nov 2025) - Production Hardening
+- Smart backup system with 90-day retention
+- Interactive CLI with multi-location artifact tracking
+- CCM file sync system with automatic CLAUDE.md management
+- Fixed 75+ bugs including critical async/await issues
+- Added debug logging, error handling, input validation
 
-The 0.3.x series focused on **production stability, security, and user experience**:
+### v0.2.x Series (Nov 2025) - Full CLI Implementation
+- All 8 core commands (list, install, status, init, search, update, remove, activate)
+- Complete installation system with checksums and backups
+- Registry tracking for global and per-project installs
+- Bootstrap command with comprehensive CLI guide
 
-**Production Hardening (0.3.7):** Comprehensive bug fixes addressing 75+ identified issues, including critical async/await bugs, missing error handlers, and input validation gaps. Added debug logging system, graceful shutdown handlers, and atomic file operations.
-
-**UX Improvements (0.3.6):** Introduced smart backup system with 90-day retention, AI-friendly error messages with structured codes, integrated feedback system with duplicate detection and rate limiting, and foundation for artifact version management.
-
-**Interactive CLI (0.3.3):** Complete UX redesign with interactive menus using Inquirer.js, multi-location artifact tracking (global + per-project), automatic updates during package install, comprehensive backup management, and conflict detection before overwrites.
-
-**CCM File Sync (0.3.0-0.3.1):** Implemented robust CCM file synchronization system with automatic CLAUDE.md header regeneration, file tracking in registry, and organized CCM guidelines (ccm01-USER-SETTINGS.md, ccm02-DOCS-ORGANIZATION.md, etc.).
-
-### v0.2.x Series: Full CLI Implementation (Nov 2025)
-
-The 0.2.x series delivered the **complete CLI functionality**:
-
-**Bootstrap Command (0.2.1):** Added auto-installing `/ccm-bootstrap` command with comprehensive CLI guide (750+ lines), available globally in any project. Enhanced postinstall to install all commands automatically.
-
-**Full CLI (0.2.0):** Implemented all 8 core commands (list, install, status, init, search, update, remove, activate), complete installation system with checksums and backups, registry tracking for global and per-project installs, and package management. Zero external dependencies using only Node.js built-ins.
-
-### v0.1.0: Distribution Foundation (Nov 2025)
-
-**Initial release** transforming development workspace into distributable freemium CLI platform:
-
-- NPM package infrastructure (`@vladimir-ks/claude-context-manager`)
-- Home directory setup (`~/.claude-context-manager/`)
-- CLI entry point with command router
-- Plugin manifest for Claude Code marketplace
-- Documentation for distribution and monetization strategy
-- Premium tier architecture (to be implemented)
-
-**Repository renamed:** `claude-skills-builder-vladks` → `claude-context-manager`
-
-### Earlier Versions (Pre-Distribution)
-
-**v1.1.0 (Nov 2025):** Repository reorganization focusing on artifact development workflow. Added CLAUDE.md, LICENSE, CONTRIBUTING.md. Fixed 11 critical architecture issues in managing-claude-context skill.
-
-**v1.0.0 (Nov 2025):** Initial repository structure with managing-claude-context skill framework, 11 supporting skills (docx, pdf, pptx, xlsx, mcp-builder, etc.), 14+ commands, and research materials. Established progressive disclosure architecture and zero-redundancy principle.
+### v0.1.0 (Nov 2025) - Distribution Foundation
+Initial NPM package release transforming development workspace into distributable CLI platform. Repository renamed to `claude-context-manager`.
 
 ---
 
