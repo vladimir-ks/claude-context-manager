@@ -153,7 +153,7 @@
     "version:patch": "node scripts/bump-version.js patch",
     "changelog": "node scripts/generate-changelog.js",
     "docs": "jsdoc -c jsdoc.json",
-    "prepare": "husky install",
+    "prepare": "[ -z \"$CI\" ] && husky install || echo 'Skipping husky in CI'",
     "prepublishOnly": "chmod +x bin/* scripts/*.js scripts/logging/* scripts/background/*"
   },
   "dependencies": {
