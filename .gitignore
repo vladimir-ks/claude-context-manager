@@ -50,3 +50,6 @@ env/
 ._*
 .claude-additions/
 coverage/
+
+# QA Testing (temporary test execution results)
+.qa-reports/
