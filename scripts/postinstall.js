@@ -317,9 +317,7 @@ async function checkArtifactVersionUpdates() {
       for (const [commandName, metadata] of Object.entries(packageJson.artifacts.commands)) {
         // Find in registry
         const globalArtifacts = reg.installations.global.artifacts || [];
-        const installed = globalArtifacts.find(
-          a => a.name === commandName && a.type === 'command'
-        );
+        const installed = globalArtifacts.find(a => a.name === commandName && a.type === 'command');
 
         if (installed && installed.version !== metadata.version) {
           updates.push({
@@ -342,20 +340,11 @@ async function checkArtifactVersionUpdates() {
     log('║  Artifact Updates Available                            ║', 'bright');
     log('╚════════════════════════════════════════════════════════╝\n', 'cyan');
 
-    log(
-      `${updates.length} artifact(s) have new versions available:\n`,
-      'bright'
-    );
+    log(`${updates.length} artifact(s) have new versions available:\n`, 'bright');
 
     updates.forEach(update => {
-      log(
-        `  ${update.type === 'skill' ? '📦' : '⚡'} ${update.name}`,
-        'cyan'
-      );
-      log(
-        `     ${update.oldVersion} → ${update.newVersion}`,
-        'yellow'
-      );
+      log(`  ${update.type === 'skill' ? '📦' : '⚡'} ${update.name}`, 'cyan');
+      log(`     ${update.oldVersion} → ${update.newVersion}`, 'yellow');
     });
 
     console.log('');

@@ -106,9 +106,7 @@ async function checkUpdates() {
     if (packageJson.artifacts.commands) {
       for (const [commandName, metadata] of Object.entries(packageJson.artifacts.commands)) {
         const globalArtifacts = reg.installations.global.artifacts || [];
-        const installed = globalArtifacts.find(
-          a => a.name === commandName && a.type === 'command'
-        );
+        const installed = globalArtifacts.find(a => a.name === commandName && a.type === 'command');
 
         if (installed && installed.version !== metadata.version) {
           updates.push({
@@ -149,7 +147,10 @@ async function checkUpdates() {
       // Extract and show changelog
       const changelog = extractChangelog(update.name, update.oldVersion, update.newVersion);
 
-      if (changelog !== 'No detailed changelog available' && changelog !== 'Changelog not available') {
+      if (
+        changelog !== 'No detailed changelog available' &&
+        changelog !== 'Changelog not available'
+      ) {
         logger.dim('   What changed:');
         const changelogLines = changelog.split('\n').slice(0, 10); // Show first 10 lines
         changelogLines.forEach(line => {

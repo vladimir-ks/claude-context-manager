@@ -227,6 +227,7 @@ When working in this repository, AI agents should:
 **ALWAYS use `/ccm-change-logger` command to handle commits.**
 
 **Why:**
+
 - Enforces consistent commit message format
 - Automatically updates CHANGELOG.md with user-focused content
 - Delegates artifact versioning to `/ccm-artifact-package-manager`
@@ -234,6 +235,7 @@ When working in this repository, AI agents should:
 - Maintains proper separation between detailed commits and concise changelog
 
 **Workflow:**
+
 ```
 1. Complete your work (edits, new files, etc.)
 2. DO NOT run git commit
@@ -247,6 +249,7 @@ When working in this repository, AI agents should:
 ```
 
 **Exception:** Only create manual commits if:
+
 - `/ccm-change-logger` command fails or is unavailable
 - Emergency hotfix requiring immediate commit
 - User explicitly requests manual commit

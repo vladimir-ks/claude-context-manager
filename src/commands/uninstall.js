@@ -293,7 +293,9 @@ async function interactiveUninstall() {
           }
 
           if (removeResults.failed.length > 0) {
-            logger.warn(`⚠ Failed to remove backups for ${removeResults.failed.length} artifact(s)`);
+            logger.warn(
+              `⚠ Failed to remove backups for ${removeResults.failed.length} artifact(s)`
+            );
             removeResults.failed.forEach(failure => {
               logger.warn(`  • ${failure.artifact}: ${failure.error}`);
             });

@@ -142,9 +142,8 @@ function removeAllArtifacts(artifacts, registry) {
 
           // Remove from registry
           if (registry.installations.global && registry.installations.global.artifacts) {
-            registry.installations.global.artifacts = registry.installations.global.artifacts.filter(
-              a => a.name !== artifact.name
-            );
+            registry.installations.global.artifacts =
+              registry.installations.global.artifacts.filter(a => a.name !== artifact.name);
           }
 
           log(`  ✓ Removed: ${artifact.name} (global)`, 'green');
@@ -214,10 +213,7 @@ async function main() {
     const artifacts = getInstalledArtifacts(registry);
 
     const totalGlobal = artifacts.global.length;
-    const totalProjects = artifacts.projects.reduce(
-      (sum, p) => sum + p.artifacts.length,
-      0
-    );
+    const totalProjects = artifacts.projects.reduce((sum, p) => sum + p.artifacts.length, 0);
     const totalArtifacts = totalGlobal + totalProjects;
 
     if (totalArtifacts === 0) {
