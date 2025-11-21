@@ -49,3 +49,4 @@ env/
 .LSOverride
 ._*
 .claude-additions/
+coverage/
