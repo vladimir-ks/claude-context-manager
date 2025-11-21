@@ -89,67 +89,105 @@ function createRegistry() {
   fs.writeFileSync(REGISTRY_FILE, JSON.stringify(registry, null, 2), { mode: 0o644 });
 }
 
-function createLibraryMetadata() {
+/**
+ * Generate catalog from package.json artifacts section
+ */
+function generateCatalogFromPackageJson() {
+  const packageJson = require('../package.json');
+
+  if (!packageJson.artifacts) {
+    log('⚠ No artifacts section in package.json, skipping catalog generation', 'yellow');
+    return;
+  }
+
   const libraryDir = path.join(HOME_DIR, 'library');
   const freeDir = path.join(libraryDir, 'free');
-  const premiumDir = path.join(libraryDir, 'premium');
 
   createDirectory(freeDir);
+
+  // Generate skills catalog
+  const skills = [];
+  if (packageJson.artifacts.skills) {
+    Object.entries(packageJson.artifacts.skills).forEach(([name, meta]) => {
+      skills.push({
+        name,
+        version: meta.version,
+        description: meta.description || 'Master skill for AI context engineering',
+        tier: 'free',
+        category: meta.category || 'development',
+        size_bytes: null,
+        dependencies: [],
+        source_path: `.claude/skills/${name}/`
+      });
+    });
+  }
+
+  // Generate commands catalog
+  const commands = [];
+  if (packageJson.artifacts.commands) {
+    Object.entries(packageJson.artifacts.commands).forEach(([name, meta]) => {
+      commands.push({
+        name,
+        version: meta.version,
+        description: meta.description || 'Claude Code command',
+        tier: 'free',
+        category: meta.category || 'development',
+        size_bytes: null,
+        dependencies: [],
+        source_path: `.claude/commands/${name}`
+      });
+    });
+  }
+
+  // Write catalogs
+  if (skills.length > 0) {
+    fs.writeFileSync(
+      path.join(freeDir, 'skills.json'),
+      JSON.stringify({ skills }, null, 2)
+    );
+  }
+
+  if (commands.length > 0) {
+    fs.writeFileSync(
+      path.join(freeDir, 'commands.json'),
+      JSON.stringify({ commands }, null, 2)
+    );
+  }
+
+  // Generate packages catalog (hardcoded for now - can be enhanced later)
+  const packages = [
+    {
+      name: 'core-essentials',
+      version: '0.1.0',
+      description: 'Managing-claude-context skill + essential commands',
+      tier: 'free',
+      category: 'development',
+      artifacts: [{ type: 'skill', name: 'managing-claude-context' }],
+      definition_path: 'packages/core-essentials.json'
+    },
+    {
+      name: 'doc-refactoring',
+      version: '0.1.0',
+      description: 'Combat documentation bloat through intelligent refactoring',
+      tier: 'free',
+      category: 'documentation',
+      artifacts: [
+        { type: 'skill', name: 'doc-refactoring' },
+        { type: 'command_group', name: 'doc-refactoring' }
+      ],
+      definition_path: 'packages/doc-refactoring.json'
+    }
+  ];
+
+  fs.writeFileSync(
+    path.join(freeDir, 'packages.json'),
+    JSON.stringify({ packages }, null, 2)
+  );
+
+  // Premium tier placeholders
+  const premiumDir = path.join(libraryDir, 'premium');
   createDirectory(premiumDir);
 
-  // Free tier artifacts metadata
-  const freeSkills = {
-    skills: [
-      {
-        name: 'managing-claude-context',
-        version: '0.1.0',
-        description: 'Master skill for AI context engineering',
-        tier: 'free',
-        category: 'development',
-        size_bytes: null,
-        dependencies: [],
-        source_path: '.claude/skills/managing-claude-context/'
-      },
-      {
-        name: 'doc-refactoring',
-        version: '0.1.0',
-        description: 'Combat documentation bloat through intelligent refactoring',
-        tier: 'free',
-        category: 'documentation',
-        size_bytes: null,
-        dependencies: [],
-        source_path: '.claude/skills/doc-refactoring/'
-      }
-    ]
-  };
-
-  const freePackages = {
-    packages: [
-      {
-        name: 'core-essentials',
-        version: '0.1.0',
-        description: 'Managing-claude-context skill + essential commands',
-        tier: 'free',
-        category: 'development',
-        artifacts: [{ type: 'skill', name: 'managing-claude-context' }],
-        definition_path: 'packages/core-essentials.json'
-      },
-      {
-        name: 'doc-refactoring',
-        version: '0.1.0',
-        description: 'Combat documentation bloat through intelligent refactoring',
-        tier: 'free',
-        category: 'documentation',
-        artifacts: [
-          { type: 'skill', name: 'doc-refactoring' },
-          { type: 'command_group', name: 'doc-refactoring' }
-        ],
-        definition_path: 'packages/doc-refactoring.json'
-      }
-    ]
-  };
-
-  // Premium tier placeholders (shows what's available after activation)
   const premiumSkills = {
     skills: [
       {
@@ -170,10 +208,6 @@ function createLibraryMetadata() {
       }
     ]
   };
-
-  fs.writeFileSync(path.join(freeDir, 'skills.json'), JSON.stringify(freeSkills, null, 2));
-
-  fs.writeFileSync(path.join(freeDir, 'packages.json'), JSON.stringify(freePackages, null, 2));
 
   fs.writeFileSync(path.join(premiumDir, 'skills.json'), JSON.stringify(premiumSkills, null, 2));
 }
@@ -360,10 +394,68 @@ async function checkArtifactVersionUpdates() {
   }
 }
 
+/**
+ * Collect all artifacts that need updates
+ * @param {Object} reg - Registry object
+ * @param {Object} packageJson - package.json object
+ * @returns {Array} Artifacts needing updates with location info
+ */
+function collectArtifactsNeedingUpdate(reg, packageJson) {
+  const artifactMap = new Map(); // Use map to deduplicate
+
+  // Helper to add artifact to map
+  function addArtifact(artifact, location) {
+    const artifactType = `${artifact.type}s`; // 'skill' → 'skills'
+    const latestMeta = packageJson.artifacts?.[artifactType]?.[artifact.name];
+
+    if (!latestMeta) {
+      return; // Artifact not in package.json (removed)
+    }
+
+    if (artifact.version !== latestMeta.version) {
+      if (artifactMap.has(artifact.name)) {
+        // Already in map, add location
+        const existing = artifactMap.get(artifact.name);
+        if (!existing.locations.includes(location)) {
+          existing.locations.push(location);
+        }
+      } else {
+        // New artifact to update
+        artifactMap.set(artifact.name, {
+          name: artifact.name,
+          type: artifact.type,
+          installed_version: artifact.version,
+          latest_version: latestMeta.version,
+          locations: [location]
+        });
+      }
+    }
+  }
+
+  // Check global artifacts
+  if (reg.installations.global.artifacts) {
+    reg.installations.global.artifacts.forEach(artifact => {
+      addArtifact(artifact, 'global');
+    });
+  }
+
+  // Check project artifacts
+  if (reg.installations.projects) {
+    reg.installations.projects.forEach(project => {
+      if (project.artifacts) {
+        project.artifacts.forEach(artifact => {
+          addArtifact(artifact, project.path);
+        });
+      }
+    });
+  }
+
+  return Array.from(artifactMap.values());
+}
+
 function autoUpdateArtifacts() {
   try {
     const registry = require('../src/lib/registry');
-    const multiLocation = require('../src/lib/multi-location-tracker');
     const conflictDetector = require('../src/lib/conflict-detector');
     const backupManager = require('../src/lib/backup-manager');
     const fileOps = require('../src/utils/file-ops');
@@ -401,26 +493,105 @@ function autoUpdateArtifacts() {
     log('║  Auto-Update: Updating tracked installations          ║', 'bright');
     log('╚════════════════════════════════════════════════════════╝\n', 'cyan');
 
-    // Get all multi-location artifacts
-    const multiLocationArtifacts = multiLocation.getMultiLocationArtifacts();
+    // Collect ALL artifacts needing updates (not just multi-location)
+    const artifactsToUpdate = collectArtifactsNeedingUpdate(reg, packageJson);
 
-    if (multiLocationArtifacts.length === 0) {
-      log('✓ No multi-location artifacts to update', 'green');
+    if (artifactsToUpdate.length === 0) {
+      log('✓ All artifacts are up to date', 'green');
       registry.updateAutoUpdateTimestamp();
+      console.log('');
       return;
     }
 
-    log(`Found ${multiLocationArtifacts.length} artifact(s) in multiple locations\n`, 'bright');
+    log(`Found ${artifactsToUpdate.length} artifact(s) with updates available\n`, 'bright');
 
-    let updatedCount = 0;
-    let skippedCount = 0;
-    let backedUpCount = 0;
+    // Show list of artifacts and ask for confirmation
+    artifactsToUpdate.forEach((artInfo, index) => {
+      const locationsText =
+        artInfo.locations.length === 1
+          ? artInfo.locations[0] === 'global'
+            ? 'global'
+            : `project: ${artInfo.locations[0]}`
+          : `${artInfo.locations.length} locations`;
 
-    // Update each multi-location artifact
-    multiLocationArtifacts.forEach(artInfo => {
-      const { name, type, locations } = artInfo;
+      log(
+        `  ${index + 1}. ${artInfo.name} (${artInfo.type}): v${artInfo.installed_version} → v${artInfo.latest_version} [${locationsText}]`,
+        'cyan'
+      );
+    });
 
-      log(`Updating: ${name}`, 'cyan');
+    console.log('');
+    log('Update artifacts? [Y]es / [N]o / [S]elect individually: ', 'bright');
+
+    const readline = require('readline');
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    rl.question('', async answer => {
+      const choice = answer.trim().toLowerCase();
+
+      let artifactsToProcess = [];
+
+      if (choice === 'n' || choice === 'no') {
+        log('\nSkipping artifact updates', 'yellow');
+        rl.close();
+        registry.updateAutoUpdateTimestamp();
+        console.log('');
+        return;
+      } else if (choice === 's' || choice === 'select') {
+        // Ask for each artifact individually
+        log('\n', 'reset');
+
+        for (const artInfo of artifactsToUpdate) {
+          const locationsText =
+            artInfo.locations.length === 1
+              ? artInfo.locations[0] === 'global'
+                ? 'global'
+                : artInfo.locations[0]
+              : `${artInfo.locations.length} locations`;
+
+          await new Promise(resolve => {
+            rl.question(
+              `Update ${artInfo.name} (${artInfo.type}) v${artInfo.installed_version} → v${artInfo.latest_version} [${locationsText}]? (Y/n): `,
+              selectAnswer => {
+                if (selectAnswer.trim().toLowerCase() !== 'n' && selectAnswer.trim().toLowerCase() !== 'no') {
+                  artifactsToProcess.push(artInfo);
+                }
+                resolve();
+              }
+            );
+          });
+        }
+
+        rl.close();
+      } else {
+        // Default: update all (Y, yes, or Enter)
+        artifactsToProcess = artifactsToUpdate;
+        rl.close();
+      }
+
+      // Proceed with updates
+      if (artifactsToProcess.length === 0) {
+        log('\nNo artifacts selected for update', 'yellow');
+        registry.updateAutoUpdateTimestamp();
+        console.log('');
+        return;
+      }
+
+      console.log('');
+      log(`Updating ${artifactsToProcess.length} artifact(s)...\n`, 'bright');
+
+      let updatedCount = 0;
+      let skippedCount = 0;
+      let backedUpCount = 0;
+
+      // Update each artifact in all its locations
+      artifactsToProcess.forEach(artInfo => {
+        const { name, type, locations, installed_version, latest_version } = artInfo;
+
+        log(`Updating: ${name}`, 'cyan');
 
       locations.forEach(location => {
         try {
@@ -479,8 +650,8 @@ function autoUpdateArtifacts() {
             const artifact = registry.getArtifact(location, name);
             backupManager.createBackup(artifactPath, name, location, {
               backup_reason: 'auto_update_user_modified',
-              version_before: artifact ? artifact.version : 'unknown',
-              version_after: currentVersion
+              version_before: installed_version,
+              version_after: latest_version
             });
 
             backedUpCount++;
@@ -506,7 +677,7 @@ function autoUpdateArtifacts() {
           const artifact = registry.getArtifact(location, name);
 
           if (artifact) {
-            artifact.version = currentVersion;
+            artifact.version = latest_version;
             artifact.checksum = newChecksum;
             artifact.updated_at = new Date().toISOString();
             artifact.user_modified = false;
@@ -514,7 +685,10 @@ function autoUpdateArtifacts() {
             registry.save();
           }
 
-          log(`${locationLabel}: ✓ Updated`, 'green');
+          log(
+            `${locationLabel}: ✓ Updated v${installed_version} → v${latest_version}`,
+            'green'
+          );
           updatedCount++;
         } catch (error) {
           const locationLabel = location === 'global' ? '  Global (~/.claude)' : `  ${location}`;
@@ -526,21 +700,22 @@ function autoUpdateArtifacts() {
       console.log('');
     });
 
-    // Update timestamp
-    registry.updateAutoUpdateTimestamp();
+      // Update timestamp
+      registry.updateAutoUpdateTimestamp();
 
-    // Summary
-    log('═══════════════════════════════════════════════════════', 'cyan');
-    if (updatedCount > 0) {
-      log(`✓ Auto-Update Complete: ${updatedCount} location(s) updated`, 'green');
-    }
-    if (backedUpCount > 0) {
-      log(`  ${backedUpCount} backup(s) created for user modifications`, 'yellow');
-    }
-    if (skippedCount > 0) {
-      log(`  ${skippedCount} location(s) skipped`, 'yellow');
-    }
-    console.log('');
+      // Summary
+      log('═══════════════════════════════════════════════════════', 'cyan');
+      if (updatedCount > 0) {
+        log(`✓ Auto-Update Complete: ${updatedCount} location(s) updated`, 'green');
+      }
+      if (backedUpCount > 0) {
+        log(`  ${backedUpCount} backup(s) created for user modifications`, 'yellow');
+      }
+      if (skippedCount > 0) {
+        log(`  ${skippedCount} location(s) skipped`, 'yellow');
+      }
+      console.log('');
+    });
   } catch (error) {
     log(`⚠ Auto-update failed: ${error.message}`, 'yellow');
     console.error(error);
@@ -694,12 +869,12 @@ async function main() {
       throw new Error(`Failed to create registry: ${error.message}`);
     }
 
-    // Create library metadata
+    // Generate catalog from package.json
     try {
-      createLibraryMetadata();
-      log('✓ Initialized artifact library', 'green');
+      generateCatalogFromPackageJson();
+      log('✓ Generated catalog from package.json', 'green');
     } catch (error) {
-      throw new Error(`Failed to create library metadata: ${error.message}`);
+      throw new Error(`Failed to generate catalog: ${error.message}`);
     }
 
     // Install all commands globally
