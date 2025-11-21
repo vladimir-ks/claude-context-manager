@@ -130,6 +130,19 @@ jobs:
           CHANGELOG_JSON=$(echo "$CHANGELOG" | jq -Rs .)
           echo "content=$CHANGELOG_JSON" >> $GITHUB_OUTPUT
 
+      - name: Extract artifact changelog
+        id: artifact-changelog
+        run: |
+          if [ -f "ARTIFACT_CHANGELOG.md" ]; then
+            # Extract recent artifact changes (last 50 lines or all content)
+            ARTIFACT_CHANGES=$(tail -n 50 ARTIFACT_CHANGELOG.md)
+            # Escape for JSON
+            ARTIFACT_CHANGES_JSON=$(echo "$ARTIFACT_CHANGES" | jq -Rs .)
+            echo "content=$ARTIFACT_CHANGES_JSON" >> $GITHUB_OUTPUT
+          else
+            echo "content=\"No artifact changelog available\"" >> $GITHUB_OUTPUT
+          fi
+
       - name: Notify external webhook (social media)
         if: steps.check-published.outputs.exists == 'false'
         continue-on-error: true
@@ -149,6 +162,7 @@ jobs:
             "commit": "${{ github.sha }}",
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "changelog": ${{ steps.changelog.outputs.content }},
+            "artifact_changelog": ${{ steps.artifact-changelog.outputs.content }},
             "qa_instructions": {
               "installation_test": "npm install -g @vladimir-ks/claude-context-manager@${{ steps.package-version.outputs.version }} && ccm version",
               "core_commands": [

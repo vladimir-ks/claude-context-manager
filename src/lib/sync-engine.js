@@ -58,18 +58,39 @@ function extractUserContent(claudeMdContent) {
 
   const lines = claudeMdContent.split('\n');
 
-  // Find last --- separator that's part of CCM header
-  // CCM header format:
+  // First, try to find HTML comment markers (new format)
+  // CCM header format (with markers):
+  // <!-- <ccm-claude-code-context-artifacts> -->
   // @./ccm-FILE.md
-  //
   // ---
-  //
   // @./ccm-FILE2.md
-  //
   // ---
+  // <!-- </ccm-claude-code-context-artifacts> -->
   //
   // [user content starts here]
 
+  let closingMarkerIdx = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (line === '<!-- </ccm-claude-code-context-artifacts> -->') {
+      closingMarkerIdx = i;
+      break;
+    }
+  }
+
+  if (closingMarkerIdx !== -1) {
+    // Found closing marker, user content starts after it
+    let startIdx = closingMarkerIdx + 1;
+    while (startIdx < lines.length && lines[startIdx].trim() === '') {
+      startIdx++;
+    }
+    return lines.slice(startIdx).join('\n');
+  }
+
+  // Fallback: Use old separator-based logic (for backwards compatibility)
+  // Find last --- separator that's part of CCM header
   let lastSeparatorIdx = -1;
 
   for (let i = 0; i < lines.length; i++) {
@@ -115,7 +136,7 @@ function generateCLAUDEMdHeader(files) {
   }
 
   const references = files.map(file => `@./${file}`).join('\n\n---\n\n');
-  return `${references}\n\n---\n\n`;
+  return `<!-- <ccm-claude-code-context-artifacts> -->\n${references}\n\n---\n<!-- </ccm-claude-code-context-artifacts> -->\n\n`;
 }
 
 /**

@@ -3,12 +3,12 @@ name: managing-claude-context
 description: Master skill for AI context engineering. Use for creating and managing the entire context ecosystem /commands, /agents, /skills, CLAUDE.md files, and their holistic architecture.
 metadata:
   status: confirmed
-  version: 2.0
+  version: 2.1.1
   modules: [orchestration, context-engineering, subagents, architecture]
   tldr: "A comprehensive guide to architecting and creating a holistic, efficient, and scalable context ecosystem for advanced AI agents, covering everything from individual artifact creation to multi-agent orchestration patterns."
   dependencies: [".claude/skills/orchestrating-subagents/SKILL.md"]
   code_refs: [".claude/"]
-  audience: "AI orchestrators and context engineers. This v2.0 skill describes autonomous orchestration patterns. For human users learning the system, see QUICK_START.md (v1.0)."
+  audience: "AI orchestrators and context engineers. This v2.1 skill describes autonomous orchestration patterns. For human users learning the system, see QUICK_START.md (v1.0)."
 ---
 
 # 1. The Philosophy of Contextual Integrity
@@ -202,8 +202,15 @@ The choice of execution mechanism is a critical architectural decision. Your goa
 
 - **Definition:** This pattern treats commands not just as tasks, but as "recipe cards" for sub-agents.
 - **Purpose:** For complex, multi-faceted skills like `managing-claude-context`, a single skill can be used in many different ways. The recipe pattern allows an orchestrator to give a sub-agent a precise, explicit list of knowledge "ingredients" (i.e., `references/*.md` files) required for one specific execution path.
+- **Two Loading Patterns (Both Valid):**
+    - **Progressive Disclosure (Main Orchestration):** Main orchestrator loads knowledge on-demand from `references/` as needed. Always-loaded context kept minimal. Used by orchestrating-subagents skill and main conversation orchestration.
+    - **Recipe Pattern (Isolated Commands):** Individual commands specify 5-7 references to load upfront when invoked via Task tool. Enables isolated execution with all necessary context. Used by managing-claude-context commands when delegated.
+- **Why Both Patterns:**
+    - Main orchestrator has persistent context - benefits from minimal always-loaded context and on-demand loading
+    - Isolated commands run in separate contexts - need complete context upfront for single execution
+    - Not a contradiction - different patterns for different execution modes
 - **Reconciling Principles:**
-    - **Progressive Disclosure:** This pattern is an *advanced form* of progressive disclosure. Instead of the agent discovering knowledge, the orchestrator (which has higher-level context) discloses the exact required knowledge for the task, ensuring maximum relevance and efficiency.
+    - **Progressive Disclosure:** Applied at orchestration level (main agent). Commands use explicit upfront loading for isolated execution efficiency.
     - **Zero Redundancy:** This principle applies to the *content* of the artifacts, not the *references* to them. A command listing multiple references is not redundant; it is creating a specific, curated context for a task. The `references/` themselves must remain non-redundant.
 - **Example:** The `/create-edit-agent` command is a perfect example. It provides the sub-agent with a specific list of guides from the `managing-claude-context` skill's references, ensuring it follows the exact process for agent creation without needing to know the skill's entire contents.
 
