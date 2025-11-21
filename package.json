@@ -1,6 +1,6 @@
 {
   "name": "@vladimir-ks/claude-context-manager",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "description": "Context engineering platform for Claude Code - manage skills, commands, and agents with premium subscription tier",
   "keywords": [
     "claude-code",
@@ -69,8 +69,71 @@
     "CHANGELOG.md",
     "LICENSE"
   ],
+  "artifacts": {
+    "skills": {
+      "managing-claude-context": {
+        "version": "2.1",
+        "checksum": "a1dce6f7229682b687504dcaa65ae9c2efcde1a54a285d997d592e18b30a975c",
+        "lastUpdated": "2025-11-21T18:49:20Z",
+        "history": [
+          {
+            "version": "2.0",
+            "released": "2025-11-21T00:00:00Z",
+            "checksum": "b935abff22662168709ff78146026e9fe62f22aecfaa9b0cab42593d0a032209",
+            "git_tag": "managing-claude-context-v2.0",
+            "archive_path": "archive-packages/skills/managing-claude-context/v2.0/"
+          }
+        ]
+      },
+      "ccm-feedback": {
+        "version": "0.1.0",
+        "checksum": "b6ebbd3bc0f3fc7844ccb2a71dde70f7242fc0f4693f9261cee2532f32b14fb0",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      }
+    },
+    "commands": {
+      "ccm-artifact-package-manager": {
+        "version": "0.1.0",
+        "checksum": "2975fc89e55522092bc4b563f91d6c7fb7f5c138147345acbed37cc278663bd0",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      },
+      "ccm-bootstrap": {
+        "version": "0.1.0",
+        "checksum": "ae851431d9d549437672dd561a2127f00fa288beb43350ebe71cd99766c1e767",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      },
+      "ccm-test": {
+        "version": "0.1.0",
+        "checksum": "a6e765e8c723674e8ec211a183a909719c9b3e3069ccdfc45d82b759a5afaca5",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      },
+      "load-code-cli": {
+        "version": "0.1.0",
+        "checksum": "0a6e9a3cd83bca0b9d5c77397b4e7c37dc25b1f3d21fe84726eb5d2fffea1640",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      },
+      "test-logging": {
+        "version": "0.1.0",
+        "checksum": "d7351b9939f899a15a2584849f8dcd6a249863940b8a201b3eafccccbe9f22a3",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      },
+      "ccm-change-logger": {
+        "version": "0.1.0",
+        "checksum": "542c257ead69f1e83a66b200351124c5593550f38e13a206bee0f06585495482",
+        "lastUpdated": "2025-11-21T00:00:00Z",
+        "history": []
+      }
+    }
+  },
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
+    "preuninstall": "node scripts/preuninstall.js",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch --passWithNoTests",
     "test:coverage": "jest --coverage --passWithNoTests",
@@ -84,7 +147,7 @@
     "changelog": "node scripts/generate-changelog.js",
     "docs": "jsdoc -c jsdoc.json",
     "prepare": "husky install",
-    "prepublishOnly": "chmod +x bin/* scripts/logging/* scripts/background/*"
+    "prepublishOnly": "chmod +x bin/* scripts/*.js scripts/logging/* scripts/background/*"
   },
   "dependencies": {
     "@inquirer/checkbox": "^3.0.1",

@@ -40,6 +40,13 @@ function generateTimestamp() {
  * @returns {string} Backup directory path
  */
 function createBackup(artifactPath, artifactName, sourceLocation, metadata = {}) {
+  const validators = require('../utils/validators');
+
+  // Validate sourceLocation to prevent path traversal
+  if (!validators.isValidLocation(sourceLocation)) {
+    throw new Error(`Invalid source location: ${sourceLocation}`);
+  }
+
   const timestamp = generateTimestamp();
   const backupBaseDir = getBackupDir(artifactName);
   const backupDir = path.join(backupBaseDir, timestamp);
@@ -458,6 +465,13 @@ function deleteAllBackups(artifactName) {
  * @returns {string} Backup directory path
  */
 function getCcmBackupDir(location) {
+  const validators = require('../utils/validators');
+
+  // Validate location to prevent path traversal
+  if (!validators.isValidLocation(location)) {
+    throw new Error(`Invalid location: ${location}`);
+  }
+
   if (location === 'global') {
     // Global: ~/.claude/.ccm-backup/
     // Use os.homedir() directly instead of config.getHomeDir() to avoid path traversal issues
@@ -680,6 +694,71 @@ function listCcmBackups(location) {
   return backups;
 }
 
+/**
+ * List backups for specific artifacts
+ * @param {Array<string>} artifactNames - Array of artifact names
+ * @returns {Object} Map of artifact name to backup count
+ */
+function listBackupsForArtifacts(artifactNames) {
+  const homeDir = config.getHomeDir();
+  const backupsDir = path.join(homeDir, 'backups');
+
+  const backupCounts = {};
+
+  artifactNames.forEach(artifactName => {
+    const artifactBackupDir = path.join(backupsDir, artifactName);
+
+    if (!fs.existsSync(artifactBackupDir)) {
+      backupCounts[artifactName] = 0;
+      return;
+    }
+
+    // Count subdirectories (each is a timestamped backup)
+    const entries = fs.readdirSync(artifactBackupDir, { withFileTypes: true });
+    const backupDirs = entries.filter(entry => entry.isDirectory());
+
+    backupCounts[artifactName] = backupDirs.length;
+  });
+
+  return backupCounts;
+}
+
+/**
+ * Remove all backups for specific artifacts
+ * @param {Array<string>} artifactNames - Array of artifact names
+ * @returns {Object} Results with removed and failed counts
+ */
+function removeBackupsForArtifacts(artifactNames) {
+  const homeDir = config.getHomeDir();
+  const backupsDir = path.join(homeDir, 'backups');
+
+  const results = {
+    removed: [],
+    failed: []
+  };
+
+  artifactNames.forEach(artifactName => {
+    const artifactBackupDir = path.join(backupsDir, artifactName);
+
+    if (!fs.existsSync(artifactBackupDir)) {
+      // No backups exist for this artifact
+      return;
+    }
+
+    try {
+      fs.rmSync(artifactBackupDir, { recursive: true, force: true });
+      results.removed.push(artifactName);
+    } catch (error) {
+      results.failed.push({
+        artifact: artifactName,
+        error: error.message
+      });
+    }
+  });
+
+  return results;
+}
+
 // Export all functions
 module.exports = {
   // Old backup system (keep for compatibility)
@@ -698,5 +777,8 @@ module.exports = {
   isFileModified,
   createSmartBackup,
   cleanupOldCcmBackups,
-  listCcmBackups
+  listCcmBackups,
+  // Bulk backup operations
+  listBackupsForArtifacts,
+  removeBackupsForArtifacts
 };

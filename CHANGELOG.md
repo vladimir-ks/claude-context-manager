@@ -1,5 +1,224 @@
 # Changelog
 
+## [0.4.0] - 2025-11-21
+
+### Major Feature: AI-Driven Artifact Version Management
+
+**Purpose:** Autonomous artifact versioning system with CI/CD integration to prevent checksum mismatches, manage artifact versions, and enable users to rollback to previous versions.
+
+### Added
+
+**Core Artifact Management:**
+
+- **`.claude/commands/ccm-artifact-package-manager.md`** - Autonomous AI command for artifact version management
+  - Semantic analysis of changes (analyzes git diffs to decide version bump type)
+  - Decision framework: minor update (<50 lines) → patch (50-200 lines, bug fixes) → minor (200+ lines, features) → major (breaking changes)
+  - Archives old versions from git history using `git show`
+  - Updates package.json with new checksums and version history
+  - Updates ARTIFACT_CHANGELOG.md with detailed change rationale
+  - Updates SKILL.md metadata.version field
+  - Returns structured JSON reports for orchestration
+  - Fully autonomous - no user interaction required
+
+**Artifact Tracking Infrastructure:**
+
+- **`package.json` artifacts section** - Centralized artifact version tracking
+  - `artifacts.skills` - Skill versioning (managing-claude-context v2.0, ccm-feedback v0.1.0)
+  - `artifacts.commands` - Command versioning (5 commands tracked)
+  - Fields: version, checksum (SHA256), lastUpdated, history array
+  - History tracking: previous versions with git tags and archive paths
+
+- **`ARTIFACT_CHANGELOG.md`** - Separate changelog for artifact-level changes
+  - Documents all version bumps with semantic rationale
+  - Diff summaries (files changed, lines added/removed)
+  - AI decision reasoning (why patch vs minor vs major)
+  - Links to archive locations for old versions
+
+**CI/CD Integration:**
+
+- **`scripts/check-artifact-changes.js`** - Checksum detection script
+  - Calculates checksums for all artifacts (skills = directories, commands = files)
+  - Compares with package.json baseline
+  - Exits 0 if match, exits 1 if mismatch
+  - Detailed failure messages with step-by-step instructions for AI agents
+  - Shows expected vs actual checksums
+
+- **`.github/workflows/pr-check.yml`** - Pull request validation workflow
+  - Blocks PRs to master/main if:
+    - Version not bumped in package.json
+    - CHANGELOG.md not updated
+    - Artifact checksums mismatch (changed without processing)
+  - Comprehensive failure messages guide AI agents through resolution
+  - Provides Task tool invocation pattern for artifact manager
+
+- **`.github/workflows/ci-dev.yml`** - Enhanced development workflow
+  - Added artifact checksum check step
+  - Runs on every push to dev branch
+  - Prevents checksum drift during development
+
+- **`.github/workflows/ci-production.yml`** - Production webhook enhancement
+  - Extracts ARTIFACT_CHANGELOG.md content
+  - Sends artifact changelog to N8N webhook alongside main changelog
+  - Enables social media notifications about artifact updates
+
+**User-Facing Features:**
+
+- **`src/commands/update-check.js`** - CLI command for checking artifact updates
+  - `ccm update-check` - Check for artifact version updates
+  - Shows what changed between versions
+  - Extracts relevant changelog excerpts from ARTIFACT_CHANGELOG.md
+  - Provides update instructions (update all or specific artifacts)
+  - Non-blocking notification system
+
+- **`scripts/postinstall.js`** - Enhanced with artifact update notifications
+  - `checkArtifactVersionUpdates()` function checks installed vs available versions
+  - Shows notification after package update if artifact versions changed
+  - Lists all updated artifacts with version transitions
+  - Guides users to `ccm update-check` for details
+  - Guides users to `ccm update --all --global` to apply updates
+
+**CLI Integration:**
+
+- **`bin/claude-context-manager.js`** - Added update-check command route
+  - New command: `update-check` (no aliases)
+  - Registered in help text
+  - Routed to update-check.js main()
+
+**Changelog Management:**
+
+- **`.claude/commands/ccm-change-logger.md`** - Automated commit and changelog management
+  - Detects all changes (artifacts, code, docs, config)
+  - Delegates artifact versioning to ccm-artifact-package-manager via Task tool
+  - Creates semantic commits with detailed messages (files, changes, rationale)
+  - Updates CHANGELOG.md with concise, user-focused entries
+  - Philosophy: Commits = detailed (for developers), CHANGELOG = concise (for users)
+  - Workflow: Pre-flight checks → Detect changes → Delegate artifacts → Create commits → Update changelog
+  - AI-friendly Task delegation pattern with structured reports
+
+**Pre-Uninstall Safety:**
+
+- **`scripts/preuninstall.js`** - NPM pre-uninstall hook for artifact cleanup
+  - Warns users before package removal about registry loss
+  - Lists all installed artifacts (global + projects)
+  - Offers 3 options: remove artifacts / proceed anyway / cancel
+  - Updates registry after artifact removal to prevent corruption
+  - Symlink validation to prevent TOCTOU attacks
+
+**Backup Management Enhancements:**
+
+- **`src/lib/backup-manager.js`** - Bulk backup operations
+  - `listBackupsForArtifacts()` - Count backups for multiple artifacts
+  - `removeBackupsForArtifacts()` - Bulk removal with error handling
+  - Enables uninstall workflow to offer backup cleanup
+
+**Uninstall Improvements:**
+
+- **`src/commands/uninstall.js`** - Enhanced with backup cleanup prompt
+  - After uninstalling artifacts, shows backup counts
+  - Prompts: "Would you also like to remove these backups?"
+  - Bulk removes backups if user confirms
+  - Retains backups if user declines
+
+**Sync Engine Improvements:**
+
+- **`src/lib/sync-engine.js`** - HTML markers for CLAUDE.md content boundary
+  - `<!-- <ccm-claude-code-context-artifacts> -->` opening marker
+  - `<!-- </ccm-claude-code-context-artifacts> -->` closing marker
+  - Clear visual separation between CCM-managed content and user content
+  - Backward compatible with old separator-based format
+  - Improved `extractUserContent()` with marker recognition
+
+### Changed
+
+**Artifact Initialization:**
+
+- Initialized baseline checksums for all existing artifacts:
+  - Skills: managing-claude-context (v2.0), ccm-feedback (v0.1.0)
+  - Commands: ccm-artifact-package-manager, ccm-bootstrap, ccm-test, load-code-cli, test-logging (all v0.1.0)
+- All artifacts tracked with SHA256 checksums
+- Empty history arrays ready for future version bumps
+
+### Fixed
+
+**Critical Security Issues:**
+
+- **Path traversal vulnerability** in `backup-manager.js`
+  - `getCcmBackupDir()` now validates location parameter using `validators.isValidLocation()`
+  - `createBackup()` validates sourceLocation to prevent directory traversal attacks
+  - Prevents attackers from creating backups in arbitrary system directories
+
+- **TOCTOU race condition** in `preuninstall.js`
+  - `removeArtifact()` now checks for symlinks before deletion using `fs.lstatSync()`
+  - Prevents time-of-check-time-of-use attacks where symlinks replace files between check and delete
+  - Throws error and refuses to delete symlinks
+
+- **Registry corruption** in `preuninstall.js`
+  - `removeAllArtifacts()` now updates registry after removing artifacts
+  - Prevents orphaned registry entries after pre-uninstall artifact removal
+  - Registry properly saved after successful artifact deletions
+
+### How It Works
+
+**Development Workflow:**
+```
+1. Developer modifies artifact (skill/command)
+2. Push to dev branch
+3. CI detects checksum mismatch → BLOCKS with instructions
+4. AI agent runs: /ccm-artifact-package-manager
+5. Agent analyzes diff, decides version bump type autonomously
+6. Archives old version from git, updates all tracking files
+7. CI passes, ready to merge
+```
+
+**Release Workflow:**
+```
+1. Create PR to master
+2. PR check validates: version bump, changelog, artifact checksums
+3. Merge triggers production release
+4. Webhook sends both changelogs (main + artifacts) to N8N
+5. NPM package published
+```
+
+**User Experience:**
+```
+1. User updates: npm update -g @vladimir-ks/claude-context-manager
+2. Post-install shows: "Artifact Updates Available"
+3. User runs: ccm update-check (see what changed)
+4. User updates: ccm update --all --global
+```
+
+### Benefits
+
+- **Prevents Checksum Mismatches:** No more false "Modified: Yes" warnings from orphaned files
+- **Version Management:** Users can rollback to previous artifact versions if needed
+- **Transparent Updates:** Users see exactly what changed in artifacts between versions
+- **CI/CD Safety:** Automated blocks prevent releases with unprocessed artifact changes
+- **AI-Friendly:** Detailed error messages guide AI agents through resolution autonomously
+- **Archive System:** Old versions preserved in git-tagged archives for rollback
+
+### Files Changed
+
+**New Files:**
+- `.claude/commands/ccm-artifact-package-manager.md` (381 lines)
+- `.claude/commands/ccm-change-logger.md` (684 lines)
+- `ARTIFACT_CHANGELOG.md` (67 lines)
+- `scripts/check-artifact-changes.js` (209 lines)
+- `scripts/preuninstall.js` (350 lines)
+- `.github/workflows/pr-check.yml` (68 lines)
+- `src/commands/update-check.js` (197 lines)
+
+**Modified Files:**
+- `package.json` - Added artifacts section, version bump to 0.4.0, preuninstall script, ccm-change-logger checksum
+- `.github/workflows/ci-dev.yml` - Added artifact checksum check step
+- `.github/workflows/ci-production.yml` - Added artifact changelog extraction and webhook integration
+- `scripts/postinstall.js` - Added checkArtifactVersionUpdates() function
+- `bin/claude-context-manager.js` - Added update-check command route and help text
+- `src/lib/backup-manager.js` - Added bulk backup operations, path validation security fixes
+- `src/commands/uninstall.js` - Added backup cleanup prompt after artifact removal
+- `src/lib/sync-engine.js` - Added HTML markers for CLAUDE.md content boundary
+
+---
+
 All notable changes to this repository will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

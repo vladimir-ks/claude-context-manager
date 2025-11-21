@@ -276,6 +276,101 @@ function syncClaudeAdditions() {
   }
 }
 
+/**
+ * Check for artifact version updates and notify user
+ * Shows what changed and asks for approval before updating
+ */
+async function checkArtifactVersionUpdates() {
+  try {
+    const packageJson = require('../package.json');
+    const registry = require('../src/lib/registry');
+
+    // Check if package.json has artifacts section
+    if (!packageJson.artifacts) {
+      return; // No artifact tracking yet
+    }
+
+    const reg = registry.load();
+    const updates = [];
+
+    // Check skills
+    if (packageJson.artifacts.skills) {
+      for (const [skillName, metadata] of Object.entries(packageJson.artifacts.skills)) {
+        // Find in registry
+        const globalArtifacts = reg.installations.global.artifacts || [];
+        const installed = globalArtifacts.find(a => a.name === skillName && a.type === 'skill');
+
+        if (installed && installed.version !== metadata.version) {
+          updates.push({
+            type: 'skill',
+            name: skillName,
+            oldVersion: installed.version,
+            newVersion: metadata.version,
+            checksum: metadata.checksum
+          });
+        }
+      }
+    }
+
+    // Check commands
+    if (packageJson.artifacts.commands) {
+      for (const [commandName, metadata] of Object.entries(packageJson.artifacts.commands)) {
+        // Find in registry
+        const globalArtifacts = reg.installations.global.artifacts || [];
+        const installed = globalArtifacts.find(
+          a => a.name === commandName && a.type === 'command'
+        );
+
+        if (installed && installed.version !== metadata.version) {
+          updates.push({
+            type: 'command',
+            name: commandName,
+            oldVersion: installed.version,
+            newVersion: metadata.version,
+            checksum: metadata.checksum
+          });
+        }
+      }
+    }
+
+    if (updates.length === 0) {
+      return; // No updates available
+    }
+
+    // Show update notification
+    log('\n╔════════════════════════════════════════════════════════╗', 'cyan');
+    log('║  Artifact Updates Available                            ║', 'bright');
+    log('╚════════════════════════════════════════════════════════╝\n', 'cyan');
+
+    log(
+      `${updates.length} artifact(s) have new versions available:\n`,
+      'bright'
+    );
+
+    updates.forEach(update => {
+      log(
+        `  ${update.type === 'skill' ? '📦' : '⚡'} ${update.name}`,
+        'cyan'
+      );
+      log(
+        `     ${update.oldVersion} → ${update.newVersion}`,
+        'yellow'
+      );
+    });
+
+    console.log('');
+    log('To see what changed, check ARTIFACT_CHANGELOG.md', 'bright');
+    log('To update now: ccm update-artifacts', 'cyan');
+    log('To check later: ccm update-check', 'cyan');
+    console.log('');
+  } catch (error) {
+    // Silent fail - not critical
+    if (process.env.CCM_DEBUG) {
+      console.error('Artifact update check failed:', error);
+    }
+  }
+}
+
 function autoUpdateArtifacts() {
   try {
     const registry = require('../src/lib/registry');
@@ -466,7 +561,7 @@ function autoUpdateArtifacts() {
 function showWelcomeMessage() {
   console.log('');
   log('═════════════════════════════════════════════════════════════', 'cyan');
-  log('  Claude Context Manager v0.2.1', 'bright');
+  log('  Claude Context Manager v0.4.0', 'bright');
   log('  Context Engineering Platform for Claude Code', 'blue');
   log('═════════════════════════════════════════════════════════════', 'cyan');
   console.log('');
@@ -641,6 +736,16 @@ async function main() {
       } catch (error) {
         log(`⚠ Auto-update failed: ${error.message}`, 'yellow');
         // Continue - not critical
+      }
+
+      // Check for artifact version updates
+      try {
+        await checkArtifactVersionUpdates();
+      } catch (error) {
+        // Silent fail - not critical
+        if (process.env.CCM_DEBUG) {
+          console.error('Artifact version check failed:', error);
+        }
       }
     }
 
