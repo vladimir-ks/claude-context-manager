@@ -3,7 +3,7 @@ name: managing-claude-context
 description: Master skill for AI context engineering. Use for creating and managing the entire context ecosystem /commands, /agents, /skills, CLAUDE.md files, and their holistic architecture.
 metadata:
   status: confirmed
-  version: 2.1
+  version: 2.1.1
   modules: [orchestration, context-engineering, subagents, architecture]
   tldr: "A comprehensive guide to architecting and creating a holistic, efficient, and scalable context ecosystem for advanced AI agents, covering everything from individual artifact creation to multi-agent orchestration patterns."
   dependencies: [".claude/skills/orchestrating-subagents/SKILL.md"]

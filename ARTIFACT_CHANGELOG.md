@@ -13,6 +13,59 @@ This file tracks version changes for all packaged artifacts (skills and commands
 
 ---
 
+## [managing-claude-context] v2.1 → v2.1.1 (2025-11-21)
+
+### Type: Patch Version Bump
+
+**Changes:**
+
+**SKILL.md:**
+
+- Section 3.5 "Recipe Pattern": Added clarification on progressive disclosure vs recipe loading patterns
+- Explained both patterns are valid for different execution modes (main orchestration vs isolated commands)
+- Added "Why Both Patterns" subsection to resolve apparent contradiction
+
+**subagent-design-guide.md:**
+
+- Added Section 8 "When Specialists Load the Skill" (47 lines)
+- Explains when specialists should optionally load SKILL.md vs executing from briefing only
+- Provides guidance for command/agent design with optional skill loading patterns
+- Fixes broken reference from SKILL.md line 269
+
+**Diff Summary:**
+
+- Files modified: 2
+- Lines added: +60
+- Lines removed: -1
+- Total changes: 61 lines
+
+**Decision Rationale:**
+Patch version bump for bug fixes and clarifications. Fixed broken Section 8 reference in subagent-design-guide.md and resolved architectural contradiction about loading patterns. Changes are purely clarifying existing functionality - no new features added, no breaking changes. Total changes < 200 lines and focused on fixing documentation issues.
+
+**Archive Location:** `archive-packages/skills/managing-claude-context/v2.1/`
+
+**New Checksum:** sha256:1deffb2cd8a1d988e7c7306374353f17f0719da546228fa8e066002ca82fb0d2
+
+---
+
+## [ccm-change-logger] Checksum Update (2025-11-21)
+
+### Type: Minor Update (No Version Bump)
+
+**Changes:**
+
+- Initial tracking of ccm-change-logger command file (697 lines)
+- Automated changelog and commit management command
+- Manages complete commit workflow: detects changes, creates logical commits, updates CHANGELOG.md
+- Coordinates with ccm-artifact-package-manager for artifact versioning
+
+**Decision Rationale:**
+File was tracked in package.json but newly added to repository. This is the initial checksum tracking of existing file content. No version bump needed as this is baseline tracking for version 0.1.0.
+
+**Checksum:** sha256:430ec75199101bc5748a9075306903e840453868441e980a08b240b6e6ee981e
+
+---
+
 ## [managing-claude-context] v2.0 → v2.1 (2025-11-21)
 
 ### Type: Minor Version Bump

@@ -72,10 +72,17 @@
   "artifacts": {
     "skills": {
       "managing-claude-context": {
-        "version": "2.1",
-        "checksum": "a1dce6f7229682b687504dcaa65ae9c2efcde1a54a285d997d592e18b30a975c",
-        "lastUpdated": "2025-11-21T18:49:20Z",
+        "version": "2.1.1",
+        "checksum": "1deffb2cd8a1d988e7c7306374353f17f0719da546228fa8e066002ca82fb0d2",
+        "lastUpdated": "2025-11-21T19:59:00Z",
         "history": [
+          {
+            "version": "2.1",
+            "released": "2025-11-21T18:49:20Z",
+            "checksum": "a1dce6f7229682b687504dcaa65ae9c2efcde1a54a285d997d592e18b30a975c",
+            "git_tag": "managing-claude-context-v2.1",
+            "archive_path": "archive-packages/skills/managing-claude-context/v2.1/"
+          },
           {
             "version": "2.0",
             "released": "2025-11-21T00:00:00Z",
@@ -125,8 +132,8 @@
       },
       "ccm-change-logger": {
         "version": "0.1.0",
-        "checksum": "542c257ead69f1e83a66b200351124c5593550f38e13a206bee0f06585495482",
-        "lastUpdated": "2025-11-21T00:00:00Z",
+        "checksum": "430ec75199101bc5748a9075306903e840453868441e980a08b240b6e6ee981e",
+        "lastUpdated": "2025-11-21T19:59:00Z",
         "history": []
       }
     }
