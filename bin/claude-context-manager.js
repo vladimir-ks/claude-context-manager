@@ -28,6 +28,7 @@ const cleanupCmd = require('../src/commands/cleanup');
 const activateCmd = require('../src/commands/activate');
 const feedbackCmd = require('../src/commands/feedback');
 const notificationsCmd = require('../src/commands/notifications');
+const updateReminder = require('../src/utils/update-reminder');
 
 const VERSION = '0.4.0';
 const HOME_DIR = path.join(os.homedir(), '.claude-context-manager');
@@ -70,7 +71,7 @@ function showHelp() {
   console.log('  list, ls              List available artifacts');
   console.log('  install, i            Install artifact(s) - interactive mode available');
   console.log('  uninstall, un         Uninstall artifact(s) - interactive mode available');
-  console.log('  update, up            Update installed artifacts');
+  console.log('  update, up            Update CCM to latest version (no args) or artifacts (with args)');
   console.log('  update-check          Check for artifact version updates');
   console.log('  restore               Restore artifact from backup - interactive mode');
   console.log('  cleanup               Manage and clean up old backups - interactive mode');
@@ -97,6 +98,12 @@ function showHelp() {
   console.log('');
   console.log('  # Check installation status');
   log('  ccm status --global', 'cyan');
+  console.log('');
+  console.log('  # Update CCM to latest version');
+  log('  ccm update', 'cyan');
+  console.log('');
+  console.log('  # Update all installed artifacts');
+  log('  ccm update --all --global', 'cyan');
   console.log('');
   console.log('  # Activate premium license');
   log('  ccm activate YOUR_LICENSE_KEY', 'cyan');
@@ -224,6 +231,12 @@ async function main() {
     // Check home directory exists
     if (!checkHomeDirectory()) {
       process.exit(1);
+    }
+
+    // Show update reminder if available (non-blocking, cache-based)
+    const reminder = updateReminder.getUpdateReminder();
+    if (reminder) {
+      console.log(reminder);
     }
 
     // Route commands
